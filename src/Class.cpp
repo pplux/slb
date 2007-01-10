@@ -40,7 +40,11 @@ namespace SLB {
 	bool Class::checkInstance(lua_State *L, const void *obj)
 	{
 		int top = lua_gettop(L);
+
+		// get metatable:
 		push(L);
+		lua_getmetatable(L,-1);
+
 		lua_getfield(L, -1, "__objects");
 		lua_pushlightuserdata(L, (void*)obj);
 		lua_rawget(L, -2);
@@ -62,7 +66,11 @@ namespace SLB {
 			(lua_newuserdata(L, sizeof(Instance*))); // top+1
 		*obj = instance;
 
-		push(L);  // top+2
+		// get metatable (class table's metatable)
+		push(L);  // (table) top+2
+		lua_getmetatable(L,-1);
+		lua_replace(L,-2);
+
 		lua_pushvalue(L,-1);
 		lua_setmetatable(L, top+1);
 
@@ -193,16 +201,15 @@ namespace SLB {
 
 	void Class::pushImplementation(lua_State *L)
 	{
-		Table::pushImplementation(L); // base (methods, values, ...)
-		lua_getmetatable(L,-1); // get the table's metatable
-		lua_replace(L,-2); // remove the table and keep only the metatable
-
+		Table::pushImplementation(L);
+		lua_getmetatable(L, -1);
 		lua_pushstring(L, "__objects");
 		lua_newtable(L);
 		lua_rawset(L, -3);
 		lua_pushstring(L, "__class_ptr");
 		lua_pushlightuserdata(L, (void*)this);
 		lua_rawset(L, -3);
+		lua_pop(L,1); // remove metatable
 	}
 	
 	void Class::inheritsFrom(const std::type_info &base, ConvertToBase func)
@@ -226,6 +233,7 @@ namespace SLB {
 	{
 		Instance* instance = 
 			*reinterpret_cast<Instance**>(lua_touserdata(L, 1));
+		SLB_DEBUG(6, "L(%p) GC of instance %p(%s)", L, instance->getObj(), instance->getClass()->getName().c_str());
 		if (!instance->isConst() && instance->getObj())
 		{
 			Class *c = instance->getClass();

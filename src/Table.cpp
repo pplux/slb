@@ -146,7 +146,7 @@ namespace SLB {
 
 	int Table::__gc(lua_State *L)
 	{
-		SLB_DEBUG(2, "L(%p) Table(%p) __gc metamethod not implemented", L, (void*)this);
+		luaL_error(L, "(%p) __gc metamethod not implemented", (void*)this);
 		return 0;
 	}
 
