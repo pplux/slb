@@ -33,13 +33,12 @@ public:
 	virtual void method2(float);
 	static int methods(float a, float b);
 
+	int method_overloaded(int a);
+	float method_overloaded(float a) const;
+
 protected:
 	float _value;
 
 };
-
-void registerClass1();
-void unregisterClass1();
-
 
 #endif

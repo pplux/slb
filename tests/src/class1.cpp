@@ -45,10 +45,19 @@ Class1::~Class1()
 	SLB_DEBUG(1, "Class1 destructor %p", this);
 }
 
+int Class1::method_overloaded(int a)
+{
+	return a*2;	
+}
+float Class1::method_overloaded(float a) const
+{
+	return a/2.0;
+}
+
 int Class1::method1(float a, float b)
 {
 	SLB_DEBUG(0, "Class1(%p)::method1(%f,%f)",this,a,b);
-	int r = (int) ( a / b ) + _value;
+	int r = (int) ( a / b  + _value );
 	return r;
 }
 
@@ -62,28 +71,9 @@ void Class1::method2(float)
 {
 }
 
-void registerClass1()
-{
-	SLB::Class *c =  0;
-	c = SLB::Manager::getInstance().getOrCreateClass(typeid(Class1));
-	c->setName("Class1");
-	c->set( "method1", SLB::FuncCall::create(&Class1::method1) );
-	c->set( "methods", SLB::FuncCall::create(Class1::methods) );
-	c->inheritsFrom<Class1, Base1>();
-	c->inheritsFrom<Class1, Base2>();
-	c->setConstructor( SLB::Constructor<Class1(int)>::create() );
-	c->setGCCallback( SLB::Destructor<Class1> );
-
-	c = SLB::Manager::getInstance().getOrCreateClass(typeid(Base1));
-	c->setName("Base1");
-	c->set( "method_b1", SLB::FuncCall::create(&Base1::method_b1) );
-
-	c = SLB::Manager::getInstance().getOrCreateClass(typeid(Base2));
-	c->setName("Base2");
-	c->set( "method_b2", SLB::FuncCall::create(&Base2::method_b2) );
-	c->inheritsFrom<Base2, Base1>();
-}
-
-void unregisterClass1()
-{
-}
+SLB_CLASS(Class1)
+	SLB_Func("method1", &Class1::method1)
+	SLB_Func("methods",  Class1::methods)
+	SLB_Func("method_overloaded1", static_cast<int (Class1::*)(int)>(&Class1::method_overloaded))
+	SLB_Constructor(int)
+SLB_END
