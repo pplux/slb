@@ -7,22 +7,39 @@ namespace SLB {
 	class Instance 
 	{
 	public:
-		Instance(Class *c, void *obj) : _class(c), _const(false), _obj(obj) {}
-		Instance(Class *c, const void *obj) : _class(c), _const(true), _const_obj(obj) {}
+		Instance(Class *c, void *obj) : _class(c), _const(false), _callGC(true), _obj(obj) {}
+		Instance(Class *c, const void *obj) : _class(c), _const(true), _callGC(false), _const_obj(obj) {}
+		void destroy(lua_State *L);
 
 		bool isConst() const { return _const; }
 		void *getObj() { return _obj; }
 		const void* getObj() const { return _const_obj; }
 		Class *getClass() { return _class.get(); }
 
+		void setGC(bool b) { _callGC = b; }
+
 	protected:
+		~Instance() {}
 		ref_ptr<Class> _class;
 		bool _const;
+		bool _callGC;
 		union {
 			void *_obj;
 			const void *_const_obj;
 		};
 	};
+
+	void Instance::destroy( lua_State *L )
+	{
+		if (!_const && _obj )
+		{
+			if (_callGC && _class->_onGarbageCollection)
+			{
+				_class->_onGarbageCollection( _obj, L);
+			}
+		}
+		delete this;
+	}
 
 
 	Class::Class(const std::type_info &ti) : 
@@ -88,11 +105,13 @@ namespace SLB {
 		}
 	}
 
-	void Class::pushInstance(lua_State *L, void *obj)
+	void Class::pushInstance(lua_State *L, void *obj, bool callGC)
 	{
 		if (!checkInstance(L, obj))
 		{
-			pushRawInstance(L, new Instance(this, obj));
+			Instance *instance = new Instance(this, obj); 
+			instance->setGC(callGC);
+			pushRawInstance(L, instance);
 		}
 	}
 
@@ -203,12 +222,22 @@ namespace SLB {
 	{
 		Table::pushImplementation(L);
 		lua_getmetatable(L, -1);
+		
 		lua_pushstring(L, "__objects");
 		lua_newtable(L);
 		lua_rawset(L, -3);
+		
 		lua_pushstring(L, "__class_ptr");
 		lua_pushlightuserdata(L, (void*)this);
 		lua_rawset(L, -3);
+
+		if ( _constructor.valid() )
+		{
+			lua_pushstring(L, "__call");
+			_constructor->push(L);
+			lua_rawset(L, -3);
+		}
+
 		lua_pop(L,1); // remove metatable
 	}
 	
@@ -224,9 +253,9 @@ namespace SLB {
 		Manager::getInstance().setName(_name, _typeid);
 	}
 	
-	int Class::__call(lua_State*)
+	void Class::setConstructor( FuncCall *constructor )
 	{
-		return 0;
+		_constructor = constructor;
 	}
 	
 	int Class::__gc(lua_State *L)
@@ -234,12 +263,13 @@ namespace SLB {
 		Instance* instance = 
 			*reinterpret_cast<Instance**>(lua_touserdata(L, 1));
 		SLB_DEBUG(6, "L(%p) GC of instance %p(%s)", L, instance->getObj(), instance->getClass()->getName().c_str());
-		if (!instance->isConst() && instance->getObj())
-		{
-			Class *c = instance->getClass();
-			if (c->_onGarbageCollection) c->_onGarbageCollection( instance->getObj(), L);
-		}
-		delete instance;
+		instance->destroy(L); 
+		return 0;
+	}
+
+	int Class::__call(lua_State *L)
+	{
+		luaL_error(L, "Class '%s' is abstract ( or doesn't have a constructor ) ", _name.c_str());
 		return 0;
 	}
 	

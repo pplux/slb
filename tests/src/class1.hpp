@@ -27,7 +27,7 @@ protected:
 class Class1 : public Base2
 {
 public:
-	Class1();
+	Class1(int v);
 	virtual ~Class1();
 	int method1(float a, float b);
 	virtual void method2(float);

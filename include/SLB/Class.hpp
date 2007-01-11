@@ -5,6 +5,7 @@
 #include "Object.hpp"
 #include "ref_ptr.hpp"
 #include "FuncCall.hpp"
+#include "ClassHelpers.hpp"
 #include "Table.hpp"
 #include <typeinfo>
 #include <map>
@@ -36,7 +37,7 @@ namespace SLB {
 		const std::string &getName() const      { return _name; }
 		void setName(const std::string&);
 
-		void pushInstance(lua_State*, void *obj);
+		void pushInstance(lua_State*, void *obj, bool callGC = true);
 		void pushInstance(lua_State*, const void *obj);
 		void* getInstance(lua_State*, int pos) const;
 		const void* getConstInstance(lua_State*, int pos) const;
@@ -46,6 +47,8 @@ namespace SLB {
 
 		template<class This, class Base>
 		void inheritsFrom();
+
+		void setConstructor( FuncCall *constructor );
 
 	protected:
 		Class(const std::type_info&);
@@ -63,6 +66,7 @@ namespace SLB {
 		Callback    _onPushCallback;
 		Callback    _onGarbageCollection;
 		BaseClassMap _baseClasses;
+		ref_ptr<FuncCall> _constructor;
 
 	private:
 		void pushRawInstance(lua_State *, Instance *);

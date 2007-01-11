@@ -4,11 +4,14 @@
 
 void execute(lua_State *L, const char *command)
 {
+	std::cout << "-----------------------------------------" << std::endl;
+	std::cout << "- Execute : " << command << std::endl << std::endl;
 	if (luaL_dostring(L, command))
 	{
 		std::cout << "ERROR... " << lua_tostring(L, -1) << std::endl;
 		lua_pop(L,1);
 	}
+	std::cout << "-----------------------------------------" << std::endl;
 }
 
 int main(int, char **)
@@ -21,18 +24,14 @@ int main(int, char **)
 	SLB_DEBUG(0, "Register Class1....");
 	registerClass1();
 
-	Class1 obj;
+	Class1 obj(8);
 
-	SLB::ref_ptr<SLB::Table> table = new SLB::Table("/",true);
-	table->set("tmp/tmp2/tmp3/obj1", SLB::Value::autoDelete(new Class1));
+	SLB::ref_ptr<SLB::Table> table = new SLB::Table("::",true);
+	table->set("Class1", SLB::Value::autoDelete(new Class1(2)));
 	table->push(L);
 	lua_setglobal(L,"SLB");
-	execute(L, "SLB.tmp.tmp2.tmp3.obj1:method1(50,10)");	
-	execute(L, "SLB.tmp.tmp2.tmp3.obj1.methods(50,5)");	
-	SLB::push(L, &obj);
-	lua_setglobal(L, "obj");
-	execute(L, "obj:method1(5,6)");
-	execute(L, "obj:method_b2(5)");
+	execute(L, "c = SLB.Class1(6)");
+
 
 
 	SLB_DEBUG(0, "End of test....");

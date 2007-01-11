@@ -137,7 +137,8 @@ namespace SLB {
 	template<class T>
 	inline void AutoDeleteValue<T>::pushImplementation(lua_State *L)
 	{
-		SLB::push(L, _obj);
+		// do not call GC on this object.
+		SLB::Private::Type<T*>::push(L, _obj, false);
 	}
 
 	template<class T>

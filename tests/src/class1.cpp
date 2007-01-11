@@ -35,9 +35,9 @@ float Base2::method_b2(float a)
 	return _data[0];
 }
 
-Class1::Class1()
+Class1::Class1(int v) : _value(v)
 {
-	SLB_DEBUG(1, "Class1 constructor %p", this);
+	SLB_DEBUG(1, "Class1 constructor %p value = %d", this, v);
 }
 
 Class1::~Class1()
@@ -48,7 +48,7 @@ Class1::~Class1()
 int Class1::method1(float a, float b)
 {
 	SLB_DEBUG(0, "Class1(%p)::method1(%f,%f)",this,a,b);
-	int r = (int) ( a / b );
+	int r = (int) ( a / b ) + _value;
 	return r;
 }
 
@@ -71,6 +71,8 @@ void registerClass1()
 	c->set( "methods", SLB::FuncCall::create(Class1::methods) );
 	c->inheritsFrom<Class1, Base1>();
 	c->inheritsFrom<Class1, Base2>();
+	c->setConstructor( SLB::Constructor<Class1(int)>::create() );
+	c->setGCCallback( SLB::Destructor<Class1> );
 
 	c = SLB::Manager::getInstance().getOrCreateClass(typeid(Base1));
 	c->setName("Base1");

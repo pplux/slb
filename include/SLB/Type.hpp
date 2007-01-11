@@ -56,7 +56,7 @@ namespace Private {
 	template<class T>
 	struct Type<T*>
 	{
-		static void push(lua_State *L, T *obj)
+		static void push(lua_State *L, T *obj, bool callGC = true)
 		{
 			if (obj == 0) 
 			{
@@ -67,7 +67,7 @@ namespace Private {
 			if (c) 
 			{
 				SLB_DEBUG(6, "Push obj %p (%s)",obj,c->getName().c_str());
-				c->pushInstance(L, obj);
+				c->pushInstance(L, dynamic_cast<void*>(obj), callGC );
 			}
 			else
 			{
@@ -76,7 +76,7 @@ namespace Private {
 				if (c)
 				{
 					SLB_DEBUG(6, "Push const-obj %p (%s)",obj,c->getName().c_str());
-					c->pushInstance(L, obj);
+					c->pushInstance(L, obj, callGC);
 				}
 				else
 				{

@@ -43,8 +43,10 @@ namespace SLB
 		const std::type_info* getArgType(size_t p) const { return _Targs[p]; }
 		const std::type_info* getReturnedType() const { return _Treturn; }
 
+		// items to remove from the begining 
+		void setRemoveItems(int num) { _remove = num; }
 	protected:
-		FuncCall();
+		FuncCall(int items_to_remove = 0);
 		virtual ~FuncCall();
 	
 		void pushImplementation(lua_State *L);
@@ -54,6 +56,7 @@ namespace SLB
 		const std::type_info* _Treturn;
 	private:
 		static int _call(lua_State *L);
+		int _remove;
 
 	friend class Manager;	
 	friend class Class;	
