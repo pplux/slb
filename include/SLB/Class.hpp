@@ -3,6 +3,7 @@
 
 #include "SPP.hpp"
 #include "Export.hpp"
+#include "Debug.hpp"
 #include "ClassInfo.hpp"
 #include "ClassHelpers.hpp"
 #include "Manager.hpp"
@@ -17,55 +18,72 @@ struct lua_State;
 
 namespace SLB {
 	
+	//----------- Policies -----------------------------------
 	template<class T>
-	struct DefaultWrapper
+	struct AlwaysDelete
 	{
 		static void onPush(void *, lua_State *) {}
 		static void onGC(void *raw_obj, lua_State*)    { T *obj = reinterpret_cast<T*>(raw_obj); delete obj; }
 	};
 
-	template< typename T, typename W = DefaultWrapper<T> >
+	template<class T>
+	struct NeverDelete
+	{
+		static void onPush(void *, lua_State *) {}
+		static void onGC(void *raw_obj, lua_State*) {}
+	};
+
+	template< typename T, typename W = AlwaysDelete<T> >
 	class Class {
 	public:
+		typedef Class<T,W> Self;
+
 		Class(const char *name);
 
-		Class<T,W> &rawSet(const char *name, Object *obj);
+		Self &rawSet(const char *name, Object *obj);
 
 		template<typename TValue>
-		Class<T,W> &set(const char *name, const TValue &obj)
+		Self &set(const char *name, const TValue &obj)
 		{ return rawSet(name, (Object*) Value::copy(obj)); }
 
 		template<typename TValue>
-		Class<T,W> &set_ref(const char *name, TValue obj)
+		Self &set_ref(const char *name, TValue obj)
 		{ return rawSet(name, Value::ref(obj)); }
 
 		template<typename TValue>
-		Class<T,W> &set_autoDelete(const char *name, TValue *obj)
+		Self &set_autoDelete(const char *name, TValue *obj)
 		{ return rawSet(name, Value::autoDelete(obj)); }
 
-		Class<T,W> &constructor();
+		Self &constructor();
 
 		template<typename TBase>
-		Class<T,W> &inherits()
+		Self &inherits()
 		{ _class->inheritsFrom<T,TBase>(); return *this;}
+
+
+		Self &__add()
+		{ SLB_DEBUG(0, "NOT IMPLEMENTED!"); return *this; }
+
+		Self &__mult()
+		{ SLB_DEBUG(0, "NOT IMPLEMENTED!"); return *this; }
 
 		#define SLB_REPEAT(N) \
 		\
 			/* Methods */ \
 			template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-			Class<T,W> &set(const char *name, R (T::*func)(SPP_ENUM_D(N,T)) ); \
+			Self &set(const char *name, R (T::*func)(SPP_ENUM_D(N,T)) ); \
 		\
 			/* CONST Methods */ \
 			template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-			Class<T,W> &set(const char *name, R (T::*func)(SPP_ENUM_D(N,T)) const ); \
+			Self &set(const char *name, R (T::*func)(SPP_ENUM_D(N,T)) const ); \
 		\
 			/* C-functions  */ \
 			template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-			Class<T,W> &set(const char *name, R (func)(SPP_ENUM_D(N,T)) ); \
+			Self &set(const char *name, R (func)(SPP_ENUM_D(N,T)) ); \
 		\
 			/* constructors */ \
 			template<class T0 SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-			Class<T,W> &constructor(); \
+			Self &constructor(); \
 
 		SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
 		#undef SLB_REPEAT
