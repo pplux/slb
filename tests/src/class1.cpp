@@ -70,6 +70,7 @@ int Class1::methods(float a, float b)
 void Class1::method2(float)
 {
 }
+
 /*
 SLB_CLASS(Class1)
 	SLB_Method(method1)
