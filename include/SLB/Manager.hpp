@@ -10,6 +10,7 @@
 namespace SLB {
 
 	class ClassInfo;
+	class Namespace;
 
 	class SLB_EXPORT Manager : public virtual Object
 	{
@@ -26,13 +27,18 @@ namespace SLB {
 		ClassInfo *getClass(const std::string&);
 		ClassInfo *getOrCreateClass(const std::type_info &);
 
+		// set a global value ( will be registered authomatically on every lua_State )
+		void set(const std::string &, Object *obj);
+
+		void registerSLB(lua_State *L);
+
 	protected:
 
 		Manager();
 		virtual ~Manager();
 
 		void pushImplementation(lua_State *L);
-		void setName( const std::string&, const std::type_info*);
+		void setName( const std::string &old, const std::string &new_name, const std::type_info*);
 		void addClass( ClassInfo *c );
 
 	private:
@@ -42,6 +48,7 @@ namespace SLB {
 		static ref_ptr<Manager> _instance;
 		ClassMap _classes;
 		NameMap  _names;
+		ref_ptr<Namespace> _global;
 
 		friend class ClassInfo;
 	};

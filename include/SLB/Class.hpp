@@ -30,7 +30,7 @@ namespace SLB {
 	struct NeverDelete
 	{
 		static void onPush(void *, lua_State *) {}
-		static void onGC(void *raw_obj, lua_State*) {}
+		static void onGC(void *, lua_State*) {}
 	};
 
 	template< typename T, typename W = AlwaysDelete<T> >

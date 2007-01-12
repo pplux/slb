@@ -11,17 +11,10 @@ namespace SLB {
 	template<class C>
 	struct Operator
 	{
-		static C* defaultAdd(const C *a,  const C *b)  { return new C( (*a)+(*b) ); }	
-		static C* defaultSub(const C *a,  const C *b)  { return new C( (*a)+(*b) ); }	
-		static C* defaultMult(const C *a, const C *b)  { return new C( (*a)+(*b) ); }	
-		static C* defaultDiv(const C *a,  const C *b)  { return new C( (*a)+(*b) ); }	
-	};
-
-	template<class T>
-	inline void Destructor(void *raw, lua_State *)
-	{
-		T *obj = reinterpret_cast<T*>(raw);
-		delete obj;
+		static C* defaultAdd (const C *a,  const C *b)  { return new C( (*a)+(*b) ); }	
+		static C* defaultSub (const C *a,  const C *b)  { return new C( (*a)-(*b) ); }	
+		static C* defaultMult(const C *a, const C *b)   { return new C( (*a)*(*b) ); }	
+		static C* defaultDiv (const C *a,  const C *b)  { return new C( (*a)/(*b) ); }	
 	};
 
 	template<class T>

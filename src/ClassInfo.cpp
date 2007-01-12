@@ -249,8 +249,8 @@ namespace SLB {
 
 	void ClassInfo::setName(const std::string& name)
 	{
+		Manager::getInstance().setName(_name, name, _typeid);
 		_name = name;
-		Manager::getInstance().setName(_name, _typeid);
 	}
 	
 	void ClassInfo::setConstructor( FuncCall *constructor )

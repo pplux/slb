@@ -10,6 +10,7 @@ namespace SLB {
 	Manager::Manager()
 	{
 		SLB_DEBUG(0, "Manager initialization");
+		_global = new Namespace();
 	}
 
 	Manager::~Manager()
@@ -17,9 +18,32 @@ namespace SLB {
 		SLB_DEBUG(0, "Manager destruction");
 	}
 	
+	void Manager::registerSLB(lua_State *L)
+	{
+		int top = lua_gettop(L);
+
+		// use _G metatable for our values...
+		lua_getmetatable(L, LUA_GLOBALSINDEX);
+		if (lua_isnil(L, -1))
+		{
+			lua_newtable(L);
+		}
+		else
+		{
+			SLB_DEBUG(0, "WARNING: Lua_State %p has a global metatable...", L);
+		}
+		lua_pushstring(L,"__index");
+		push(L);
+		lua_rawset(L,-3);
+		lua_setmetatable(L, LUA_GLOBALSINDEX);
+
+		lua_settop(L,top);
+	}
+	
 	void Manager::pushImplementation(lua_State *L)
 	{
-		lua_newtable(L);
+		_global->push(L); // top +1
+		
 	}
 
 	Manager *Manager::getInstancePtr()
@@ -80,9 +104,23 @@ namespace SLB {
 		return c;
 	}
 	
-	void Manager::setName( const std::string &id, const std::type_info *ti)
+	void Manager::set(const std::string &name, Object *obj)
 	{
-		_names[id] = ti;
+		_global->set(name, obj);
+	}
+	
+	void Manager::setName( const std::string &old, const std::string &new_name, const std::type_info *ti)
+	{
+		if (old != "")
+		{
+			_names.erase(old);
+			_global->erase(old);
+		}
+		if (new_name != "")
+		{
+			_names[new_name] = ti;
+			_global->set(new_name, getOrCreateClass(*ti) );
+		}
 	}
 }
 

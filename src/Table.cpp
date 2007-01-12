@@ -108,7 +108,7 @@ namespace SLB {
 
 		if (lua_type(L, 2) == LUA_TSTRING)
 		{
-			result = get(L, std::string( lua_tostring(L,2) ) );
+			result = get(L, std::string(lua_tostring(L,2)));
 		}
 		else if (lua_type(L, 2) == LUA_TNUMBER)
 		{
