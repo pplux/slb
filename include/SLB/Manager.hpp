@@ -9,22 +9,22 @@
 
 namespace SLB {
 
-	class Class;
+	class ClassInfo;
 
 	class SLB_EXPORT Manager : public virtual Object
 	{
 	public:
-		typedef std::map< const std::type_info*, ref_ptr<Class> > ClassMap;
+		typedef std::map< const std::type_info*, ref_ptr<ClassInfo> > ClassMap;
 		typedef std::map< const std::string, const std::type_info *> NameMap;
 
 		static Manager &getInstance();
 		static Manager *getInstancePtr();
 
-		const Class *getClass(const std::type_info&) const;
-		const Class *getClass(const std::string&) const;
-		Class *getClass(const std::type_info&);
-		Class *getClass(const std::string&);
-		Class *getOrCreateClass(const std::type_info &);
+		const ClassInfo *getClass(const std::type_info&) const;
+		const ClassInfo *getClass(const std::string&) const;
+		ClassInfo *getClass(const std::type_info&);
+		ClassInfo *getClass(const std::string&);
+		ClassInfo *getOrCreateClass(const std::type_info &);
 
 	protected:
 
@@ -33,7 +33,7 @@ namespace SLB {
 
 		void pushImplementation(lua_State *L);
 		void setName( const std::string&, const std::type_info*);
-		void addClass( Class *c );
+		void addClass( ClassInfo *c );
 
 	private:
 		Manager(const Manager&);
@@ -43,7 +43,7 @@ namespace SLB {
 		ClassMap _classes;
 		NameMap  _names;
 
-		friend class Class;
+		friend class ClassInfo;
 	};
 	
 	//--------------------------------------------------------------------

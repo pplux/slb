@@ -1,12 +1,13 @@
 #ifndef __SLB_CLASS__
 #define __SLB_CLASS__
 
+#include "SPP.hpp"
 #include "Export.hpp"
-#include "Object.hpp"
-#include "ref_ptr.hpp"
-#include "FuncCall.hpp"
+#include "ClassInfo.hpp"
 #include "ClassHelpers.hpp"
-#include "Table.hpp"
+#include "Manager.hpp"
+#include "FuncCall.hpp"
+#include "Value.hpp"
 #include <typeinfo>
 #include <map>
 #include <vector>
@@ -15,92 +16,121 @@
 struct lua_State;
 
 namespace SLB {
-
-	class SLB_EXPORT Namespace : public Table
-	{
-	public:
-		Namespace( bool cacheable = true ) : Table("::", cacheable) {}
-	protected:
-		virtual ~Namespace() {}
-	};
-
-	class Instance;
-
-	class SLB_EXPORT Class : public Namespace {
-	public:
-		// some typedefs
-		typedef void (*Callback) (void*, lua_State*) ;
-		typedef void* (*ConvertToBase) (void*);
-		typedef std::map< ref_ptr<Class>, ConvertToBase > BaseClassMap;
-
-		const std::type_info *getTypeid() const { return _typeid; }
-		const std::string &getName() const      { return _name; }
-		void setName(const std::string&);
-
-		void pushInstance(lua_State*, void *obj, bool callGC = true);
-		void pushInstance(lua_State*, const void *obj);
-		void* getInstance(lua_State*, int pos) const;
-		const void* getConstInstance(lua_State*, int pos) const;
-
-		void setPushCallback(Callback c) { _onPushCallback = c; }
-		void setGCCallback(Callback c)   { _onGarbageCollection = c; }
-
-		template<class This, class Base>
-		void inheritsFrom();
-
-		void setConstructor( FuncCall *constructor );
-
-	protected:
-		Class(const std::type_info&);
-		virtual ~Class();
-
-		void pushImplementation(lua_State *);
-		Instance* getRawInstance(lua_State *, int) const;
-
-		virtual int get(lua_State *L, const std::string &key);
-		virtual int __call(lua_State*);
-		virtual int __gc(lua_State*);
-
-		const std::type_info *_typeid;
-		std::string _name;
-		Callback    _onPushCallback;
-		Callback    _onGarbageCollection;
-		BaseClassMap _baseClasses;
-		ref_ptr<FuncCall> _constructor;
-
-	private:
-		void pushRawInstance(lua_State *, Instance *);
-		bool checkInstance(lua_State *, const void *obj);
-		void inheritsFrom(const std::type_info &base, ConvertToBase func);
-		void *convertFrom(void *obj, const Class *derived_class) const;
-
-		Class(const Class&);
-		Class& operator=(const Class&);
-
-		friend class Manager;
-		friend class Instance;
-	};
-
-	//--------------------------------------------------------------------
-	// Inline implementations:
-	//--------------------------------------------------------------------
 	
-	template<class D, class B>
-	struct Conversor
+	template<class T>
+	struct DefaultWrapper
 	{
-		static void* convert(void *raw_d)
-		{
-			D* derived = reinterpret_cast<D*>(raw_d);
-			B* base = derived;
-			return (void*) base;
-		}
+		static void onPush(void *, lua_State *) {}
+		static void onGC(void *raw_obj, lua_State*)    { T *obj = reinterpret_cast<T*>(raw_obj); delete obj; }
 	};
-		
-	template<class D, class B>
-	inline void Class::inheritsFrom()
+
+	template< typename T, typename W = DefaultWrapper<T> >
+	class Class {
+	public:
+		Class(const char *name);
+
+		Class<T,W> &rawSet(const char *name, Object *obj);
+
+		template<typename TValue>
+		Class<T,W> &set(const char *name, const TValue &obj)
+		{ return rawSet(name, (Object*) Value::copy(obj)); }
+
+		template<typename TValue>
+		Class<T,W> &set_ref(const char *name, TValue obj)
+		{ return rawSet(name, Value::ref(obj)); }
+
+		template<typename TValue>
+		Class<T,W> &set_autoDelete(const char *name, TValue *obj)
+		{ return rawSet(name, Value::autoDelete(obj)); }
+
+		Class<T,W> &constructor();
+
+		template<typename TBase>
+		Class<T,W> &inherits()
+		{ _class->inheritsFrom<T,TBase>(); return *this;}
+
+		#define SLB_REPEAT(N) \
+		\
+			/* Methods */ \
+			template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+			Class<T,W> &set(const char *name, R (T::*func)(SPP_ENUM_D(N,T)) ); \
+		\
+			/* CONST Methods */ \
+			template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+			Class<T,W> &set(const char *name, R (T::*func)(SPP_ENUM_D(N,T)) const ); \
+		\
+			/* C-functions  */ \
+			template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+			Class<T,W> &set(const char *name, R (func)(SPP_ENUM_D(N,T)) ); \
+		\
+			/* constructors */ \
+			template<class T0 SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+			Class<T,W> &constructor(); \
+
+		SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
+		#undef SLB_REPEAT
+
+	protected:
+		ClassInfo *_class;
+	
+	};
+	
+	template<typename T, typename W>
+	Class<T,W>::Class(const char *name)
 	{
-		inheritsFrom(typeid(B), &Conversor<D,B>::convert );
+		_class = Manager::getInstance().getOrCreateClass( typeid(T) );
+		_class->setName( name );
+		_class->setGCCallback( W::onGC );
+		_class->setPushCallback( W::onPush );
 	}
+	
+	template<typename T, typename W>
+	inline Class<T,W> &Class<T,W>::rawSet(const char *name, Object *obj)
+	{
+		_class->set(name, obj);
+		return *this;
+	}
+	
+	template<typename T, typename W>
+	inline Class<T,W> &Class<T,W>::constructor()
+	{
+		_class->setConstructor( Constructor<T()>::create() );
+		return *this;
+	}
+
+	#define SLB_REPEAT(N) \
+	\
+		/* Methods */ \
+		template<typename T, typename W> \
+		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+		inline Class<T,W> &Class<T,W>::set(const char *name, R (T::*func)(SPP_ENUM_D(N,T)) ){ \
+			return rawSet(name, FuncCall::create(func)); \
+		} \
+	\
+		/* CONST Methods */ \
+		template<typename T, typename W> \
+		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+		inline Class<T,W> &Class<T,W>::set(const char *name, R (T::*func)(SPP_ENUM_D(N,T)) const ){ \
+			return rawSet(name, FuncCall::create(func)); \
+		} \
+	\
+		/* C-functions  */ \
+		template<typename T, typename W> \
+		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+		inline Class<T,W> &Class<T,W>::set(const char *name, R (func)(SPP_ENUM_D(N,T)) ){ \
+			return rawSet(name, FuncCall::create(func)); \
+		} \
+	\
+		/* constructor  */ \
+		template<typename T, typename W> \
+		template<class T0 SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+		inline Class<T,W> &Class<T,W>::constructor(){ \
+			_class->setConstructor( Constructor<T(T0 SPP_COMMA_IF(N) SPP_ENUM_D(N,T))>::create());\
+			return *this; \
+		} \
+
+	SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
+	#undef SLB_REPEAT
 }
 
 

@@ -5,7 +5,7 @@
 #include "Debug.hpp"
 #include "SPP.hpp"
 #include "Manager.hpp"
-#include "Class.hpp"
+#include "ClassInfo.hpp"
 
 
 namespace SLB {
@@ -15,6 +15,7 @@ namespace Private {
 	template<class T>
 	struct Type
 	{
+		/*
 		static void push(lua_State *L,const T &obj)
 		{
 			T *data = (T*) lua_newuserdata(L, sizeof(T));
@@ -51,6 +52,7 @@ namespace Private {
 			lua_settop(L,top);
 			return result;
 		}
+		*/
 	};
 
 	template<class T>
@@ -63,7 +65,7 @@ namespace Private {
 				lua_pushnil(L);
 				return;
 			}
-			Class *c = SLB::Manager::getInstance().getClass(typeid(*obj));
+			ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(*obj));
 			if (c) 
 			{
 				SLB_DEBUG(6, "Push obj %p (%s)",obj,c->getName().c_str());
@@ -81,7 +83,7 @@ namespace Private {
 				else
 				{
 					SLB_DEBUG(0,
-						"*** ERROR *** Class %s not registerd (invalid push)",
+						"*** ERROR *** ClassInfo %s not registerd (invalid push)",
 				   		typeid(T).name()
 					);
 					lua_pushnil(L);
@@ -91,7 +93,7 @@ namespace Private {
 
 		static T* get(lua_State *L, int pos)
 		{
-			const Class *c = SLB::Manager::getInstance().getClass(typeid(T));
+			const ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(T));
 			if (c) 
 			{
 				T* obj = static_cast<T*>(c->getInstance(L, pos));
@@ -106,7 +108,7 @@ namespace Private {
 			else
 			{
 				SLB_DEBUG(1,
-					"*** WARNING *** Class %s not registerd (invalid get)",
+					"*** WARNING *** ClassInfo %s not registerd (invalid get)",
 				   	typeid(T).name()
 				);
 				return 0;
@@ -115,7 +117,7 @@ namespace Private {
 
 		static bool check(lua_State *L, int pos)
 		{
-			const Class *c = SLB::Manager::getInstance().template getClass<T>();
+			const ClassInfo *c = SLB::Manager::getInstance().template getClass<T>();
 			if (c) 
 			{
 				T* obj = static_cast<T*>(c->getInstance(L, pos));
@@ -135,7 +137,7 @@ namespace Private {
 				lua_pushnil(L);
 				return;
 			}
-			Class *c = SLB::Manager::getInstance().getClass(typeid(*obj));
+			ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(*obj));
 			if (c) 
 			{
 				SLB_DEBUG(6, "Push const-obj %p (%s)",obj,c->getName().c_str());
@@ -153,7 +155,7 @@ namespace Private {
 				else
 				{
 					SLB_DEBUG(0,
-						"*** ERROR *** Class %s not registerd (invalid push)",
+						"*** ERROR *** ClassInfo %s not registerd (invalid push)",
 				   		typeid(T).name()
 					);
 					lua_pushnil(L);
@@ -163,7 +165,7 @@ namespace Private {
 
 		static const T* get(lua_State *L, int pos)
 		{
-			const Class *c = SLB::Manager::getInstance().getClass(typeid(T));
+			const ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(T));
 			if (c) 
 			{
 				const T* obj = static_cast<const T*>(c->getConstInstance(L, pos));
@@ -178,7 +180,7 @@ namespace Private {
 			else
 			{
 				SLB_DEBUG(1,
-					"*** WARNING *** Class %s not registerd (invalid get)",
+					"*** WARNING *** ClassInfo %s not registerd (invalid get)",
 				   	typeid(T).name()
 				);
 				return 0;
@@ -187,7 +189,7 @@ namespace Private {
 
 		static bool check(lua_State *L, int pos)
 		{
-			const Class *c = SLB::Manager::getInstance().getClass(typeid(T));
+			const ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(T));
 			if (c) 
 			{
 				const T* obj = static_cast<const T*>(c->getConstInstance(L, pos));
@@ -221,7 +223,8 @@ namespace Private {
 	{
 		static void push(lua_State *L,T &obj)
 		{
-			Type<T*>::push(L, &obj);
+			// do not remove references
+			Type<T*>::push(L, &obj, false);
 		}
 
 		static T& get(lua_State *L, int pos)
@@ -320,25 +323,6 @@ namespace Private {
 		}
 	};
 
-	template<>
-	struct Type<const int&>
-	{
-		static void push(lua_State *L, const int &v)
-		{
-			Type<int>::push(L,v);
-		}
-
-		static int get(lua_State *L, int p)
-		{
-			return Type<int>::get(L,p);
-		}
-
-		static bool check(lua_State *L, int pos)
-		{
-			return Type<int>::check(L,pos);
-		}
-	};
-	
 	// Type specialization for <double>
 	template<>
 	struct Type<double>

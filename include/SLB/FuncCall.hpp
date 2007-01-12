@@ -59,7 +59,7 @@ namespace SLB
 		int _remove;
 
 	friend class Manager;	
-	friend class Class;	
+	friend class ClassInfo;	
 	};
 
 } //end of SLB namespace

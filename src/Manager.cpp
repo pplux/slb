@@ -1,5 +1,5 @@
 #include <SLB/Manager.hpp>
-#include <SLB/Class.hpp>
+#include <SLB/ClassInfo.hpp>
 #include <SLB/lua.hpp>
 #include <SLB/Debug.hpp>
 
@@ -31,33 +31,33 @@ namespace SLB {
 		return _instance.get();
 	}
 	
-	void Manager::addClass( Class *c )
+	void Manager::addClass( ClassInfo *c )
 	{
 		_classes[ c->getTypeid() ] = c;
 	}
 
-	const Class *Manager::getClass(const std::type_info &ti) const
+	const ClassInfo *Manager::getClass(const std::type_info &ti) const
 	{
 		ClassMap::const_iterator i = _classes.find(&ti);
 		if ( i != _classes.end() ) return i->second.get();
 		return 0;
 	}
 
-	const Class *Manager::getClass(const std::string &name) const
+	const ClassInfo *Manager::getClass(const std::string &name) const
 	{
 		NameMap::const_iterator i = _names.find(name);
 		if ( i != _names.end() ) return getClass( *i->second );
 		return 0;
 	}
 
-	Class *Manager::getClass(const std::type_info &ti)
+	ClassInfo *Manager::getClass(const std::type_info &ti)
 	{
 		ClassMap::iterator i = _classes.find(&ti);
 		if ( i != _classes.end() ) return i->second.get();
 		return 0;
 	}
 
-	Class *Manager::getClass(const std::string &name)
+	ClassInfo *Manager::getClass(const std::string &name)
 	{
 		NameMap::iterator i = _names.find(name);
 		if ( i != _names.end() ) return getClass( *i->second );
@@ -65,9 +65,9 @@ namespace SLB {
 	}
 
 
-	Class *Manager::getOrCreateClass(const std::type_info &ti)
+	ClassInfo *Manager::getOrCreateClass(const std::type_info &ti)
 	{
-		Class *c = 0;
+		ClassInfo *c = 0;
 		ClassMap::iterator i = _classes.find(&ti);
 		if ( i != _classes.end() )
 		{
@@ -75,7 +75,7 @@ namespace SLB {
 		}
 		else
 		{
-			c = new Class(ti);
+			c = new ClassInfo(ti);
 		}
 		return c;
 	}
