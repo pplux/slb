@@ -9,6 +9,7 @@
 #include "Manager.hpp"
 #include "FuncCall.hpp"
 #include "Value.hpp"
+#include "Instance.hpp"
 #include <typeinfo>
 #include <map>
 #include <vector>
@@ -17,23 +18,8 @@
 struct lua_State;
 
 namespace SLB {
-	
-	//----------- Policies -----------------------------------
-	template<class T>
-	struct AlwaysDelete
-	{
-		static void onPush(void *, lua_State *) {}
-		static void onGC(void *raw_obj, lua_State*)    { T *obj = reinterpret_cast<T*>(raw_obj); delete obj; }
-	};
 
-	template<class T>
-	struct NeverDelete
-	{
-		static void onPush(void *, lua_State *) {}
-		static void onGC(void *, lua_State*) {}
-	};
-
-	template< typename T, typename W = AlwaysDelete<T> >
+	template< typename T, template <typename> class W = DefaultInstance >
 	class Class {
 	public:
 		typedef Class<T,W> Self;
@@ -59,8 +45,7 @@ namespace SLB {
 		template<typename TBase>
 		Self &inherits()
 		{ _class->inheritsFrom<T,TBase>(); return *this;}
-
-
+		
 		Self &__add()
 		{ SLB_DEBUG(0, "NOT IMPLEMENTED!"); return *this; }
 
@@ -70,12 +55,12 @@ namespace SLB {
 		#define SLB_REPEAT(N) \
 		\
 			/* Methods */ \
-			template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-			Self &set(const char *name, R (T::*func)(SPP_ENUM_D(N,T)) ); \
+			template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+			Self &set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) ); \
 		\
 			/* CONST Methods */ \
-			template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-			Self &set(const char *name, R (T::*func)(SPP_ENUM_D(N,T)) const ); \
+			template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+			Self &set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) const ); \
 		\
 			/* C-functions  */ \
 			template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
@@ -90,60 +75,62 @@ namespace SLB {
 
 	protected:
 		ClassInfo *_class;
-	
+
 	};
 	
-	template<typename T, typename W>
+	template<typename T, template <typename> class W>
 	Class<T,W>::Class(const char *name)
 	{
-		_class = Manager::getInstance().getOrCreateClass( typeid(T) );
+		_class = new ClassInfo( typeid(T) );
 		_class->setName( name );
-		_class->setGCCallback( W::onGC );
-		_class->setPushCallback( W::onPush );
+		_class->setInstanceFactory(new InstanceFactoryAdapter< T, W >() );
 	}
 	
-	template<typename T, typename W>
+	template<typename T, template <typename> class W>
 	inline Class<T,W> &Class<T,W>::rawSet(const char *name, Object *obj)
 	{
 		_class->set(name, obj);
 		return *this;
 	}
 	
-	template<typename T, typename W>
+	template<typename T, template <typename> class W>
 	inline Class<T,W> &Class<T,W>::constructor()
 	{
-		_class->setConstructor( Constructor<T()>::create() );
+		_class->setConstructor( FuncCall::classConstructor<T>() );
 		return *this;
 	}
 
 	#define SLB_REPEAT(N) \
 	\
 		/* Methods */ \
-		template<typename T, typename W> \
-		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-		inline Class<T,W> &Class<T,W>::set(const char *name, R (T::*func)(SPP_ENUM_D(N,T)) ){ \
+		template<typename T, template <typename> class W>\
+		template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+		inline Class<T,W> &Class<T,W>::set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) ){ \
+			if (typeid(T) != typeid(C)) inherits<C>();\
 			return rawSet(name, FuncCall::create(func)); \
 		} \
 	\
 		/* CONST Methods */ \
-		template<typename T, typename W> \
-		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-		inline Class<T,W> &Class<T,W>::set(const char *name, R (T::*func)(SPP_ENUM_D(N,T)) const ){ \
+		template<typename T, template <typename> class W>\
+		template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+		inline Class<T,W> &Class<T,W>::set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) const ){ \
+			if (typeid(T) != typeid(C)) inherits<C>();\
 			return rawSet(name, FuncCall::create(func)); \
 		} \
 	\
 		/* C-functions  */ \
-		template<typename T, typename W> \
+		template<typename T, template <typename> class W> \
 		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 		inline Class<T,W> &Class<T,W>::set(const char *name, R (func)(SPP_ENUM_D(N,T)) ){ \
 			return rawSet(name, FuncCall::create(func)); \
 		} \
 	\
 		/* constructor  */ \
-		template<typename T, typename W> \
+		template<typename T, template <typename> class W> \
 		template<class T0 SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 		inline Class<T,W> &Class<T,W>::constructor(){ \
-			_class->setConstructor( Constructor<T(T0 SPP_COMMA_IF(N) SPP_ENUM_D(N,T))>::create());\
+			FuncCall *fc = FuncCall::classConstructor<T,T0 SPP_COMMA_IF(N) SPP_ENUM_D(N,T)>();\
+			_class->setConstructor( fc );\
 			return *this; \
 		} \
 

@@ -3,6 +3,8 @@
 
 #include "SPP.hpp"
 #include "PushGet.hpp"
+#include "ClassInfo.hpp"
+#include "Manager.hpp"
 #include "lua.hpp"
 #include <typeinfo>
 
@@ -20,6 +22,9 @@ namespace Private {
 
 	template<class C, class T>
 	class FC_ConstMethod; //> FuncCall to call Class const methods
+
+	template<class> 
+	class FC_ClassConstructor;
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -87,6 +92,7 @@ namespace Private {
 	#define SLB_FC_METHOD(N, NAME, CONST) \
 		SLB_FC_METHOD_BODY(N, NAME, CONST, SPP_COMMA class R ,R, \
 				CONST C *obj = SLB::get<CONST C*>(L,1); \
+				if (obj == 0) luaL_error(L, "Invalid object for this method");\
 				SLB_GET(N,1) \
 				R value = (obj->*_func)(SPP_ENUM_D(N,param_)); \
 				SLB::push<R>(L, value); \
@@ -94,6 +100,7 @@ namespace Private {
 			) \
 		SLB_FC_METHOD_BODY(N, NAME, CONST, /*nothing*/ , void,	\
 				CONST C *obj = SLB::get<CONST C*>(L,1); \
+				if (obj == 0) luaL_error(L, "Invalid object for this method");\
 				SLB_GET(N,1) \
 				(obj->*_func)(SPP_ENUM_D(N,param_)); \
 				return 0; \
@@ -148,13 +155,35 @@ namespace Private {
 		)
 
 	SPP_MAIN_REPEAT_Z(MAX,SLB_FC_FUNCTION)
-	
 	#undef SLB_FC_METHOD
 	#undef SLB_FC_METHOD_BODY
 	#undef SLB_FC_FUNCTION
 	#undef SLB_FC_FUNCTION_BODY
+
+	#define SLB_REPEAT(N) \
+		template<class C SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+		struct FC_ClassConstructor<C(SPP_ENUM_D(N,T))> : public FuncCall\
+		{\
+		public:\
+			FC_ClassConstructor() {} \
+		protected: \
+			int call(lua_State *L) \
+			{ \
+				ClassInfo *c = Manager::getInstance().getClass(typeid(C)); \
+				if (c == 0) luaL_error(L, "Class %s is not avaliable! ", typeid(C).name()); \
+				SLB_GET(N, 1); \
+				Private::Type<C*>::push(L, new C( SPP_ENUM_D(N,param_) ), true ); \
+				return 1; \
+			} \
+		}; \
+
+	SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
+	#undef SLB_REPEAT
+
 	#undef SLB_GET
 	#undef SLB_GET_PARAMS
+
+
 } // end of SLB::Private namespace	
 
 #endif

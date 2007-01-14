@@ -35,6 +35,10 @@ namespace SLB
 			/* FunCall for C-functions  */ \
 			template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 			static FuncCall* create(R (func)(SPP_ENUM_D(N,T)) ); \
+		\
+			/* FunCall Class constructors  */ \
+			template<class C SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+			static FuncCall* classConstructor(); \
 
 		SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
 		#undef SLB_REPEAT
@@ -43,10 +47,8 @@ namespace SLB
 		const std::type_info* getArgType(size_t p) const { return _Targs[p]; }
 		const std::type_info* getReturnedType() const { return _Treturn; }
 
-		// items to remove from the begining 
-		void setRemoveItems(int num) { _remove = num; }
 	protected:
-		FuncCall(int items_to_remove = 0);
+		FuncCall();
 		virtual ~FuncCall();
 	
 		void pushImplementation(lua_State *L);
@@ -56,7 +58,6 @@ namespace SLB
 		const std::type_info* _Treturn;
 	private:
 		static int _call(lua_State *L);
-		int _remove;
 
 	friend class Manager;	
 	friend class ClassInfo;	
@@ -99,6 +100,12 @@ namespace SLB
 	inline FuncCall* FuncCall::create(R (*func)(SPP_ENUM_D(N,T)) ) \
 	{ \
 		return new Private::FC_Function<R(SPP_ENUM_D(N,T))>(func);\
+	} \
+	\
+	template<class C SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+	inline FuncCall* FuncCall::classConstructor() \
+	{ \
+		return new Private::FC_ClassConstructor<C(SPP_ENUM_D(N,T))>;\
 	} \
 	
 	SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)

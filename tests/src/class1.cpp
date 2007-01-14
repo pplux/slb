@@ -84,10 +84,11 @@ SLB_END
 SPP_STATIC_BLOCK(Class1Registration, 
 	SLB::Class<Class1>("Class1")
 		.set( "method1", &Class1::method1 )
-		.set( "methods", Class1::methods )
+		.set( "method_b2", &Base2::method_b2 )
+		.set( "methods", Class1::methods ) 
 		.set( "method_overloaded1", static_cast<int (Class1::*)(int)>(&Class1::method_overloaded))
 		.set( "cst", Class1(7) )
-		.constructor<int>()
+		.constructor()
 		.inherits<Base1>()
 		.inherits<Base2>()
 	;
