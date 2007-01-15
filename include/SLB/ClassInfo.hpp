@@ -28,9 +28,7 @@ namespace SLB {
 	class SLB_EXPORT ClassInfo : public Namespace
 	{
 	public:
-		typedef void* (*ConvertToBase) (void*);
-		typedef std::map< ref_ptr<ClassInfo>, ConvertToBase > BaseClassMap;
-
+		typedef std::map<const std::type_info*, ref_ptr<ClassInfo> > BaseClassMap;
 		ClassInfo(const std::type_info&);
 
 		const std::type_info *getTypeid() const { return _typeid; }
@@ -63,8 +61,6 @@ namespace SLB {
 		ref_ptr<FuncCall> _constructor;
 
 	private:
-		void inheritsFrom(const std::type_info &base, ConvertToBase func);
-		void *convertFrom(void *obj, const ClassInfo *derived_class) const;
 		void pushInstance(lua_State *L, InstanceBase *instance);
 		InstanceBase* getInstance(lua_State *L, int pos) const;
 	};
@@ -74,94 +70,14 @@ namespace SLB {
 	// Inline implementations:
 	//--------------------------------------------------------------------
 	
-	template<class D, class B>
-	struct Conversor
-	{
-		static void* convert(void *raw_d)
-		{
-			D* derived = reinterpret_cast<D*>(raw_d);
-			B* base = derived;
-			return (void*) base;
-		}
-	};
 		
 	template<class D, class B>
 	inline void ClassInfo::inheritsFrom()
 	{
-		inheritsFrom(typeid(B), &Conversor<D,B>::convert );
+		Manager::getInstance().template addConversor<D,B>();
+		_baseClasses[ &typeid(B) ] = Manager::getInstance().getOrCreateClass(typeid(B));
 	}
 
-	/*
-	class SLB_EXPORT ClassInfo : public Namespace {
-	public:
-		// some typedefs
-		typedef void (*Callback) (void*, lua_State*) ;
-		typedef void* (*ConvertToBase) (void*);
-		typedef void* (*GetHandler)(void*);
-		typedef void* (*DestroyHandler)(void*);
-		typedef std::map< ref_ptr<ClassInfo>, ConvertToBase > BaseClassMap;
-
-
-		void push_ptr(lua_State *L, void *ptr);
-		void push_const_ptr(lua_State *L, const void *ptr);
-		void push_ref(lua_State *L, void *ptr);
-		void push_copy(lua_State *L, const void *ptr);
-
-		// DEPRECATED
-		void pushInstance(lua_State*, void *obj, bool callGC = true);
-		void pushInstance(lua_State*, const void *obj);
-
-		void setPushCallback(Callback c) { _onPushCallback = c; }
-		void setGCCallback(Callback c)   { _onGarbageCollection = c; }
-
-
-
-		void setHandler_ptr( GetHandler h)         { _handler_ptr = h; }
-		void setHandler_const_ptr( GetHandler h)   { _handler_const_ptr = h; }
-		void setHandler_ref ( GetHandler h)        { _handler_ref = h; }
-		void setHandler_const_ref( GetHandler h)   { _handler_const_ref = h; }
-		void setHandler_copy( GetHandler h)        { _handler_copy = h; }
-		void setDestroyHandler( DestroyHandler dh) { _destroy_handler = dh; }
-
-	protected:
-		ClassInfo(const std::type_info&);
-		virtual ~ClassInfo();
-
-		void pushImplementation(lua_State *);
-		Instance* getRawInstance(lua_State *, int) const;
-
-		virtual int get(lua_State *L, const std::string &key);
-		virtual int __call(lua_State*);
-		virtual int __gc(lua_State*);
-
-		const std::type_info *_typeid;
-		std::string _name;
-		Callback    _onPushCallback;
-		Callback    _onGarbageCollection;
-
-		GetHandler _handler_ptr;
-		GetHandler _handler_const_ptr;
-		GetHandler _handler_ref;
-		GetHandler _handler_const_ref;
-		GetHandler _handler_copy;
-
-		DestroyHandler _destroy_handler;
-
-	private:
-		void pushRawInstance(lua_State *, Instance *);
-		bool checkInstance(lua_State *, const void *obj);
-		void inheritsFrom(const std::type_info &base, ConvertToBase func);
-		void *convertFrom(void *obj, const ClassInfo *derived_class) const;
-
-		ClassInfo(const ClassInfo&);
-		ClassInfo& operator=(const ClassInfo&);
-
-		friend class Manager;
-		friend class Instance;
-	};
-
-
-	*/
 }
 
 

@@ -16,12 +16,6 @@ namespace SLB {
 		delete _instanceFactory; 
 	}
 
-	void ClassInfo::inheritsFrom(const std::type_info &base, ConvertToBase func)
-	{
-		ClassInfo *c = Manager::getInstance().getOrCreateClass(base);
-		_baseClasses[ c ] = func;
-	}
-
 	void ClassInfo::setName(const std::string& name)
 	{
 		Manager::getInstance().setName(_name, name, _typeid);
@@ -96,43 +90,13 @@ namespace SLB {
 		lua_settop(L, top+1);
 	}
 
-	void *ClassInfo::convertFrom(void *obj, const ClassInfo *derived_class) const
-	{
-		if ( derived_class == this )
-		{
-			return obj;
-		}
-		else 
-		{
-			// look for base classes
-			for( BaseClassMap::const_iterator 
-				i  = derived_class->_baseClasses.begin();
-				i != derived_class->_baseClasses.end();
-				++i)
-			{
-				// make the conversion
-				if ( i->first.get() == this )
-				{
-					void *nobj = i->second( obj );
-					SLB_DEBUG(5, "Conversion from %s(%p) -> %s(%p)",
-						derived_class->_name.c_str(), obj,
-						_name.c_str(), nobj);
-					return nobj;
-				}
-			}
-		}
-		SLB_DEBUG(0, "Can not convert from %s -> %s",
-			derived_class->_name.c_str(), _name.c_str());
-		return 0;
-	}
-
 	void *ClassInfo::get_ptr(lua_State *L, int pos)
 	{
 		void *obj = 0;
 		InstanceBase *i = getInstance(L, pos);
 		if (i)
 		{
-			obj = convertFrom(i->get_ptr(), i ->getClass());
+			obj = Manager::getInstance().convert( i->getClass()->getTypeid(), getTypeid(), i->get_ptr() );
 		}
 		SLB_DEBUG(7, "Class(%s) get_ptr -> %p", _name.c_str(), obj);
 		return obj;
@@ -140,14 +104,14 @@ namespace SLB {
 
 	const void* ClassInfo::get_const_ptr(lua_State *L, int pos)
 	{
-		void *obj = 0;
+		const void *obj = 0;
 		InstanceBase *i = getInstance(L, pos);
 		if (i)
 		{
-			obj = convertFrom( const_cast<void*>(i->get_const_ptr()), i->getClass());
+			obj = Manager::getInstance().convert( i->getClass()->getTypeid(), getTypeid(), i->get_const_ptr() );
 		}
 		SLB_DEBUG(7, "Class(%s) get_const_ptr -> %p", _name.c_str(), obj);
-		return const_cast<void*>(obj);
+		return obj;
 	}
 
 	InstanceBase* ClassInfo::getInstance(lua_State *L, int pos) const

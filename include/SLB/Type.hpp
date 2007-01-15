@@ -51,20 +51,21 @@ namespace Private {
 
 		static void push(lua_State *L, T *obj, bool fromConstructor = false)
 		{
-			ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(*obj));
-			if (c) 
+			if (typeid(*obj) != typeid(T))
 			{
-				c->push_ptr(L, dynamic_cast<void*>(obj), fromConstructor);
-			}
-			else
-			{
-				if (fromConstructor)
+				// check if the internal class exists...
+				ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(*obj));
+				if ( c ) 
 				{
-					luaL_error(L, "Can't push from constructor of obj(%s) and use a Base Class (%s)",
-						typeid(*obj).name(), typeid(T).name());
+					// covert the object to the internal class...
+					void *real_obj = SLB::Manager::getInstance().convert( &typeid(T), &typeid(*obj), obj );
+					c->push_ptr(L, real_obj, fromConstructor);
+					return;
 				}
-				getClass(L)->push_ptr(L, (void*) obj);
 			}
+			// use this class...	
+			getClass(L)->push_ptr(L, (void*) obj, fromConstructor);
+
 		}
 
 		static T* get(lua_State *L, int pos)
@@ -90,15 +91,19 @@ namespace Private {
 
 		static void push(lua_State *L,const T *obj)
 		{
-			ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(*obj));
-			if (c) 
+			if (typeid(*obj) != typeid(T))
 			{
-				c->push_const_ptr(L, dynamic_cast<void*>(obj));
+				// check if the internal class exists...
+				ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(*obj));
+				if ( c ) 
+				{
+					// covert the object to the internal class...
+					const void *real_obj = SLB::Manager::getInstance().convert( &typeid(T), &typeid(*obj), obj );
+					c->push_const_ptr(L, real_obj);
+					return;
+				}
 			}
-			else
-			{
-				getClass(L)->push_const_ptr(L, (void*) obj);
-			}
+			getClass(L)->push_const_ptr(L, (const void*) obj);
 		}
 
 		static const T* get(lua_State *L, int pos)
@@ -143,7 +148,7 @@ namespace Private {
 
 		static void push(lua_State *L,T &obj)
 		{
-			getClass(L)->push_ref(L, (void*) obj);
+			getClass(L)->push_ref(L, (void*) &obj);
 		}
 
 		static T& get(lua_State *L, int pos)

@@ -74,6 +74,46 @@ namespace SLB {
 		};
 	};
 
+	template<class T>
+	class NoCopyNoDestroyInstance : public InstanceBase
+	{
+	public:
+		// constructor form a pointer 
+		NoCopyNoDestroyInstance( T* ptr, bool fromConstructor) : InstanceBase( I_Pointer, typeid(T) ), _ptr(ptr)
+	   	{
+			if (fromConstructor)
+			{
+				_flags = I_Invalid;
+				_ptr = 0;
+			}
+		}
+		// constructor from const pointer
+		NoCopyNoDestroyInstance( const T *ptr ) : InstanceBase( I_Const_Pointer, typeid(T)), _const_ptr(ptr)
+		{
+		}
+
+		// constructor from reference
+		NoCopyNoDestroyInstance( T &ref ) : InstanceBase( I_Reference, typeid(T) ), _ptr( &ref )
+		{
+		}
+
+		// copy constructor,  
+		NoCopyNoDestroyInstance( const T &) : InstanceBase( I_Invalid, typeid(T) ), _ptr( 0L )
+		{
+		}
+
+		virtual ~NoCopyNoDestroyInstance() {}
+
+		void* get_ptr() { return (isConst())? 0L : _ptr; }
+		const void* get_const_ptr() { return _const_ptr; }
+	protected:
+		union {
+			T *_ptr;
+			const T *_const_ptr;
+		};
+	};
+
+
 
 	struct InstanceFactory
 	{
