@@ -126,7 +126,7 @@ namespace SLB {
 	template<class T>
 	inline void CopyValue<T>::pushImplementation(lua_State *L)
 	{
-		SLB::push(L, &_obj);
+		SLB::push(L,_obj);
 	}
 
 	template<class T>
