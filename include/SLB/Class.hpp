@@ -81,7 +81,7 @@ namespace SLB {
 	template<typename T, template <typename> class W>
 	Class<T,W>::Class(const char *name)
 	{
-		_class = new ClassInfo( typeid(T) );
+		_class = Manager::getInstance().getOrCreateClass( typeid(T) );
 		_class->setName( name );
 		_class->setInstanceFactory(new InstanceFactoryAdapter< T, W >() );
 		SLB_DEBUG(1, "Class declaration for %s[%s]", name, typeid(T).name());

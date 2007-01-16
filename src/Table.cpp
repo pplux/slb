@@ -1,7 +1,6 @@
 #include <SLB/Table.hpp>
 #include <SLB/lua.hpp>
 #include <SLB/Debug.hpp>
-#include <iostream>
 
 namespace SLB {
 
@@ -22,7 +21,6 @@ namespace SLB {
 
 	inline void Table::rawSet(const std::string &name, Object *obj)
 	{
-		std::cout << "TABLE(" << (Object*) this << ") [ " << name << " ] = " << (void*) obj << std::endl;
 		if (obj == 0)
 		{
 			SLB_DEBUG(6, "Table (%p) remove '%s'", this, name.c_str());
@@ -151,6 +149,18 @@ namespace SLB {
 		return 0;
 	}
 
+	int Table::__tostring(lua_State *L)
+	{
+		int top = lua_gettop(L);
+		lua_pushfstring(L, "Table(%p) [%s] with keys:", this, typeid(*this).name());
+		for(Elements::iterator i = _elements.begin(); i != _elements.end(); ++i)
+		{
+			lua_pushfstring(L, "\n\t%s -> %p [%s]",i->first.c_str(), i->second.get(), typeid(*(i->second.get())).name());
+		}
+		lua_concat(L, lua_gettop(L) - top);
+		return 1;
+	}
+
 	void Table::pushImplementation(lua_State *L)
 	{
 		lua_newtable(L); // an empty table
@@ -169,8 +179,8 @@ namespace SLB {
 
 		pushMeta(L, &Table::__newindex);
 		lua_setfield(L, -2, "__newindex");
-
-
+		pushMeta(L, &Table::__tostring);
+		lua_setfield(L, -2, "__tostring");
 		pushMeta(L, &Table::__call);
 		lua_setfield(L, -2, "__call");
 		pushMeta(L, &Table::__gc);

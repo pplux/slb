@@ -2,21 +2,17 @@
 #include <SLB/ClassInfo.hpp>
 #include <SLB/lua.hpp>
 #include <SLB/Debug.hpp>
-#include <iostream>
 
 namespace SLB {
 
 	Manager::Manager()
 	{
-		std::cout << "MANAGER CONSTRUCTOR " << this << std::endl;
 		SLB_DEBUG(0, "Manager initialization");
 		_global = new Namespace();
-		std::cout << "Global table = " << (Object*) _global.get() << std::endl;
 	}
 
 	Manager::~Manager()
 	{
-		std::cout << "MANAGER DESTRUCTOR " << this << std::endl;
 		SLB_DEBUG(0, "Manager destruction");
 	}
 	

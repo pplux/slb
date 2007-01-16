@@ -199,4 +199,49 @@ namespace SLB {
 		return 0;
 	}
 
+	int ClassInfo::__tostring(lua_State *L)
+	{
+		int top = lua_gettop(L);
+		lua_pushfstring(L, "Class(%p)", _name.c_str());
+		;
+		for(BaseClassMap::iterator i = _baseClasses.begin(); i != _baseClasses.end(); ++i)
+		{
+				lua_pushfstring(L, "\n\tinherits from %s (%p)",i->second->getName().c_str(), (Object*) i->second.get());
+		}
+		for(Elements::iterator i = _elements.begin(); i != _elements.end(); ++i)
+		{
+			Object *obj = i->second.get();
+			FuncCall *fc = dynamic_cast<FuncCall*>(obj);
+			if (fc)
+			{
+				lua_pushfstring(L, "\n\tfunction (%s) ",i->first.c_str());
+			}
+			else
+			{
+				lua_pushfstring(L, "\n\t%s -> %p [%s]",i->first.c_str(), obj, typeid(*obj).name());
+			}
+		}
+		lua_concat(L, lua_gettop(L) - top);
+		return 1;
+	}
+
+	int ClassInfo::get(lua_State *L, const std::string &key)
+	{
+		Object *obj = Table::get(key);
+		for(BaseClassMap::iterator i = _baseClasses.begin(); obj == 0L && i != _baseClasses.end(); ++i)
+		{
+			obj = ((Table*)(i->second.get()))->get(key);
+		}
+
+		if (obj != 0L)
+		{
+			obj->push(L);
+		}
+		else
+		{
+			lua_pushnil(L);
+		}
+		return 1;
+	}
+
 }

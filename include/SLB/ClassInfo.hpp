@@ -29,7 +29,6 @@ namespace SLB {
 	{
 	public:
 		typedef std::map<const std::type_info*, ref_ptr<ClassInfo> > BaseClassMap;
-		ClassInfo(const std::type_info&);
 
 		const std::type_info *getTypeid() const { return _typeid; }
 		const std::string &getName() const      { return _name; }
@@ -49,10 +48,13 @@ namespace SLB {
 		void setInstanceFactory( InstanceFactory *);
 
 	protected:
+		ClassInfo(const std::type_info&);
 		virtual ~ClassInfo();
 		void pushImplementation(lua_State *);
 		virtual int __call(lua_State*);
 		virtual int __gc(lua_State*);
+		virtual int __tostring(lua_State*);
+		virtual int get(lua_State *L, const std::string &key);
 
 		const std::type_info *_typeid;
 		std::string       _name;
@@ -63,6 +65,8 @@ namespace SLB {
 	private:
 		void pushInstance(lua_State *L, InstanceBase *instance);
 		InstanceBase* getInstance(lua_State *L, int pos) const;
+
+		friend class Manager;
 	};
 
 
