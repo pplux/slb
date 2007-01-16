@@ -1,6 +1,7 @@
 #include <SLB/Table.hpp>
 #include <SLB/lua.hpp>
 #include <SLB/Debug.hpp>
+#include <iostream>
 
 namespace SLB {
 
@@ -21,6 +22,7 @@ namespace SLB {
 
 	inline void Table::rawSet(const std::string &name, Object *obj)
 	{
+		std::cout << "TABLE(" << (Object*) this << ") [ " << name << " ] = " << (void*) obj << std::endl;
 		if (obj == 0)
 		{
 			SLB_DEBUG(6, "Table (%p) remove '%s'", this, name.c_str());
@@ -86,19 +88,18 @@ namespace SLB {
 		if (obj)
 		{
 			obj->push(L);
-			return 1;
 		}
 		else
 		{
-			luaL_error(L, "Table %p, doesn't have element for key %s", (void*)this, key.c_str());
+			lua_pushnil(L);
 		}
-		return 0;
+		return 1;
 	}
 
 	int Table::get(lua_State *L, long int)
 	{
-		luaL_error(L, "Table (%p) get for numbers not implemented", (void*)this);
-		return 0;
+		lua_pushnil(L);
+		return 1;
 	}
 
 	int Table::__index(lua_State *L)

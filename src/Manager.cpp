@@ -2,19 +2,21 @@
 #include <SLB/ClassInfo.hpp>
 #include <SLB/lua.hpp>
 #include <SLB/Debug.hpp>
+#include <iostream>
 
 namespace SLB {
 
-	ref_ptr<Manager> Manager::_instance = 0;
-
 	Manager::Manager()
 	{
+		std::cout << "MANAGER CONSTRUCTOR " << this << std::endl;
 		SLB_DEBUG(0, "Manager initialization");
 		_global = new Namespace();
+		std::cout << "Global table = " << (Object*) _global.get() << std::endl;
 	}
 
 	Manager::~Manager()
 	{
+		std::cout << "MANAGER DESTRUCTOR " << this << std::endl;
 		SLB_DEBUG(0, "Manager destruction");
 	}
 	
@@ -33,26 +35,17 @@ namespace SLB {
 			SLB_DEBUG(0, "WARNING: Lua_State %p has a global metatable...", L);
 		}
 		lua_pushstring(L,"__index");
-		push(L);
+		_global->push(L);
 		lua_rawset(L,-3);
 		lua_setmetatable(L, LUA_GLOBALSINDEX);
 
 		lua_settop(L,top);
 	}
 	
-	void Manager::pushImplementation(lua_State *L)
-	{
-		_global->push(L); // top +1
-		
-	}
-
 	Manager *Manager::getInstancePtr()
 	{
-		if (!_instance.valid())
-		{
-			_instance = new Manager();
-		}
-		return _instance.get();
+		static Manager _instance;
+		return &_instance;
 	}
 	
 	void Manager::addClass( ClassInfo *c )
@@ -74,17 +67,17 @@ namespace SLB {
 		return 0;
 	}
 
-	ClassInfo *Manager::getClass(const std::type_info &ti)
-	{
-		ClassMap::iterator i = _classes.find(&ti);
-		if ( i != _classes.end() ) return i->second.get();
-		return 0;
-	}
-
 	ClassInfo *Manager::getClass(const std::string &name)
 	{
 		NameMap::iterator i = _names.find(name);
 		if ( i != _names.end() ) return getClass( *i->second );
+		return 0;
+	}
+
+	ClassInfo *Manager::getClass(const std::type_info &ti)
+	{
+		ClassMap::iterator i = _classes.find(&ti);
+		if ( i != _classes.end() ) return i->second.get();
 		return 0;
 	}
 
@@ -109,18 +102,20 @@ namespace SLB {
 		_global->set(name, obj);
 	}
 	
-	void Manager::setName( const std::string &old, const std::string &new_name, const std::type_info *ti)
+	void Manager::rename(ClassInfo *ci, const std::string &new_name)
 	{
-		if (old != "")
+		const std::string old_name = ci->getName();
+
+		NameMap::iterator i = _names.find(old_name);
+		if ( i != _names.end() )
 		{
-			_names.erase(old);
-			_global->erase(old);
+			_global->erase(old_name);
+			_names.erase(i);
 		}
-		if (new_name != "")
-		{
-			_names[new_name] = ti;
-			_global->set(new_name, getOrCreateClass(*ti) );
-		}
+
+		_global->set(new_name, ci);
+		_names[ new_name ] = ci->getTypeid();
+
 	}
 }
 

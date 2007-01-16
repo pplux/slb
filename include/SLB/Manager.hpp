@@ -12,7 +12,7 @@ namespace SLB {
 	class ClassInfo;
 	class Namespace;
 
-	class SLB_EXPORT Manager : public virtual Object
+	class SLB_EXPORT Manager
 	{
 	public:
 		typedef std::map< const std::type_info*, ref_ptr<ClassInfo> > ClassMap;
@@ -40,20 +40,17 @@ namespace SLB {
 
 	protected:
 
-		Manager();
-		virtual ~Manager();
-
-		void pushImplementation(lua_State *L);
-		void setName( const std::string &old, const std::string &new_name, const std::type_info*);
+		void rename(ClassInfo *c, const std::string &new_name);
 		void addClass( ClassInfo *c );
 		template<class Derived, class Base>
 		void addConversor();
 
 	private:
+		Manager();
+		~Manager();
 		Manager(const Manager&);
 		Manager& operator=(const Manager&);
 
-		static ref_ptr<Manager> _instance;
 		ClassMap _classes;
 		NameMap  _names;
 		ref_ptr<Namespace> _global;

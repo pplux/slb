@@ -8,7 +8,7 @@ namespace SLB {
 	{
 		_typeid = &ti;
 		Manager::getInstance().addClass(this);
-		setName(_typeid->name());
+		_name = _typeid->name();
 	}
 
 	ClassInfo::~ClassInfo()
@@ -18,7 +18,8 @@ namespace SLB {
 
 	void ClassInfo::setName(const std::string& name)
 	{
-		Manager::getInstance().setName(_name, name, _typeid);
+		// rename first in the manager...
+		Manager::getInstance().rename(this, name);
 		_name = name;
 	}
 	
@@ -136,6 +137,7 @@ namespace SLB {
 		if (_instanceFactory)
 		{
 			pushInstance(L, _instanceFactory->create_ref(ref) );
+			SLB_DEBUG(7, "Class(%s) push_ref -> %p", _name.c_str(), ref);
 		}
 		else
 		{
@@ -148,6 +150,7 @@ namespace SLB {
 		if (_instanceFactory)
 		{
 			pushInstance(L, _instanceFactory->create_ptr(ptr, fromConstructor) );
+			SLB_DEBUG(7, "Class(%s) push_ptr (from_Constructor %d) -> %p", _name.c_str(), fromConstructor, ptr);
 		}
 		else
 		{
@@ -160,6 +163,7 @@ namespace SLB {
 		if (_instanceFactory)
 		{
 			pushInstance(L, _instanceFactory->create_const_ptr(const_ptr) );
+			SLB_DEBUG(7, "Class(%s) push const_ptr -> %p", _name.c_str(), const_ptr);
 		}
 		else
 		{
@@ -172,6 +176,7 @@ namespace SLB {
 		if (_instanceFactory)
 		{
 			pushInstance(L, _instanceFactory->create_copy(ptr) );
+			SLB_DEBUG(7, "Class(%s) push copy -> %p", _name.c_str(), ptr);
 		}
 		else
 		{

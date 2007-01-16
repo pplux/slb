@@ -40,10 +40,6 @@ namespace SLB {
 		lua_setmetatable(L,-2);
 		lua_setfield(L, LUA_REGISTRYINDEX, refTable_name); 
 
-		SLB_DEBUG(5, "\t-Registering Manager");
-		Manager::getInstance().push(L);
-		lua_setfield(L, LUA_REGISTRYINDEX, "Manager");
-
 		lua_settop(L, top);
 	}
 	

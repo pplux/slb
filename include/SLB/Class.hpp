@@ -84,6 +84,7 @@ namespace SLB {
 		_class = new ClassInfo( typeid(T) );
 		_class->setName( name );
 		_class->setInstanceFactory(new InstanceFactoryAdapter< T, W >() );
+		SLB_DEBUG(1, "Class declaration for %s[%s]", name, typeid(T).name());
 	}
 	
 	template<typename T, template <typename> class W>
