@@ -185,7 +185,7 @@ namespace SLB {
 	}
 	
 	
-	int ClassInfo::__gc(lua_State *L)
+	int ClassInfo::__garbageCollector(lua_State *L)
 	{
 		InstanceBase* instance = 
 			*reinterpret_cast<InstanceBase**>(lua_touserdata(L, 1));

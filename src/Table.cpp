@@ -143,7 +143,7 @@ namespace SLB {
 		return 0;
 	}
 
-	int Table::__gc(lua_State *L)
+	int Table::__garbageCollector(lua_State *L)
 	{
 		luaL_error(L, "(%p) __gc metamethod not implemented", (void*)this);
 		return 0;
@@ -183,7 +183,7 @@ namespace SLB {
 		lua_setfield(L, -2, "__tostring");
 		pushMeta(L, &Table::__call);
 		lua_setfield(L, -2, "__call");
-		pushMeta(L, &Table::__gc);
+		pushMeta(L, &Table::__garbageCollector);
 		lua_setfield(L, -2, "__gc");
 
 		lua_setmetatable(L,-2);

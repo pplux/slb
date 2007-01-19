@@ -37,7 +37,7 @@ namespace SLB {
 		virtual int __index(lua_State *L);
 		virtual int __newindex(lua_State *L);
 		virtual int __call(lua_State *L);
-		virtual int __gc(lua_State *L);
+		virtual int __garbageCollector(lua_State *L);
 		virtual int __tostring(lua_State *L);
 
 		Elements _elements;

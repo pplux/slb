@@ -52,7 +52,7 @@ namespace SLB {
 		virtual ~ClassInfo();
 		void pushImplementation(lua_State *);
 		virtual int __call(lua_State*);
-		virtual int __gc(lua_State*);
+		virtual int __garbageCollector(lua_State*);
 		virtual int __tostring(lua_State*);
 		virtual int get(lua_State *L, const std::string &key);
 
