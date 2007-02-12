@@ -35,7 +35,7 @@ float Base2::method_b2(float a)
 	return _data[0];
 }
 
-Class1::Class1(int v) : _value(v)
+Class1::Class1(float v) : _value(v)
 {
 	SLB_DEBUG(1, "Class1 constructor %p value = %d", this, v);
 }
@@ -51,7 +51,7 @@ int Class1::method_overloaded(int a)
 }
 float Class1::method_overloaded(float a) const
 {
-	return a/2.0;
+	return a/2.0f;
 }
 
 int Class1::method1(float a, float b)

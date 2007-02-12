@@ -2,12 +2,13 @@
 #define __SLB_OBJECT__
 
 #include <assert.h>
+#include "Export.hpp"
 
 struct lua_State;
 
 namespace SLB
 {
-	class Object 
+	class SLB_EXPORT Object 
 	{
 	public:
 		unsigned int referenceCount() const { return _refCounter; }
@@ -17,8 +18,6 @@ namespace SLB
 		void push(lua_State *L);
 
 	protected:
-		Object( const Object &slbo);
-		Object& operator=( const Object &slbo);
 
 		Object();
 		virtual ~Object();
@@ -31,6 +30,10 @@ namespace SLB
 		void initialize(lua_State *);
 		static int GC_callback(lua_State *);
 		unsigned int _refCounter;
+
+		
+		Object( const Object &slbo);
+		Object& operator=( const Object &slbo);
 	};
 
 	// ------------------------------------------------------------

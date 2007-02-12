@@ -4,10 +4,11 @@
 #include "ref_ptr.hpp"
 #include "Manager.hpp"
 #include "Debug.hpp"
+#include "Export.hpp"
 
 namespace SLB {
 
-	class InstanceBase
+	class SLB_EXPORT InstanceBase
 	{
 	public:
 		enum Type
@@ -27,10 +28,10 @@ namespace SLB {
 
 		ClassInfo *getClass() { return _class.get(); }
 
-		bool isCopy()  const     { return (_flags & I_Copy); }
-		bool isConst() const     { return (_flags & I_Const_Pointer); }
+		bool isCopy()  const     { return _flags & I_Copy; }
+		bool isConst() const     { return (_flags & I_Const_Pointer) != 0; }
 		bool isPointer() const   { return (_flags & I_Pointer) || (_flags & I_Const_Pointer); }
-		bool isReference() const { return (_flags & I_Reference); }
+		bool isReference() const { return (_flags & I_Reference) != 0; }
 
 	protected:
 		int _flags;
@@ -115,7 +116,7 @@ namespace SLB {
 
 
 
-	struct InstanceFactory
+	struct SLB_EXPORT InstanceFactory
 	{
 		// create an Instance from a reference
 		virtual InstanceBase *create_ref(void *ref) = 0;

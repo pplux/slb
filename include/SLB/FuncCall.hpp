@@ -7,6 +7,7 @@
 #include "lua.hpp"
 
 #include <vector>
+#include <typeinfo>
 
 namespace SLB
 {
