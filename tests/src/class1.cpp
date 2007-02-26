@@ -37,7 +37,7 @@ float Base2::method_b2(float a)
 
 Class1::Class1(float v) : _value(v)
 {
-	SLB_DEBUG(1, "Class1 constructor %p value = %d", this, v);
+	SLB_DEBUG(1, "Class1 constructor %p value = %f", this, v);
 }
 
 Class1::~Class1()
