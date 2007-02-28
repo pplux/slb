@@ -6,6 +6,7 @@ env = Environment()
 
 env.Append(CPPPATH = [
 		'#/include',
+		'#/include/lua',
 		])
 
 env.Append(LIBPATH = [
@@ -20,7 +21,7 @@ env.Append(CCFLAGS = [
 env.Append(LINKFLAGS = [
 		])
 
-debug = int(ARGUMENTS.get('debug',10))
+debug = int(ARGUMENTS.get('debug',0))
 if debug > 0:	
 	print "********************************"
 	print "* Building in DEBUG mode       *"
@@ -37,10 +38,15 @@ else:
 env.Program(
 	target = '#/tests/SLB', 
 	source = glob.glob('tests/src/*.cpp'),
-	LIBS = ['SLB','lua','dl']
+	LIBS = ['SLB','dl']
 	)
+source_files = glob.glob('src/*.cpp') + glob.glob('src/lua/*.c')
 
+env.SharedLibrary(
+		target = '#/lib/SLB',
+		source = source_files
+		)
 env.StaticLibrary(
 		target = '#/lib/SLB',
-		source = glob.glob('src/*.cpp')
+		source = source_files
 		)
