@@ -38,6 +38,8 @@ namespace SLB {
 		void* convert( const std::type_info *C1, const std::type_info *C2, void *obj);
 		const void* convert( const std::type_info *C1, const std::type_info *C2, const void *obj);
 
+		Namespace* getGlobals() { return _global.get(); }
+
 	protected:
 
 		void rename(ClassInfo *c, const std::string &new_name);

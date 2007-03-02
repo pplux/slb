@@ -10,4 +10,8 @@
 #include <SLB/Class.hpp>
 #include <SLB/SPP.hpp>
 
+// just for help....
+#define SLB_ON_LOAD( FuncName ) \
+	SPP_STATIC_BLOCK( FuncName, FuncName(); )
+
 #endif
