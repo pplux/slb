@@ -1,8 +1,21 @@
 import os
 import sys
 import glob
+import SCons.Util
 
 env = Environment()
+
+if os.environ.has_key('CC'):
+	env['CC'] = os.environ['CC']
+if os.environ.has_key('CFLAGS'):
+	env['CCFLAGS'] += SCons.Util.CLVar(os.environ['CFLAGS'])
+if os.environ.has_key('CXX'):
+	env['CXX'] = os.environ['CXX']
+if os.environ.has_key('CXXFLAGS'):
+	env['CXXFLAGS'] += SCons.Util.CLVar(os.environ['CXXFLAGS'])
+if os.environ.has_key('LDFLAGS'):
+	env['LINKFLAGS'] += SCons.Util.CLVar(os.environ['LDFLAGS'])
+
 
 env.Append(CPPPATH = [
 		'#/include',
@@ -38,6 +51,7 @@ else:
 env.Program(
 	target = '#/tests/SLB', 
 	source = glob.glob('tests/src/*.cpp'),
+	LINKFLAGS = ['-Wl,-E'],
 	LIBS = ['SLB','dl']
 	)
 source_files = glob.glob('src/*.cpp') + glob.glob('src/lua/*.c')
