@@ -38,82 +38,129 @@ namespace SLB {
 		ref_ptr<ClassInfo> _class;
 	};
 
+	namespace Instance {
 
-	template<class T>
-	class DefaultInstance : public InstanceBase
-	{
-	public:
-		// constructor form a pointer 
-		DefaultInstance( T* ptr, bool fromConstructor = false ) : InstanceBase( I_Pointer, typeid(T) ), _ptr(ptr)
-	   	{
-			if (fromConstructor) _flags |= I_Copy;
-		}
-		// constructor from const pointer
-		DefaultInstance( const T *ptr ) : InstanceBase( I_Const_Pointer, typeid(T)), _const_ptr(ptr)
-		{
-		}
-
-		// constructor from reference
-		DefaultInstance( T &ref ) : InstanceBase( I_Reference, typeid(T) ), _ptr( &ref )
-		{
-		}
-
-		// copy constructor,  
-		DefaultInstance( const T &ref) : InstanceBase( I_Copy, typeid(T) ), _ptr( 0L )
-		{
-			_ptr = new T( ref );
-		}
-
-		virtual ~DefaultInstance() { if (isCopy()) delete _ptr; }
-
-		void* get_ptr() { return (isConst())? 0L : _ptr; }
-		const void* get_const_ptr() { return _const_ptr; }
-	protected:
-		union {
-			T *_ptr;
-			const T *_const_ptr;
-		};
-	};
-
-	template<class T>
-	class NoCopyNoDestroyInstance : public InstanceBase
-	{
-	public:
-		// constructor form a pointer 
-		NoCopyNoDestroyInstance( T* ptr, bool fromConstructor) : InstanceBase( I_Pointer, typeid(T) ), _ptr(ptr)
-	   	{
-			if (fromConstructor)
+		struct Default {
+			template<class T>
+			class Implementation : public InstanceBase
 			{
-				_flags = I_Invalid;
-				_ptr = 0;
-			}
-		}
-		// constructor from const pointer
-		NoCopyNoDestroyInstance( const T *ptr ) : InstanceBase( I_Const_Pointer, typeid(T)), _const_ptr(ptr)
-		{
-		}
+			public:
+				// constructor from a pointer 
+				// @fromConstructor is true if this instance was created inside the scripting language calling a 
+				//    class constructor method. If this instance was returned by a function, thus was not 
+				//    created inside the script then @fromConstructor = false.
+				Implementation( T* ptr, bool fromConstructor = false ) : InstanceBase( I_Pointer, typeid(T) ), _ptr(ptr)
+				{
+					if (fromConstructor) _flags |= I_Copy;
+				}
+				// constructor from const pointer
+				Implementation( const T *ptr ) : InstanceBase( I_Const_Pointer, typeid(T)), _const_ptr(ptr)
+				{
+				}
 
-		// constructor from reference
-		NoCopyNoDestroyInstance( T &ref ) : InstanceBase( I_Reference, typeid(T) ), _ptr( &ref )
-		{
-		}
+				// constructor from reference
+				Implementation( T &ref ) : InstanceBase( I_Reference, typeid(T) ), _ptr( &ref )
+				{
+				}
 
-		// copy constructor,  
-		NoCopyNoDestroyInstance( const T &) : InstanceBase( I_Invalid, typeid(T) ), _ptr( 0L )
-		{
-		}
+				// copy constructor,  
+				Implementation( const T &ref) : InstanceBase( I_Copy, typeid(T) ), _ptr( 0L )
+				{
+					_ptr = new T( ref );
+				}
 
-		virtual ~NoCopyNoDestroyInstance() {}
+				virtual ~Implementation() { if (isCopy()) delete _ptr; }
 
-		void* get_ptr() { return (isConst())? 0L : _ptr; }
-		const void* get_const_ptr() { return _const_ptr; }
-	protected:
-		union {
-			T *_ptr;
-			const T *_const_ptr;
+				void* get_ptr() { return (isConst())? 0L : _ptr; }
+				const void* get_const_ptr() { return _const_ptr; }
+			protected:
+				union {
+					T *_ptr;
+					const T *_const_ptr;
+				};
+			};
 		};
-	};
 
+
+		struct NoCopyNoDestroy 
+		{
+			template<class T>
+			class Implementation : public InstanceBase
+			{
+			public:
+				// constructor form a pointer 
+				Implementation( T* ptr, bool fromConstructor) : InstanceBase( I_Pointer, typeid(T) ), _ptr(ptr)
+				{
+					if (fromConstructor)
+					{
+						_flags = I_Invalid;
+						_ptr = 0;
+					}
+				}
+				// constructor from const pointer
+				Implementation( const T *ptr ) : InstanceBase( I_Const_Pointer, typeid(T)), _const_ptr(ptr)
+				{
+				}
+
+				// constructor from reference
+				Implementation( T &ref ) : InstanceBase( I_Reference, typeid(T) ), _ptr( &ref )
+				{
+				}
+
+				// copy constructor,  
+				Implementation( const T &) : InstanceBase( I_Invalid, typeid(T) ), _ptr( 0L )
+				{
+				}
+
+				virtual ~Implementation() {}
+
+				void* get_ptr() { return (isConst())? 0L : _ptr; }
+				const void* get_const_ptr() { return _const_ptr; }
+			protected:
+				union {
+					T *_ptr;
+					const T *_const_ptr;
+				};
+			};
+		};
+
+		template<template <class> class T_SmartPtr>
+		struct SmartPtr 
+		{
+			template<class T>
+			class Implementation : public InstanceBase
+			{
+			public:
+				Implementation( T* ptr, bool) : InstanceBase( I_Pointer, typeid(T) ), _sm_ptr(ptr)
+				{
+					_const_ptr = &(*_sm_ptr);
+				}
+				Implementation( const T *ptr ) : InstanceBase( I_Const_Pointer, typeid(T)), _const_ptr(ptr)
+				{
+				}
+				// What should we do with references and smart pointers?
+				Implementation( T &ref ) : InstanceBase( I_Reference, typeid(T) ), _sm_ptr( &ref )
+				{
+					_const_ptr = &(*_sm_ptr);
+				}
+
+				// copy constructor,  
+				Implementation( const T &ref) : InstanceBase( I_Copy, typeid(T) ), _sm_ptr( 0L ), _const_ptr(&ref)
+				{
+					_sm_ptr = new T( ref );
+				}
+
+				virtual ~Implementation() {}
+
+				void* get_ptr() { return &(*_sm_ptr); }
+				const void* get_const_ptr() { return _const_ptr; }
+			protected:
+				T_SmartPtr<T> _sm_ptr;
+				const T *_const_ptr;
+			};
+		};
+	
+	} // end of Instance namespace
 
 
 	struct SLB_EXPORT InstanceFactory
@@ -130,31 +177,31 @@ namespace SLB {
 		virtual ~InstanceFactory();
 	};
 
-	template<class T, template<class> class TInstance >
+	template<class T, class TInstance >
 	struct InstanceFactoryAdapter : public InstanceFactory
 	{
 		virtual InstanceBase *create_ref(void *v_ref)
 		{
 			T &ref = *reinterpret_cast<T*>(v_ref);
-			return new TInstance<T>( ref );
+			return new TInstance( ref );
 		}
 
 		virtual InstanceBase *create_ptr(void *v_ptr, bool fromConstructor )
 		{
 			T *ptr = reinterpret_cast<T*>(v_ptr);
-			return new TInstance<T>( ptr, fromConstructor );
+			return new TInstance( ptr, fromConstructor );
 		}
 
 		virtual InstanceBase *create_const_ptr(const void *v_ptr)
 		{
 			const T *const_ptr = reinterpret_cast<const T*>(v_ptr);
-			return new TInstance<T>( const_ptr );
+			return new TInstance( const_ptr );
 		}
 
 		virtual InstanceBase *create_copy(const void *v_ptr)
 		{
 			const T &const_ref = *reinterpret_cast<const T*>(v_ptr);
-			return new TInstance<T>( const_ref );
+			return new TInstance( const_ref );
 		}
 
 		virtual ~InstanceFactoryAdapter() {}
