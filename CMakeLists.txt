@@ -1,5 +1,8 @@
 project( SLB )
 
+set(CMAKE_C_FLAGS_DEBUG "-Wall -g")
+set(CMAKE_CXX_FLAGS_DEBUG "-Wall -g")
+
 # Header files...
 file(GLOB HEADERS_SLB "${SLB_SOURCE_DIR}/include/*.hpp")
 file(GLOB HEADERS_SLB_SLB "${SLB_SOURCE_DIR}/include/SLB/*.hpp")
@@ -31,3 +34,10 @@ add_executable(SLB_test ${SOURCES_TEST})
 target_link_libraries(SLB_test SLB)
 
 enable_testing()
+
+file(GLOB SCRIPTS_TEST "${SLB_SOURCE_DIR}/tests/scripts/*.lua")
+foreach(script ${SCRIPTS_TEST})
+	get_filename_component( TEST_NAME ${script} NAME)
+	add_test(${TEST_NAME} "${EXECUTABLE_OUTPUT_PATH}/SLB_test" script)
+endforeach(script)
+
