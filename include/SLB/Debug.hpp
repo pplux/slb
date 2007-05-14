@@ -8,7 +8,9 @@
 	#include <cstdio>
 	#define SLB_DEBUG_FUNC(...) \
 	{\
-		fprintf(stderr,"[%s:%-4d] ", __FILE__, __LINE__);\
+		int __s = strlen(__FILE__); \
+		int __offset = (__s > 18)? __s - 18: 0; \
+		fprintf(stderr,"[%12s:%-4d] ", __FILE__+__offset, __LINE__);\
 		fprintf(stderr,__VA_ARGS__);\
 		fprintf(stderr,"\n");\
 	}

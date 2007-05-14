@@ -2,31 +2,23 @@
 #include "class1.hpp"
 #include <iostream>
 
-void execute(lua_State *L, const char *command)
-{
-	std::cout << "-----------------------------------------" << std::endl;
-	std::cout << "- Execute : " << command << std::endl << std::endl;
-	if (luaL_dostring(L, command))
-	{
-		std::cout << "ERROR... " << lua_tostring(L, -1) << std::endl;
-		lua_pop(L,1);
-	}
-	std::cout << "-----------------------------------------" << std::endl;
-}
-
 int main(int argc, char **argv)
 {
-	SLB_DEBUG(0, "Start....");
+	SLB_DEBUG(0, "Start test...");
 	lua_State *L = luaL_newstate();
 	luaL_openlibs(L);
+	SLB_DEBUG(0, "Open SLB...");
 	SLB::Manager::getInstance().registerSLB(L);
 
-	Class1 obj(8);
+	SLB_DEBUG(0, "Loading script...");
+	if( luaL_dofile(L, argv[1]) )
+	{
+		std::cerr << "Error: " << lua_tostring(L,-1) << std::endl;
+		exit(1);
+	}
 
-	for (int i = 1; i < argc; ++i) execute(L, argv[i]);
-
-	SLB_DEBUG(0, "End of test....");
+	SLB_DEBUG(0, "Closing script...");
 	lua_close(L);
-	SLB_DEBUG(0, "End....");
-	return 0;
+	SLB_DEBUG(0, "End Test...");
+	exit(0);
 }

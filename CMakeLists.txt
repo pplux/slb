@@ -2,6 +2,7 @@ project( SLB )
 
 set(CMAKE_C_FLAGS_DEBUG "-Wall -g")
 set(CMAKE_CXX_FLAGS_DEBUG "-Wall -g")
+add_definitions(-DSLB_DEBUG_LEVEL=100)
 
 # Header files...
 file(GLOB HEADERS_SLB "${SLB_SOURCE_DIR}/include/*.hpp")
@@ -38,6 +39,6 @@ enable_testing()
 file(GLOB SCRIPTS_TEST "${SLB_SOURCE_DIR}/tests/scripts/*.lua")
 foreach(script ${SCRIPTS_TEST})
 	get_filename_component( TEST_NAME ${script} NAME)
-	add_test(${TEST_NAME} "${EXECUTABLE_OUTPUT_PATH}/SLB_test" script)
+	add_test("${TEST_NAME}" "${EXECUTABLE_OUTPUT_PATH}/SLB_test" "${script}")
 endforeach(script)
 
