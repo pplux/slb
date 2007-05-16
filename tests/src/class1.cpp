@@ -1,4 +1,4 @@
-#include<SLB.hpp>
+#include <SLB/SLB.hpp>
 #include "class1.hpp"
 
 Base1::Base1()
