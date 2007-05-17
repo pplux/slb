@@ -1,14 +1,14 @@
 #ifndef __SLB__
 #define __SLB__
 
-#include <SLB/Manager.hpp>
-#include <SLB/ClassInfo.hpp>
-#include <SLB/PushGet.hpp>
-#include <SLB/Type.hpp>
-#include <SLB/Table.hpp>
-#include <SLB/Value.hpp>
-#include <SLB/Class.hpp>
-#include <SLB/SPP.hpp>
+#include "Manager.hpp"
+#include "ClassInfo.hpp"
+#include "PushGet.hpp"
+#include "Type.hpp"
+#include "Table.hpp"
+#include "Value.hpp"
+#include "Class.hpp"
+#include "SPP.hpp"
 
 // just for help....
 #define SLB_ON_LOAD( FuncName ) \
