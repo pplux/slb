@@ -8,6 +8,7 @@
 #include "Table.hpp"
 #include "Value.hpp"
 #include "Class.hpp"
+#include "Enum.hpp"
 #include "SPP.hpp"
 
 // just for help....
