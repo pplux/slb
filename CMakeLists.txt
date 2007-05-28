@@ -8,6 +8,7 @@ if(NOT SLB_EXTERNAL)
 endif(NOT SLB_EXTERNAL)
 
 include_directories( "${SLB_SOURCE_DIR}/include" )
+include_directories( "${SLB_SOURCE_DIR}/include/SLB/lua" )
 
 set(CMAKE_C_FLAGS_DEBUG "-Wall -g")
 set(CMAKE_CXX_FLAGS_DEBUG "-Wall -g")
