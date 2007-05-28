@@ -3,6 +3,11 @@
 
 #include "lua.hpp"
 
+// Fixed Apple problems
+#ifdef check
+    #undef check
+#endif
+
 namespace SLB {
 
 //----------------------------------------------------------------------------
