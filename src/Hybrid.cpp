@@ -6,7 +6,7 @@
 
 namespace SLB {
 
-	Hybrid::Hybrid(lua_State *L) : _L(L)
+	HybridBase::HybridBase(lua_State *L) : _L(L)
 	{
 		if (_L == 0) { _L = luaL_newstate(); }
 		Manager::getInstance().registerSLB(_L);
@@ -23,7 +23,7 @@ namespace SLB {
 		lua_pop(L,1);
 	}
 
-	Hybrid::~Hybrid()
+	HybridBase::~HybridBase()
 	{
 		lua_getfield(_L, LUA_REGISTRYINDEX, "SLB_HYBRID");
 		int v = lua_tointeger(_L,-1);
@@ -39,7 +39,7 @@ namespace SLB {
 		}
 	}
 
-	void Hybrid::loadFile(const char *file)
+	void HybridBase::loadFile(const char *file)
 	{
 		int t = lua_gettop(_L);
 		if(luaL_dofile(_L, file))
