@@ -20,6 +20,20 @@ namespace SLB {
 	{
 		int top = lua_gettop(L);
 
+		//check if SLB is already registered...
+		lua_getfield(L, LUA_REGISTRYINDEX, "SLB");
+		if (lua_isnil(L,-1))
+		{
+			lua_pop(L,1);
+			lua_pushboolean(L,1);
+			lua_setfield(L,LUA_REGISTRYINDEX, "SLB");
+		}
+		else
+		{
+			lua_pop(L,1);
+			return;
+		}
+
 		// use _G metatable for our values...
 		lua_getmetatable(L, LUA_GLOBALSINDEX);
 		if (lua_isnil(L, -1))

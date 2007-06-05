@@ -9,6 +9,7 @@
 #include "Value.hpp"
 #include "Class.hpp"
 #include "Enum.hpp"
+#include "Hybrid.hpp"
 #include "SPP.hpp"
 
 // just for help....
