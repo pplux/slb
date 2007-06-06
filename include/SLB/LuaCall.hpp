@@ -52,7 +52,7 @@ namespace SLB
 				int top = lua_gettop(L); \
 				lua_getglobal(L, funcname); \
 				SPP_REPEAT( N, SLB_PUSH_ARGS ); \
-				if(lua_pcall(L, N, 1, 0)) \
+				if(lua_pcall(L, N, 0, 0)) \
 				{ \
 					std::cerr << "Error executing " << funcname << " " << lua_tostring(L, -1) << std::endl; \
 				} \

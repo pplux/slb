@@ -17,28 +17,22 @@ namespace SLB {
 
 	class HybridBase {
 	public:
-		HybridBase(lua_State *L = 0L);
-		~HybridBase();
 
-		void loadFile(const char *file);
+		bool loadFile(const char *file);
 		lua_State *getLuaState() { return _L; }
 
 	protected:
+		HybridBase(lua_State *L);
+		virtual ~HybridBase();
+
 		lua_State *_L;
-		
 	};
 
 	template<class BaseClass>
 	class Hybrid : public HybridBase {
 	public:
-		Hybrid(lua_State *L = 0L);
-		~Hybrid();
-
-		void loadFile(const char *file);
-		lua_State *getLuaState() { return _L; }
-
+		Hybrid(lua_State *L = 0L) : HybridBase(L) {}
 	protected:
-		lua_State *_L;
 		
 	#define SLB_ARG_H(N) ,T##N arg_##N
 	#define SLB_ARG(N) , arg_##N

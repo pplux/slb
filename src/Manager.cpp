@@ -3,7 +3,33 @@
 #include <SLB/lua.hpp>
 #include <SLB/Debug.hpp>
 
+
 namespace SLB {
+
+	/* Global functions */
+	int SLB_type(lua_State *L)
+	{
+		int top = lua_gettop(L);
+		lua_getmetatable(L,1);
+		if (!lua_isnil(L,-1))
+		{
+			lua_getfield(L, -1, "__class_ptr");
+			if (!lua_isnil(L,-1))
+			{
+				ClassInfo* ci = reinterpret_cast<ClassInfo*>( lua_touserdata(L,-1) );
+				lua_settop(L, top);
+				lua_pushstring(L, ci->getName().c_str());
+				return 1;
+			}
+		}
+		lua_settop(L, top);
+		return 0;
+	}
+
+	static const luaL_Reg SLB_funcs[] = {
+		{"SLB_type", SLB_type},
+		{NULL, NULL}
+	};
 
 	Manager::Manager()
 	{
@@ -50,6 +76,11 @@ namespace SLB {
 		lua_setmetatable(L, LUA_GLOBALSINDEX);
 
 		lua_settop(L,top);
+
+		// Register global functions
+		lua_pushvalue(L, LUA_GLOBALSINDEX);
+		luaL_register(L, 0, SLB_funcs);
+		lua_pop(L,1);
 	}
 	
 	Manager *Manager::getInstancePtr()
