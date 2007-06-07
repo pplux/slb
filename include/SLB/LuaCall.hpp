@@ -9,6 +9,7 @@
 #include <vector>
 #include <typeinfo>
 #include <iostream>
+#include <stdexcept>
 
 namespace SLB
 {
@@ -33,12 +34,12 @@ namespace SLB
 				SPP_REPEAT( N, SLB_PUSH_ARGS ); \
 				if(lua_pcall(L, N, 1, 0)) \
 				{ \
-					std::cerr << "Error executing " << funcname << " " << lua_tostring(L, -1) << std::endl; \
+					std::runtime_error exception(   \
+						std::string(funcname) + " ---lua---> " + lua_tostring(L,-1)); \
+					lua_settop(L,top); \
+					throw exception;\
 				} \
-				else \
-				{ \
-					result = get<R>(L, -1); \
-				} \
+				result = get<R>(L, -1); \
 				lua_settop(L,top); \
 				return result; \
 			} \
@@ -54,7 +55,10 @@ namespace SLB
 				SPP_REPEAT( N, SLB_PUSH_ARGS ); \
 				if(lua_pcall(L, N, 0, 0)) \
 				{ \
-					std::cerr << "Error executing " << funcname << " " << lua_tostring(L, -1) << std::endl; \
+					std::runtime_error exception(   \
+						std::string(funcname) + " ---lua---> " + lua_tostring(L,-1)); \
+					lua_settop(L,top); \
+					throw exception;\
 				} \
 				lua_settop(L,top); \
 			} \
