@@ -32,7 +32,6 @@ namespace SLB {
 		lua_pushnil(L);
 		while( lua_next(L, lua_upvalueindex(1)) )
 		{
-			std::cout << "Searching ... "  << key<< std::endl;
 			lua_pushvalue(L,2); // key
 			lua_gettable(L, -2); 
 			if (!lua_isnil(L,-1))
