@@ -3,6 +3,7 @@
 #include <SLB/lua.hpp>
 #include <SLB/Debug.hpp>
 
+#include <iostream>
 
 namespace SLB {
 
@@ -10,8 +11,7 @@ namespace SLB {
 	int SLB_type(lua_State *L)
 	{
 		int top = lua_gettop(L);
-		lua_getmetatable(L,1);
-		if (!lua_isnil(L,-1))
+		if (lua_getmetatable(L,1))
 		{
 			lua_getfield(L, -1, "__class_ptr");
 			if (!lua_isnil(L,-1))
@@ -26,8 +26,73 @@ namespace SLB {
 		return 0;
 	}
 
+	int SLB_using_index(lua_State *L)
+	{
+		const char *key = lua_tostring(L,2);
+		lua_pushnil(L);
+		while( lua_next(L, lua_upvalueindex(1)) )
+		{
+			std::cout << "Searching ... "  << key<< std::endl;
+			lua_pushvalue(L,2); // key
+			lua_gettable(L, -2); 
+			if (!lua_isnil(L,-1))
+			{
+				return 1;
+			}
+			lua_pop(L,2);
+		}
+		return 0;
+	}
+
+	int SLB_using(lua_State *L)
+	{
+		int top = lua_gettop(L);
+		luaL_checktype(L, 1, LUA_TTABLE);
+
+		lua_getfield(L, LUA_REGISTRYINDEX, "SLB_using");
+		if ( lua_isnil(L,-1) )
+		{
+			// pop nil value
+			lua_pop(L,1);
+
+			// get or create _G's metatable 
+			if(!lua_getmetatable(L, LUA_GLOBALSINDEX))
+			{
+				lua_newtable(L);
+				// set as metatable of _B 
+				lua_pushvalue(L,-1);
+				lua_setmetatable(L, LUA_GLOBALSINDEX);
+			}
+			else
+			{
+				luaL_error(L, "Can not use SLB.using,"
+					" _G already has a metatable");
+			}
+
+			lua_newtable(L); // create the "SLB_using" table
+			lua_pushvalue(L,-1); // keep a copy in registry 
+			lua_setfield(L, LUA_REGISTRYINDEX, "SLB_using");
+
+			// push the using_index func with the SLB_using table as closure
+			lua_pushvalue(L,-1);
+			lua_pushcclosure(L, SLB_using_index, 1); // push the closure
+			// set this functions as "__index" of the metatable (at -3)
+			lua_setfield(L, -3, "__index");
+
+			// leave the SLB_using table at the top
+		}
+		lua_pushvalue(L,1); // get the first argument
+		//TODO check not repeating tables...
+		luaL_ref(L, -2); // add the table
+
+		lua_settop(L,top);
+		return 0;
+	}
+
+
 	static const luaL_Reg SLB_funcs[] = {
-		{"SLB_type", SLB_type},
+		{"type", SLB_type},
+		{"using", SLB_using},
 		{NULL, NULL}
 	};
 
@@ -46,41 +111,16 @@ namespace SLB {
 	{
 		int top = lua_gettop(L);
 
-		//check if SLB is already registered...
-		lua_getfield(L, LUA_REGISTRYINDEX, "SLB");
-		if (lua_isnil(L,-1))
-		{
-			lua_pop(L,1);
-			lua_pushboolean(L,1);
-			lua_setfield(L,LUA_REGISTRYINDEX, "SLB");
-		}
-		else
-		{
-			lua_pop(L,1);
-			return;
-		}
-
-		// use _G metatable for our values...
-		lua_getmetatable(L, LUA_GLOBALSINDEX);
-		if (lua_isnil(L, -1))
-		{
-			lua_newtable(L);
-		}
-		else
-		{
-			SLB_DEBUG(0, "WARNING: Lua_State %p has a global metatable...", L);
-		}
+		// Register global functions
+		luaL_register(L, "SLB", SLB_funcs);
+		// metatable of "SLB"
+		lua_newtable(L);
 		lua_pushstring(L,"__index");
 		_global->push(L);
 		lua_rawset(L,-3);
-		lua_setmetatable(L, LUA_GLOBALSINDEX);
+		lua_setmetatable(L,-2); // SLB table
 
 		lua_settop(L,top);
-
-		// Register global functions
-		lua_pushvalue(L, LUA_GLOBALSINDEX);
-		luaL_register(L, 0, SLB_funcs);
-		lua_pop(L,1);
 	}
 	
 	Manager *Manager::getInstancePtr()
