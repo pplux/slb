@@ -28,7 +28,6 @@ namespace SLB {
 
 	int SLB_using_index(lua_State *L)
 	{
-		const char *key = lua_tostring(L,2);
 		lua_pushnil(L);
 		while( lua_next(L, lua_upvalueindex(1)) )
 		{
