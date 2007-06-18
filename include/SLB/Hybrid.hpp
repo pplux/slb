@@ -5,6 +5,7 @@
 #include "Manager.hpp"
 #include "LuaCall.hpp"
 #include "Value.hpp"
+#include "ClassInfo.hpp"
 #include "Instance.hpp"
 #include <typeinfo>
 #include <map>
@@ -31,7 +32,21 @@ namespace SLB {
 	template<class BaseClass>
 	class Hybrid : public HybridBase {
 	public:
-		Hybrid(lua_State *L = 0L) : HybridBase(L) {}
+		Hybrid(lua_State *L = 0L) : HybridBase(L)
+		{
+			ClassInfo *c;
+			c = Manager::getInstance().getOrCreateClass( typeid(BaseClass) );
+			if (!c->initialized())
+			{
+				// Give a default instance factory... that only is able
+				// to handle push/get of pointers without handling 
+				// construction, copy, delete, ...
+				c->setInstanceFactory(
+					new InstanceFactoryAdapter< BaseClass,
+						Instance::NoCopyNoDestroy::Implementation<BaseClass> >()
+				);
+			}
+		}
 	protected:
 		
 	#define SLB_ARG_H(N) ,T##N arg_##N

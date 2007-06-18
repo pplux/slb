@@ -46,6 +46,8 @@ namespace SLB {
 
 		void setConstructor( FuncCall *constructor );
 		void setInstanceFactory( InstanceFactory *);
+		//This is used by some default initializations...
+		bool initialized() const { return _instanceFactory != 0; }
 
 	protected:
 		ClassInfo(const std::type_info&);
