@@ -24,7 +24,7 @@
 #define __SLB_LUA__
 
 extern "C" {
-#ifdef EXTERNAL_LUA
+#ifdef SLB_EXTERNAL_LUA
 	#include <lua.h>
 	#include <lauxlib.h>
 	#include <lualib.h>

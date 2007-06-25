@@ -26,7 +26,7 @@ if(USE_EMBEDDED_LUA)
 	file(GLOB SOURCES_SLB_LUA "${SLB_SOURCE_DIR}/src/lua.c")
 	source_group("Source Files\\SLB\\lua" FILES ${SOURCES_SLB_LUA})
 else(USE_EMBEDDED_LUA)
-	add_definitions(-DEXTERNAL_LUA)
+	add_definitions(-DSLB_EXTERNAL_LUA)
 endif(USE_EMBEDDED_LUA)
 
 set(HEADERS ${HEADERS_SLB} ${HEADERS_SLB_LUA})
