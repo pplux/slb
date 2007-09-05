@@ -48,6 +48,24 @@ namespace SLB {
 		return 0;
 	}
 
+	int SLB_copy(lua_State *L)
+	{
+		int top = lua_gettop(L);
+		if (lua_getmetatable(L,1))
+		{
+			lua_getfield(L, -1, "__class_ptr");
+			if (!lua_isnil(L,-1))
+			{
+				ClassInfo* ci = reinterpret_cast<ClassInfo*>( lua_touserdata(L,-1) );
+				lua_settop(L, top);
+				ci->push_copy(L, lua_touserdata(L,1));
+				return 1;
+			}
+		}
+		lua_settop(L, top);
+		return 0;
+	}
+
 	int SLB_using_index(lua_State *L)
 	{
 		lua_pushnil(L);
@@ -111,6 +129,7 @@ namespace SLB {
 
 	static const luaL_Reg SLB_funcs[] = {
 		{"type", SLB_type},
+		{"copy", SLB_copy},
 		{"using", SLB_using},
 		{NULL, NULL}
 	};
