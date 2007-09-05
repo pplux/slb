@@ -44,5 +44,6 @@ if (NOT USE_EMBEDDED_LUA)
 endif(NOT USE_EMBEDDED_LUA)
 
 if(BUILD_TESTS)
+	enable_testing()
 	add_subdirectory(tests)
 endif(BUILD_TESTS)
