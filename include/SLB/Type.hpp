@@ -73,6 +73,11 @@ namespace Private {
 
 		static void push(lua_State *L, T *obj, bool fromConstructor = false)
 		{
+			if (obj == 0)
+			{
+				lua_pushnil(L);
+				return;
+			}
 			if (typeid(*obj) != typeid(T))
 			{
 				// check if the internal class exists...
@@ -113,6 +118,11 @@ namespace Private {
 
 		static void push(lua_State *L,const T *obj)
 		{
+			if (obj == 0)
+			{
+				lua_pushnil(L);
+				return;
+			}
 			if (typeid(*obj) != typeid(T))
 			{
 				// check if the internal class exists...
