@@ -42,6 +42,7 @@ namespace SLB {
 	public:
 
 		bool loadFile(const char *file);
+		bool loadFromMemory(const char *buffer);
 		lua_State *getLuaState() { return _L; }
 
 	protected:

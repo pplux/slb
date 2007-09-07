@@ -78,5 +78,19 @@ namespace SLB {
 		lua_settop(_L, t);
 		return result;
 	}
+
+	bool HybridBase::loadFromMemory(const char *buffer)
+	{
+		bool result = true;
+		int t = lua_gettop(_L);
+		if(luaL_dostring(_L, buffer))
+		{
+			std::cerr << "Error loading from Memory: " << lua_tostring(_L,-1)
+				<< std::endl;
+			result = false;
+		}
+		lua_settop(_L, t);
+		return result;
+	}
 	
 }
