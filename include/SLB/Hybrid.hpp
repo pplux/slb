@@ -41,8 +41,8 @@ namespace SLB {
 	class HybridBase {
 	public:
 
-		bool loadFile(const char *file);
-		bool loadFromMemory(const char *buffer);
+		bool linkFromFile(const char *file);
+		bool linkFromMemory(const char *buffer);
 		lua_State *getLuaState() { return _L; }
 
 	protected:

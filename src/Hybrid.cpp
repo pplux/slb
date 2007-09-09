@@ -65,7 +65,7 @@ namespace SLB {
 		}
 	}
 
-	bool HybridBase::loadFile(const char *file)
+	bool HybridBase::linkFromFile(const char *file)
 	{
 		bool result = true;
 		int t = lua_gettop(_L);
@@ -79,7 +79,7 @@ namespace SLB {
 		return result;
 	}
 
-	bool HybridBase::loadFromMemory(const char *buffer)
+	bool HybridBase::linkFromMemory(const char *buffer)
 	{
 		bool result = true;
 		int t = lua_gettop(_L);
