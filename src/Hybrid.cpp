@@ -71,7 +71,7 @@ namespace SLB {
 		int t = lua_gettop(_L);
 		if(luaL_dofile(_L, file))
 		{
-			std::cerr << "Error loading file: " << lua_tostring(_L,-1)
+			std::cerr << "Error linking from file: " << lua_tostring(_L,-1)
 				<< std::endl;
 			result = false;
 		}
@@ -85,8 +85,15 @@ namespace SLB {
 		int t = lua_gettop(_L);
 		if(luaL_dostring(_L, buffer))
 		{
-			std::cerr << "Error loading from Memory: " << lua_tostring(_L,-1)
+			std::cerr << "Error linking from Memory: " << lua_tostring(_L,-1)
 				<< std::endl;
+			/*
+			std::cerr
+				<< "* Buffer contents: **************************"
+				<< std::endl << buffer << std::endl
+				<< "*********************************************"
+				<< std::endl;
+			*/
 			result = false;
 		}
 		lua_settop(_L, t);
