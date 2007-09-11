@@ -158,12 +158,19 @@ namespace SLB {
 	{
 		if (_instanceFactory)
 		{
-			pushInstance(L, _instanceFactory->create_ref(ref) );
-			SLB_DEBUG(7, "Class(%s) push_ref -> %p", _name.c_str(), ref);
+			if (ref)
+			{
+				pushInstance(L, _instanceFactory->create_ref(ref) );
+				SLB_DEBUG(7, "Class(%s) push_ref -> %p", _name.c_str(), ref);
+			}
+			else
+			{
+				luaL_error(L, "Can not push a NULL reference of class %s", _name.c_str());
+			}
 		}
 		else
 		{
-			luaL_error(L, "Can not push a ref of class %s", _name.c_str());
+			luaL_error(L, "Unknown class %s (push_reference)", _name.c_str());
 		}
 	}
 
@@ -197,8 +204,15 @@ namespace SLB {
 	{
 		if (_instanceFactory)
 		{
-			pushInstance(L, _instanceFactory->create_copy(ptr) );
-			SLB_DEBUG(7, "Class(%s) push copy -> %p", _name.c_str(), ptr);
+			if (ptr)
+			{
+				pushInstance(L, _instanceFactory->create_copy(ptr) );
+				SLB_DEBUG(7, "Class(%s) push copy -> %p", _name.c_str(), ptr);
+			}
+			else
+			{
+				luaL_error(L, "Can not push copy from NULL of class %s", _name.c_str());
+			}
 		}
 		else
 		{

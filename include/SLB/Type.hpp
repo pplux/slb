@@ -159,7 +159,10 @@ namespace Private {
 
 		static const T& get(lua_State *L, int pos)
 		{
-			return *(Type<const T*>::get(L,pos));
+			const T* obj = Type<const T*>::get(L,pos);
+			//TODO: remove the typeid(T).getName() and use classInfo :)
+			if (obj == 0L) luaL_error(L, "Can not get a reference of class %s", typeid(T).name());
+			return *(obj);
 		}
 
 		static bool check(lua_State *L, int pos)
