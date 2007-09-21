@@ -66,6 +66,9 @@ namespace SLB
 		SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
 		#undef SLB_REPEAT
 
+		/* special case of a proper lua Function */
+		static Object* create(lua_CFunction f);
+
 		size_t getNumArguments() const { return _Targs.size(); }
 		const std::type_info* getArgType(size_t p) const { return _Targs[p]; }
 		const std::type_info* getReturnedType() const { return _Treturn; }

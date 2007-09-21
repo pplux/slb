@@ -47,5 +47,22 @@ namespace SLB {
 		FuncCall *fc = (FuncCall*) lua_touserdata(L,lua_upvalueindex(1));
 		return fc->call(L);
 	}
+	
+
+	/* For lua functions.... */
+	class LuaCFunction : public virtual Object
+	{
+	public:
+		LuaCFunction(lua_CFunction f) : _func(f) {}
+	protected:
+		void pushImplementation(lua_State *L) { lua_pushcfunction(L,_func); }
+		virtual ~LuaCFunction() {}
+		lua_CFunction _func;
+	};
+
+	Object* FuncCall::create(lua_CFunction f)
+	{
+		return new LuaCFunction(f);
+	}
 
 }

@@ -62,6 +62,9 @@ namespace SLB {
 		__Self &set_autoDelete(const char *name, TValue *obj)
 		{ return rawSet(name, Value::autoDelete(obj)); }
 
+		__Self &set(const char *name, lua_CFunction func)
+		{ return rawSet(name, FuncCall::create(func)); }
+
 		__Self &constructor();
 
 		template<typename TBase>

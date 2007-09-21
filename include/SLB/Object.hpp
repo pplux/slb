@@ -46,7 +46,6 @@ namespace SLB
 
 		virtual void pushImplementation(lua_State *) = 0;
 		virtual void onGarbageCollection(lua_State *) {}
-		const char* getID();
 
 	private:
 		void initialize(lua_State *);
