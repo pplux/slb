@@ -1,5 +1,4 @@
 #include <SLB/SLB.hpp>
-#include "class1.hpp"
 #include <iostream>
 
 int main(int argc, char **argv)
