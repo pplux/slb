@@ -37,7 +37,10 @@ add_library(SLB
 	${HEADERS}
 	${SOURCES}
 )
-set_target_properties( SLB PROPERTIES LINK_FLAGS "-Wl,-E")
+
+if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	set_target_properties( SLB PROPERTIES LINK_FLAGS "-Wl,-E")
+endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 if (NOT USE_EMBEDDED_LUA)
 	target_link_libraries( SLB lua dl)
