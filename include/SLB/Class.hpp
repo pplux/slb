@@ -80,7 +80,11 @@ namespace SLB {
 
 		template<typename T_Iterator>
 		__Self &iterator(const char *name, T_Iterator (T::*first)(), T_Iterator (T::*end)() )
-		{ return rawSet(name, new Iterator( new StdIterator<T, T_Iterator>(first, end) ) ); }
+		{ return rawSet(name, new Iterator( new StdIterator< StdIteratorTraits<T, T_Iterator> >(first, end ) ) ); }
+
+		template<typename T_Iterator>
+		__Self &const_iterator(const char *name, T_Iterator (T::*first)() const, T_Iterator (T::*end)() const )
+		{ return rawSet(name, new Iterator( new StdIterator< StdConstIteratorTraits<T, T_Iterator> >(first, end ) ) ); }
 
 		#define SLB_REPEAT(N) \
 		\
@@ -88,13 +92,13 @@ namespace SLB {
 			template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 			__Self &set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) ); \
 			template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-			__Self &set_non_const(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) ); \
+			__Self &nonconst_set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) ); \
 		\
 			/* CONST Methods */ \
 			template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 			__Self &set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) const ); \
 			template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-			__Self &set_const(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) const ); \
+			__Self &const_set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) const ); \
 		\
 			/* C-functions  */ \
 			template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
@@ -148,7 +152,7 @@ namespace SLB {
 		} \
 		template<typename T, typename W>\
 		template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-		inline Class<T,W> &Class<T,W>::set_non_const(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) ){ \
+		inline Class<T,W> &Class<T,W>::nonconst_set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) ){ \
 			if (typeid(T) != typeid(C)) inherits<C>();\
 			return rawSet(name, FuncCall::create(func)); \
 		} \
@@ -162,7 +166,7 @@ namespace SLB {
 		} \
 		template<typename T, typename W>\
 		template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-		inline Class<T,W> &Class<T,W>::set_const(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) const ){ \
+		inline Class<T,W> &Class<T,W>::const_set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) const ){ \
 			if (typeid(T) != typeid(C)) inherits<C>();\
 			return rawSet(name, FuncCall::create(func)); \
 		} \

@@ -39,22 +39,6 @@ namespace SLB
 		virtual ~IteratorBase() {}
 	};
 
-	template<class T, class T_iterator>
-	class SLB_EXPORT StdIterator : public IteratorBase
-	{
-	public:
-		typedef T_iterator (T::*GetIteratorMember)();
-		StdIterator(GetIteratorMember m_first, GetIteratorMember m_end );
-		int push(lua_State *L);
-	protected:
-		static int next(lua_State *L) ;
-	private:
-		GetIteratorMember _begin, _end;
-
-		StdIterator( const StdIterator &slbo);
-		StdIterator& operator=( const StdIterator &slbo);
-	};
-
 	class SLB_EXPORT Iterator : public Object
 	{
 	public: 
@@ -70,31 +54,68 @@ namespace SLB
 		Iterator& operator=( const Iterator &slbo);
 	};
 
+
+	// Standard iterator
+	template<class T, class T_iterator>
+	struct StdIteratorTraits
+	{
+		typedef T Container;
+		typedef T_iterator Iterator;
+		typedef Iterator (Container::*GetIteratorMember)();
+	};
+
+	template<class T, class T_iterator>
+	struct StdConstIteratorTraits
+	{
+		typedef T Container;
+		typedef T_iterator Iterator;
+		typedef Iterator (Container::*GetIteratorMember)() const;
+	};
+
+	template<typename Traits>
+	class SLB_EXPORT StdIterator : public IteratorBase
+	{
+	public:
+		typedef typename Traits::GetIteratorMember MemberFuncs ;
+		typedef typename Traits::Container Container;
+		typedef typename Traits::Iterator  Iterator;
+
+		StdIterator(MemberFuncs m_first, MemberFuncs m_end );
+		int push(lua_State *L);
+	protected:
+		static int next(lua_State *L) ;
+	private:
+		MemberFuncs _begin, _end;
+
+		StdIterator( const StdIterator &slbo);
+		StdIterator& operator=( const StdIterator &slbo);
+	};
+
 	// ------------------------------------------------------------
 	// ------------------------------------------------------------
 	// ------------------------------------------------------------
 	
-	template<class T, class T_iterator>
-	inline StdIterator<T, T_iterator>::StdIterator(GetIteratorMember m_first, GetIteratorMember m_end)
+	template<class T>
+	inline StdIterator<T>::StdIterator(MemberFuncs m_first, MemberFuncs m_end)
 		: _begin(m_first), _end(m_end)
 	{
 	}
 	
-	template<class T, class T_iterator>
-	inline int StdIterator<T, T_iterator>::push(lua_State *L)
+	template<class T>
+	inline int StdIterator<T>::push(lua_State *L)
 	{
-		T* container = SLB::get<T*>(L,1);
-		lua_pushcclosure(L, StdIterator<T, T_iterator>::next, 0);
-		T_iterator *d = reinterpret_cast<T_iterator*>(lua_newuserdata(L, sizeof(T_iterator)*2));
+		Container* container = SLB::get<Container*>(L,1);
+		lua_pushcclosure(L, StdIterator<T>::next, 0);
+		Iterator *d = reinterpret_cast<Iterator*>(lua_newuserdata(L, sizeof(Iterator)*2));
 		d[0] = (container->*_begin)();
 		d[1] = (container->*_end)();
 		return 2;
 	}
 
-	template<class T, class T_iterator>
-	inline int StdIterator<T, T_iterator>::next(lua_State *L)
+	template<class T>
+	inline int StdIterator<T>::next(lua_State *L)
 	{
-		T_iterator *d = reinterpret_cast<T_iterator*>(lua_touserdata(L,1));
+		Iterator *d = reinterpret_cast<Iterator*>(lua_touserdata(L,1));
 		
 		if ( d[0] != d[1] )
 		{

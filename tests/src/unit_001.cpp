@@ -30,9 +30,10 @@ namespace Unit_001 {
 		SLB::Class< Vector >("Unit_001::Vector")
 			.constructor()
 			.set("push_back", &Vector::push_back)
-			.set_non_const("get", &Vector::operator[] )
-			.set_const("get_const", &Vector::operator[] )
+			.nonconst_set("get", &Vector::operator[] )
+			.const_set("get_const", &Vector::operator[] )
 			.iterator("iterator", &Vector::begin, &Vector::end )
+			.const_iterator("const_iterator", &Vector::begin, &Vector::end )
 		;
 
 
