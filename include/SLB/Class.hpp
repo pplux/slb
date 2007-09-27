@@ -32,6 +32,7 @@
 #include "FuncCall.hpp"
 #include "Value.hpp"
 #include "Instance.hpp"
+#include "Iterator.hpp"
 #include <typeinfo>
 #include <map>
 #include <vector>
@@ -76,6 +77,10 @@ namespace SLB {
 
 		__Self &__mult()
 		{ SLB_DEBUG(0, "NOT IMPLEMENTED!"); return *this; }
+
+		template<typename T_Iterator>
+		__Self &iterator(const char *name, T_Iterator (T::*first)(), T_Iterator (T::*end)() )
+		{ return rawSet(name, new Iterator( new StdIterator<T, T_Iterator>(first, end) ) ); }
 
 		#define SLB_REPEAT(N) \
 		\

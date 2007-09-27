@@ -1,5 +1,6 @@
 #include <SLB/SLB.hpp>
 #include "unit_001.hpp"
+#include <SLB/Iterator.hpp>
 
 namespace Unit_001 {
 
@@ -14,7 +15,6 @@ namespace Unit_001 {
 	{
 		_label = label;
 	}
-
 
 	void wrapper()
 	{
@@ -32,6 +32,7 @@ namespace Unit_001 {
 			.set("push_back", &Vector::push_back)
 			.set_non_const("get", &Vector::operator[] )
 			.set_const("get_const", &Vector::operator[] )
+			.iterator("iterator", &Vector::begin, &Vector::end )
 		;
 
 
