@@ -48,6 +48,25 @@ namespace SLB {
 		return 0;
 	}
 
+	int SLB_rawptr(lua_State *L)
+	{
+		int top = lua_gettop(L);
+		if (lua_getmetatable(L,1))
+		{
+			lua_getfield(L, -1, "__class_ptr");
+			if (!lua_isnil(L,-1))
+			{
+				ClassInfo* ci = reinterpret_cast<ClassInfo*>( lua_touserdata(L,-1) );
+				const void* raw = ci->get_const_ptr(L, 1);
+				lua_settop(L, top);
+				lua_pushinteger(L, (lua_Integer) raw);
+				return 1;
+			}
+		}
+		lua_settop(L, top);
+		return 0;
+	}
+
 	int SLB_copy(lua_State *L)
 	{
 		int top = lua_gettop(L);
@@ -131,6 +150,7 @@ namespace SLB {
 		{"type", SLB_type},
 		{"copy", SLB_copy},
 		{"using", SLB_using},
+		{"rawptr", SLB_rawptr},
 		{NULL, NULL}
 	};
 
