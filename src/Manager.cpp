@@ -154,6 +154,8 @@ namespace SLB {
 		{NULL, NULL}
 	};
 
+	Manager* Manager::_singleton = 0;
+
 	Manager::Manager()
 	{
 		SLB_DEBUG(0, "Manager initialization");
@@ -183,8 +185,20 @@ namespace SLB {
 	
 	Manager *Manager::getInstancePtr()
 	{
-		static Manager _instance;
-		return &_instance;
+		static bool _atexit = false;
+		if (_atexit == false)
+		{
+			_atexit = true;
+			atexit(Manager::reset);
+		}
+		if (_singleton == 0) _singleton = new Manager();
+		return _singleton;
+	}
+
+	void Manager::reset()
+	{
+		delete _singleton;
+		_singleton = 0;
 	}
 	
 	void Manager::addClass( ClassInfo *c )

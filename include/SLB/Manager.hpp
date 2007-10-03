@@ -62,6 +62,10 @@ namespace SLB {
 
 		Namespace* getGlobals() { return _global.get(); }
 
+		/** Resets SLB clearing every class data. It is used only to check memory leaks, it should not be
+		 * used in normal runtime...
+		 */
+		static void reset();
 	protected:
 
 		void rename(ClassInfo *c, const std::string &new_name);
@@ -80,6 +84,7 @@ namespace SLB {
 		ref_ptr<Namespace> _global;
 		ConversionsMap _conversions;
 
+		static Manager *_singleton;
 		friend class ClassInfo;
 	};
 	
