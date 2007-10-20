@@ -36,6 +36,29 @@
 namespace SLB
 {
 
+	class LuaCallBase 
+	{ 
+	protected: 
+		LuaCallBase(lua_State *L, int index) : _L(L) { getFunc(index); } 
+		LuaCallBase(lua_State *L, const char *func) : _L(L) 
+		{
+			lua_getglobal(L,func);
+			getFunc(-1);
+			lua_pop(L,1); 
+		}
+		~LuaCallBase()
+		{
+			luaL_unref(_L, LUA_REGISTRYINDEX, _ref); 
+		}
+		lua_State *_L;
+		int _ref; 
+		void getFunc(int index)
+		{
+			lua_pushvalue(_L,index);
+			_ref = luaL_ref(_L, LUA_REGISTRYINDEX);
+		}
+	}; 
+
 	template<typename T>
 	struct LuaCall;
 
@@ -46,15 +69,10 @@ namespace SLB
 	\
 		/* LuaCall: functions that return something  */ \
 		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-		struct LuaCall<R( SPP_ENUM_D(N,T) )> \
+		struct LuaCall<R( SPP_ENUM_D(N,T) )> : private LuaCallBase\
 		{ \
-			LuaCall(lua_State *L, int index) : _L(L) { getFunc(index); } \
-			LuaCall(lua_State *L, const char *func) : _L(L) \
-			{\
-				lua_getglobal(L,func);\
-				getFunc(-1);\
-				lua_pop(L,1); \
-			}\
+			LuaCall(lua_State *L, int index) : LuaCallBase(L,index) {} \
+			LuaCall(lua_State *L, const char *func) : LuaCallBase(L,func) {} \
 			R operator()( SPP_REPEAT( N, SLB_ARG) char dummyARG = 0) /*TODO: REMOVE dummyARG */\
 			{ \
 				R result; \
@@ -72,30 +90,14 @@ namespace SLB
 				lua_settop(_L,top); \
 				return result; \
 			} \
-			~LuaCall()\
-			{\
-				luaL_unref(_L, LUA_REGISTRYINDEX, _ref); \
-			}\
-			private: \
-				lua_State *_L;\
-				int _ref; \
-				void getFunc(int index)\
-				{\
-					lua_pushvalue(_L,index);\
-					_ref = luaL_ref(_L, LUA_REGISTRYINDEX);\
-				}\
+			bool operator==(const LuaCall& lc) { return (_L == lc._L && _ref == lc._ref); }\
 		}; \
 		/*LuaCall: functions that doesn't return anything */  \
 		template<SPP_ENUM_D(N, class T)> \
-		struct LuaCall<void( SPP_ENUM_D(N,T) )> \
+		struct LuaCall<void( SPP_ENUM_D(N,T) )> : private LuaCallBase\
 		{ \
-			LuaCall(lua_State *L, int index) : _L(L) { getFunc(index); } \
-			LuaCall(lua_State *L, const char *func) : _L(L) \
-			{\
-				lua_getglobal(L,func);\
-				getFunc(-1);\
-				lua_pop(L,1); \
-			}\
+			LuaCall(lua_State *L, int index) : LuaCallBase(L,index) {} \
+			LuaCall(lua_State *L, const char *func) : LuaCallBase(L,func) {} \
 			void operator()( SPP_REPEAT( N, SLB_ARG) char dummyARG = 0) /*TODO: REMOVE dummyARG */\
 			{ \
 				int top = lua_gettop(_L); \
@@ -110,18 +112,7 @@ namespace SLB
 				} \
 				lua_settop(_L,top); \
 			} \
-			~LuaCall()\
-			{\
-				luaL_unref(_L, LUA_REGISTRYINDEX, _ref); \
-			}\
-			private: \
-				lua_State *_L;\
-				int _ref; \
-				void getFunc(int index)\
-				{\
-					lua_pushvalue(_L,index);\
-					_ref = luaL_ref(_L, LUA_REGISTRYINDEX);\
-				}\
+			bool operator==(const LuaCall& lc) { return (_L == lc._L && _ref == lc._ref); }\
 		}; \
 
 	SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
