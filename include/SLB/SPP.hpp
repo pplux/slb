@@ -112,7 +112,7 @@
 	#define SPP_ENUM_30(X, INTER) SPP_ENUM_29(X, SPP_UNPAR(INTER)) INTER X##30
 	#define SPP_ENUM_31(X, INTER) SPP_ENUM_30(X, SPP_UNPAR(INTER)) INTER X##31
 	#define SPP_ENUM_32(X, INTER) SPP_ENUM_31(X, SPP_UNPAR(INTER)) INTER X##32
-	#define SPP_ENUM_MAX(X, INTER) SPP_ENUM_32(X, INTER)
+	#define SPP_ENUM_MAX(X, INTER) SPP_ENUM_10(X, INTER) /* Change this up to 32 */
 
 	#define SPP_REPEAT_0(X) 
 	#define SPP_REPEAT_1(X) X(1)
@@ -147,7 +147,7 @@
 	#define SPP_REPEAT_30(X) SPP_REPEAT_29(X) X(30) 
 	#define SPP_REPEAT_31(X) SPP_REPEAT_30(X) X(31) 
 	#define SPP_REPEAT_32(X) SPP_REPEAT_31(X) X(32) 
-	#define SPP_REPEAT_MAX(X) SPP_REPEAT_32(X) 
+	#define SPP_REPEAT_MAX(X) SPP_REPEAT_10(X)  /* Change this up to 32 */
 
 	#define SPP_REPEAT_BASE_0(X,base) 
 	#define SPP_REPEAT_BASE_1(X,base) X(1, base)
@@ -182,7 +182,7 @@
 	#define SPP_REPEAT_BASE_30(X,base) SPP_REPEAT_BASE_29(X,base) X(30, base) 
 	#define SPP_REPEAT_BASE_31(X,base) SPP_REPEAT_BASE_30(X,base) X(31, base) 
 	#define SPP_REPEAT_BASE_32(X,base) SPP_REPEAT_BASE_31(X,base) X(32, base) 
-	#define SPP_REPEAT_BASE_MAX(X,base) SPP_REPEAT_BASE_32(X,base) 
+	#define SPP_REPEAT_BASE_MAX(X,base) SPP_REPEAT_BASE_10(X,base)  /* Change this up to 32 */
 
 	#define SPP_MAIN_REPEAT_1(X) X(1)
 	#define SPP_MAIN_REPEAT_2(X) SPP_MAIN_REPEAT_1(X) X(2) 
@@ -216,7 +216,7 @@
 	#define SPP_MAIN_REPEAT_30(X) SPP_MAIN_REPEAT_29(X) X(30) 
 	#define SPP_MAIN_REPEAT_31(X) SPP_MAIN_REPEAT_30(X) X(31) 
 	#define SPP_MAIN_REPEAT_32(X) SPP_MAIN_REPEAT_31(X) X(32) 
-	#define SPP_MAIN_REPEAT_MAX(X) SPP_MAIN_REPEAT_32(X) 
+	#define SPP_MAIN_REPEAT_MAX(X) SPP_MAIN_REPEAT_10(X)  /* Change this up to 32 */
 
 	#define SPP_IF_0(X) 
 	#define SPP_IF_1(X) X
@@ -251,6 +251,6 @@
 	#define SPP_IF_30(X) X
 	#define SPP_IF_31(X) X
 	#define SPP_IF_32(X) X
-	#define SPP_IF_MAX(X) SPP_IF_32(X)
+	#define SPP_IF_MAX(X) SPP_IF_10(X) /* Change this up to 32 */
 
 #endif

@@ -39,8 +39,8 @@ namespace SLB
 	template<typename T>
 	struct LuaCall;
 
-	#define SLB_ARG(N) ,T##N arg_##N
-	#define SLB_PUSH_ARGS(N) push<T##N>(L, arg_##N );
+	#define SLB_ARG(N) T##N arg_##N, 
+	#define SLB_PUSH_ARGS(N) push<T##N>(_L, arg_##N );
 
 	#define SLB_REPEAT(N) \
 	\
@@ -48,42 +48,80 @@ namespace SLB
 		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 		struct LuaCall<R( SPP_ENUM_D(N,T) )> \
 		{ \
-			R operator()( lua_State *L , const char *funcname SPP_REPEAT( N, SLB_ARG) ) \
+			LuaCall(lua_State *L, int index) : _L(L) { getFunc(index); } \
+			LuaCall(lua_State *L, const char *func) : _L(L) \
+			{\
+				lua_getglobal(L,func);\
+				getFunc(-1);\
+				lua_pop(L,1); \
+			}\
+			R operator()( SPP_REPEAT( N, SLB_ARG) char dummyARG = 0) /*TODO: REMOVE dummyARG */\
 			{ \
 				R result; \
-				int top = lua_gettop(L); \
-				lua_getglobal(L, funcname); \
+				int top = lua_gettop(_L); \
+				lua_rawgeti(_L, LUA_REGISTRYINDEX,_ref); \
 				SPP_REPEAT( N, SLB_PUSH_ARGS ); \
-				if(lua_pcall(L, N, 1, 0)) \
+				if(lua_pcall(_L, N, 1, 0)) \
 				{ \
 					std::runtime_error exception(   \
-						std::string(funcname) + " ---lua---> " + lua_tostring(L,-1)); \
-					lua_settop(L,top); \
+						std::string(" ---lua---> ") + lua_tostring(_L,-1)); \
+					lua_settop(_L,top); \
 					throw exception;\
 				} \
-				result = get<R>(L, -1); \
-				lua_settop(L,top); \
+				result = get<R>(_L, -1); \
+				lua_settop(_L,top); \
 				return result; \
 			} \
+			~LuaCall()\
+			{\
+				luaL_unref(_L, LUA_REGISTRYINDEX, _ref); \
+			}\
+			private: \
+				lua_State *_L;\
+				int _ref; \
+				void getFunc(int index)\
+				{\
+					lua_pushvalue(_L,index);\
+					_ref = luaL_ref(_L, LUA_REGISTRYINDEX);\
+				}\
 		}; \
-		/* LuaCall: functions that doesn't return something  */ \
+		/*LuaCall: functions that doesn't return anything */  \
 		template<SPP_ENUM_D(N, class T)> \
 		struct LuaCall<void( SPP_ENUM_D(N,T) )> \
 		{ \
-			void operator()( lua_State *L , const char *funcname SPP_REPEAT( N, SLB_ARG) ) \
+			LuaCall(lua_State *L, int index) : _L(L) { getFunc(index); } \
+			LuaCall(lua_State *L, const char *func) : _L(L) \
+			{\
+				lua_getglobal(L,func);\
+				getFunc(-1);\
+				lua_pop(L,1); \
+			}\
+			void operator()( SPP_REPEAT( N, SLB_ARG) char dummyARG = 0) /*TODO: REMOVE dummyARG */\
 			{ \
-				int top = lua_gettop(L); \
-				lua_getglobal(L, funcname); \
+				int top = lua_gettop(_L); \
+				lua_rawgeti(_L, LUA_REGISTRYINDEX,_ref); \
 				SPP_REPEAT( N, SLB_PUSH_ARGS ); \
-				if(lua_pcall(L, N, 0, 0)) \
+				if(lua_pcall(_L, N, 0, 0)) \
 				{ \
 					std::runtime_error exception(   \
-						std::string(funcname) + " ---lua---> " + lua_tostring(L,-1)); \
-					lua_settop(L,top); \
+						std::string(" ---lua---> ") + lua_tostring(_L,-1)); \
+					lua_settop(_L,top); \
 					throw exception;\
 				} \
-				lua_settop(L,top); \
+				lua_settop(_L,top); \
 			} \
+			~LuaCall()\
+			{\
+				luaL_unref(_L, LUA_REGISTRYINDEX, _ref); \
+			}\
+			private: \
+				lua_State *_L;\
+				int _ref; \
+				void getFunc(int index)\
+				{\
+					lua_pushvalue(_L,index);\
+					_ref = luaL_ref(_L, LUA_REGISTRYINDEX);\
+				}\
 		}; \
 
 	SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)

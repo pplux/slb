@@ -80,8 +80,8 @@ namespace SLB {
 		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 		R LCall( const char *name SPP_REPEAT(N, SLB_ARG_H) ) \
 		{ \
-			SLB::LuaCall<R(BaseClass* SPP_COMMA_IF(N) SPP_ENUM_D(N,T))> obj; \
-			return obj( _L, name, static_cast<BaseClass*>(this) SPP_REPEAT(N, SLB_ARG) ); \
+			SLB::LuaCall<R(BaseClass* SPP_COMMA_IF(N) SPP_ENUM_D(N,T))> obj(_L, name); \
+			return obj(static_cast<BaseClass*>(this) SPP_REPEAT(N, SLB_ARG) ); \
 		} \
 
 	SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
