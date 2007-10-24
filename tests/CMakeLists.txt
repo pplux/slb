@@ -4,7 +4,7 @@ add_executable(SLB_test ${SOURCES_TEST})
 target_link_libraries(SLB_test SLB)
 
 set (VALGRIND_OPTS  --leak-check=full --error-exitcode=124)
-file(GLOB SCRIPTS_TEST "${SLB_SOURCE_DIR}/tests/scripts/*.lua")
+file(GLOB SCRIPTS_TEST "${SLB_SOURCE_DIR}/tests/scripts/test_*.lua")
 foreach(script ${SCRIPTS_TEST})
 	get_filename_component( TEST_NAME ${script} NAME)
 	message( STATUS "Added test ${TEST_NAME}->${script}" )

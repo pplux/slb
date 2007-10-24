@@ -23,9 +23,10 @@
 #ifndef __SLB_LUACALL__
 #define __SLB_LUACALL__
 
+#include "SPP.hpp"
 #include "Object.hpp"
 #include "PushGet.hpp"
-#include "SPP.hpp"
+#include "Type.hpp"
 #include "lua.hpp"
 
 #include <vector>
@@ -91,7 +92,12 @@ namespace SLB
 				return result; \
 			} \
 			bool operator==(const LuaCall& lc) { return (_L == lc._L && _ref == lc._ref); }\
-		}; \
+		};
+	SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
+	#undef SLB_REPEAT
+
+	#define SLB_REPEAT(N) \
+	\
 		/*LuaCall: functions that doesn't return anything */  \
 		template<SPP_ENUM_D(N, class T)> \
 		struct LuaCall<void( SPP_ENUM_D(N,T) )> : private LuaCallBase\

@@ -76,7 +76,6 @@ namespace SLB {
 	#define SLB_ARG(N) , arg_##N
 	#define SLB_REPEAT(N) \
 	\
-		/* LuaCall: functions that return something  */ \
 		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 		R LCall( const char *name SPP_REPEAT(N, SLB_ARG_H) ) \
 		{ \
