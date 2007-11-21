@@ -48,7 +48,7 @@ namespace SLB
 		virtual void onGarbageCollection(lua_State *) {}
 
 	private:
-		void initialize(lua_State *);
+		void initialize(lua_State *) const;
 		static int GC_callback(lua_State *);
 		unsigned int _refCounter;
 

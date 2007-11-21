@@ -218,9 +218,9 @@ namespace SLB {
 		return (table->*member)(L);
 	}
 	
-	void Table::pushMeta(lua_State *L, Table::TableMember member)
+	void Table::pushMeta(lua_State *L, Table::TableMember member) const
 	{
-		lua_pushlightuserdata(L, this);
+		lua_pushlightuserdata(L, (void*) this);
 		void *p = lua_newuserdata(L, sizeof(TableMember)); 
 		memcpy(p,&member,sizeof(TableMember));
 		lua_pushcclosure(L, __meta, 2);

@@ -24,6 +24,7 @@
 #include <SLB/ClassInfo.hpp>
 #include <SLB/lua.hpp>
 #include <SLB/Debug.hpp>
+#include <SLB/util.hpp>
 
 #include <iostream>
 
@@ -213,8 +214,9 @@ namespace SLB {
 		return 0;
 	}
 
-	const ClassInfo *Manager::getClass(lua_State *L, int pos) const
+	ClassInfo *Manager::getClass(lua_State *L, int pos) const
 	{
+		pos = L_abs_index(L,pos);
 		int top = lua_gettop(L);
 		ClassInfo* ci = 0L;
 		if (lua_getmetatable(L,pos))

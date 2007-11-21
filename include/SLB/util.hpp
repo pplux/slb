@@ -20,25 +20,11 @@
 	pplux@pplux.com
 */
 
-#ifndef __SLB__
-#define __SLB__
+#ifndef __SLB_UTIL__
+#define __SLB_UTIL__
 
-#include "Manager.hpp"
-#include "ClassInfo.hpp"
-#include "PushGet.hpp"
-#include "Type.hpp"
-#include "Table.hpp"
-#include "Value.hpp"
-#include "Class.hpp"
-#include "Enum.hpp"
-#include "Hybrid.hpp"
-#include "SPP.hpp"
 
-// just for help....
-#define SLB_ON_LOAD( FuncName ) \
-	SPP_STATIC_BLOCK( FuncName, FuncName(); )
-
-#define SLB_abs_index(L, i)     ((i) > 0 || (i) <= LUA_REGISTRYINDEX ? (i) : \
+#define L_abs_index(L, i)     ((i) > 0 || (i) <= LUA_REGISTRYINDEX ? (i) : \
 		                    lua_gettop(L) + (i) + 1)
 
 

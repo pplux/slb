@@ -48,7 +48,7 @@ namespace SLB {
 		const ClassInfo *getClass(const std::type_info&) const;
 		const ClassInfo *getClass(const std::string&) const;
 		/// Returns the classInfo of an object, or null if it is a basic lua-type
-		const ClassInfo *getClass(lua_State *L, int pos) const ;
+		ClassInfo *getClass(lua_State *L, int pos) const ;
 		ClassInfo *getClass(const std::type_info&);
 		ClassInfo *getClass(const std::string&);
 		ClassInfo *getOrCreateClass(const std::type_info &);

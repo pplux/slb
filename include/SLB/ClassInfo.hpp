@@ -60,8 +60,8 @@ namespace SLB {
 		void push_ptr(lua_State *L, void *ptr, bool fromConstructor = false);
 		void push_const_ptr(lua_State *L, const void *const_ptr);
 		void push_copy(lua_State *L, const void *ptr);
-		void* get_ptr(lua_State*, int pos);
-		const void* get_const_ptr(lua_State*, int pos);
+		void* get_ptr(lua_State*, int pos) const;
+		const void* get_const_ptr(lua_State*, int pos) const;
 
 		template<class This, class Base>
 		void inheritsFrom();

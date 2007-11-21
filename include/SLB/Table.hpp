@@ -68,7 +68,7 @@ namespace SLB {
 		typedef std::pair<Table*,const std::string> TableFind;
 		typedef int (Table::*TableMember)(lua_State*);
 		static int __meta(lua_State*);
-		void pushMeta(lua_State *L, TableMember);
+		void pushMeta(lua_State *L, TableMember) const;
 
 		TableFind getTable(const std::string &key, bool create);
 

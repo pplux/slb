@@ -23,6 +23,7 @@
 #include <SLB/ClassInfo.hpp>
 #include <SLB/Manager.hpp>
 #include <SLB/Debug.hpp>
+#include <SLB/util.hpp>
 
 namespace SLB {
 
@@ -113,25 +114,38 @@ namespace SLB {
 		lua_settop(L, top+1);
 	}
 
-	void *ClassInfo::get_ptr(lua_State *L, int pos)
+	void *ClassInfo::get_ptr(lua_State *L, int pos) const
 	{
+		pos = L_abs_index(L,pos);
 		void *obj = 0;
 		InstanceBase *i = getInstance(L, pos);
 		if (i)
 		{
-			obj = Manager::getInstance().convert( i->getClass()->getTypeid(), getTypeid(), i->get_ptr() );
+			ClassInfo *i_ci = i->getClass();
+			assert("Invalid ClassInfo" && (i_ci != 0));
+			obj = Manager::getInstance().convert( 
+					i_ci->getTypeid(), 
+					getTypeid(), 
+					i->get_ptr()
+				);
 		}
 		SLB_DEBUG(7, "Class(%s) get_ptr -> %p", _name.c_str(), obj);
 		return obj;
 	}
 
-	const void* ClassInfo::get_const_ptr(lua_State *L, int pos)
+	const void* ClassInfo::get_const_ptr(lua_State *L, int pos) const
 	{
+		pos = L_abs_index(L,pos);
 		const void *obj = 0;
 		InstanceBase *i = getInstance(L, pos);
 		if (i)
 		{
-			obj = Manager::getInstance().convert( i->getClass()->getTypeid(), getTypeid(), i->get_const_ptr() );
+			ClassInfo *i_ci = i->getClass();
+			assert("Invalid ClassInfo" && (i_ci != 0));
+			obj = Manager::getInstance().convert( 
+					i_ci->getTypeid(),
+					getTypeid(),
+					i->get_const_ptr() );
 		}
 		SLB_DEBUG(7, "Class(%s) get_const_ptr -> %p", _name.c_str(), obj);
 		return obj;
@@ -139,6 +153,7 @@ namespace SLB {
 
 	InstanceBase* ClassInfo::getInstance(lua_State *L, int pos) const
 	{
+		pos = L_abs_index(L,pos);
 		InstanceBase *instance = 0;
 		int top = lua_gettop(L);
 		if (lua_getmetatable(L, pos))

@@ -40,7 +40,7 @@ namespace SLB {
 	{
 	}
 	
-	void Object::initialize(lua_State *L)
+	void Object::initialize(lua_State *L) const
 	{
 		int top = lua_gettop(L);
 
@@ -82,7 +82,7 @@ namespace SLB {
 		lua_getfield(L, LUA_REGISTRYINDEX, refTable_name);
 
 		// find the object with our id
-		lua_pushlightuserdata(L, this);
+		lua_pushlightuserdata(L, (void*) this );
 		lua_rawget(L, top + 1);
 
 		if (lua_isnil(L,-1))
@@ -104,7 +104,7 @@ namespace SLB {
 			}
 
 			// make objects[key] = value
-			lua_pushlightuserdata(L, this); // key
+			lua_pushlightuserdata(L, (void*) this); // key
 			lua_pushvalue(L, objpos); // copy of value (0)
 			lua_rawset(L, top+1); // objects[key] = value	
 
