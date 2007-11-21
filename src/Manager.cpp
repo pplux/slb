@@ -32,19 +32,12 @@ namespace SLB {
 	/* Global functions */
 	int SLB_type(lua_State *L)
 	{
-		int top = lua_gettop(L);
-		if (lua_getmetatable(L,1))
+		const ClassInfo *ci = Manager::getInstance().getClass(L,-1);
+		if (ci)
 		{
-			lua_getfield(L, -1, "__class_ptr");
-			if (!lua_isnil(L,-1))
-			{
-				ClassInfo* ci = reinterpret_cast<ClassInfo*>( lua_touserdata(L,-1) );
-				lua_settop(L, top);
-				lua_pushstring(L, ci->getName().c_str());
-				return 1;
-			}
+			lua_pushstring(L, ci->getName().c_str());
+			return 1;
 		}
-		lua_settop(L, top);
 		return 0;
 	}
 
@@ -220,6 +213,23 @@ namespace SLB {
 		return 0;
 	}
 
+	const ClassInfo *Manager::getClass(lua_State *L, int pos) const
+	{
+		int top = lua_gettop(L);
+		ClassInfo* ci = 0L;
+		if (lua_getmetatable(L,pos))
+		{
+			lua_getfield(L, -1, "__class_ptr");
+			if (!lua_isnil(L,-1))
+			{
+				ci = reinterpret_cast<ClassInfo*>( lua_touserdata(L,-1) );
+			}
+		}
+		lua_settop(L, top);
+		return ci;
+	}
+
+
 	ClassInfo *Manager::getClass(const std::string &name)
 	{
 		NameMap::iterator i = _names.find(name);
@@ -233,7 +243,7 @@ namespace SLB {
 		if ( i != _classes.end() ) return i->second.get();
 		return 0;
 	}
-
+		
 
 	ClassInfo *Manager::getOrCreateClass(const std::type_info &ti)
 	{
