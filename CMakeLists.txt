@@ -1,6 +1,6 @@
 project( SLB )
 
-OPTION(SLB_BUILD_TESTS "Enable building Tests" ON)
+OPTION(SLB_BUILD_TESTS "Enable building Tests" OFF)
 OPTION(SLB_USE_EMBEDDED_LUA "Use Lua embedded" ON)
 
 set(EXECUTABLE_OUTPUT_PATH ${SLB_BINARY_DIR}/bin)
@@ -11,7 +11,7 @@ include_directories( "${SLB_SOURCE_DIR}/include" )
 
 set(CMAKE_C_FLAGS_DEBUG "-Wall -g")
 set(CMAKE_CXX_FLAGS_DEBUG "-Wall -g")
-#add_definitions(-DSLB_DEBUG_LEVEL=100)
+add_definitions(-DSLB_DEBUG_LEVEL=${SLB_DEBUG_LEVEL})
 
 # SLB core files (headers and sources)
 file(GLOB HEADERS_SLB "${SLB_SOURCE_DIR}/include/SLB/*.hpp")
