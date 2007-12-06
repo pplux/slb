@@ -48,6 +48,8 @@ namespace SLB {
 		typedef Class<T,W> __Self;
 
 		Class(const char *name);
+		Class(const Class&);
+		Class& operator=(const Class&);
 
 		__Self &rawSet(const char *name, Object *obj);
 
@@ -125,6 +127,17 @@ namespace SLB {
 		_class->setName( name );
 		_class->setInstanceFactory(new InstanceFactoryAdapter< T, Adapter >() );
 		SLB_DEBUG(1, "Class declaration for %s[%s]", name, typeid(T).name());
+	}
+
+	template<typename T, typename W>
+	Class<T,W>::Class(const Class &c) : _class(c._class)
+	{
+	}
+	
+	template<typename T, typename W>
+	Class<T,W>& Class<T,W>::operator=(const Class &c)
+	{
+		_class = c._class;
 	}
 	
 	template<typename T, typename W>
