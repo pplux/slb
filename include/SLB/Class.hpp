@@ -119,7 +119,7 @@ namespace SLB {
 	};
 	
 	template<typename T, typename W>
-	Class<T,W>::Class(const char *name)
+	inline Class<T,W>::Class(const char *name)
 	{
 		// we expect to have a template "Implementation" inside W
 		typedef typename W::template Implementation<T> Adapter;
@@ -130,12 +130,12 @@ namespace SLB {
 	}
 
 	template<typename T, typename W>
-	Class<T,W>::Class(const Class &c) : _class(c._class)
+	inline Class<T,W>::Class(const Class &c) : _class(c._class)
 	{
 	}
 	
 	template<typename T, typename W>
-	Class<T,W>& Class<T,W>::operator=(const Class &c)
+	inline Class<T,W>& Class<T,W>::operator=(const Class &c)
 	{
 		_class = c._class;
 	}
