@@ -37,28 +37,21 @@
 namespace SLB
 {
 
-	class LuaCallBase 
-	{ 
-	protected: 
-		LuaCallBase(lua_State *L, int index) : _L(L) { getFunc(index); } 
-		LuaCallBase(lua_State *L, const char *func) : _L(L) 
-		{
-			lua_getglobal(L,func);
-			getFunc(-1);
-			lua_pop(L,1); 
-		}
-		~LuaCallBase()
-		{
-			luaL_unref(_L, LUA_REGISTRYINDEX, _ref); 
-		}
-		lua_State *_L;
-		int _ref; 
-		void getFunc(int index)
-		{
-			lua_pushvalue(_L,index);
-			_ref = luaL_ref(_L, LUA_REGISTRYINDEX);
-		}
-	}; 
+	namespace Private
+	{
+		class LuaCallBase 
+		{ 
+		protected: 
+			LuaCallBase(lua_State *L, int index);
+			LuaCallBase(lua_State *L, const char *func);
+			~LuaCallBase();
+			void getFunc(int index);
+			void execute(int numArgs, int numOutput, int top);
+
+			lua_State *_L;
+			int _ref; 
+		}; 
+	}
 
 	template<typename T>
 	struct LuaCall;
@@ -70,7 +63,7 @@ namespace SLB
 	\
 		/* LuaCall: functions that return something  */ \
 		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-		struct LuaCall<R( SPP_ENUM_D(N,T) )> : private LuaCallBase\
+		struct LuaCall<R( SPP_ENUM_D(N,T) )> : private Private::LuaCallBase\
 		{ \
 			LuaCall(lua_State *L, int index) : LuaCallBase(L,index) {} \
 			LuaCall(lua_State *L, const char *func) : LuaCallBase(L,func) {} \
@@ -80,13 +73,7 @@ namespace SLB
 				int top = lua_gettop(_L); \
 				lua_rawgeti(_L, LUA_REGISTRYINDEX,_ref); \
 				SPP_REPEAT( N, SLB_PUSH_ARGS ); \
-				if(lua_pcall(_L, N, 1, 0)) \
-				{ \
-					std::runtime_error exception(   \
-						std::string(" ---lua---> ") + lua_tostring(_L,-1)); \
-					lua_settop(_L,top); \
-					throw exception;\
-				} \
+				execute(N, 1, top); \
 				result = get<R>(_L, -1); \
 				lua_settop(_L,top); \
 				return result; \
@@ -100,7 +87,7 @@ namespace SLB
 	\
 		/*LuaCall: functions that doesn't return anything */  \
 		template<SPP_ENUM_D(N, class T)> \
-		struct LuaCall<void( SPP_ENUM_D(N,T) )> : private LuaCallBase\
+		struct LuaCall<void( SPP_ENUM_D(N,T) )> : private Private::LuaCallBase\
 		{ \
 			LuaCall(lua_State *L, int index) : LuaCallBase(L,index) {} \
 			LuaCall(lua_State *L, const char *func) : LuaCallBase(L,func) {} \
@@ -109,13 +96,7 @@ namespace SLB
 				int top = lua_gettop(_L); \
 				lua_rawgeti(_L, LUA_REGISTRYINDEX,_ref); \
 				SPP_REPEAT( N, SLB_PUSH_ARGS ); \
-				if(lua_pcall(_L, N, 0, 0)) \
-				{ \
-					std::runtime_error exception(   \
-						std::string(" ---lua---> ") + lua_tostring(_L,-1)); \
-					lua_settop(_L,top); \
-					throw exception;\
-				} \
+				execute(N, 0, top); \
 				lua_settop(_L,top); \
 			} \
 			bool operator==(const LuaCall& lc) { return (_L == lc._L && _ref == lc._ref); }\
