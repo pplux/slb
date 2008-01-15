@@ -47,16 +47,56 @@ namespace Private {
 		_ref = luaL_ref(_L, LUA_REGISTRYINDEX);
 	}
 
+	int LuaCallBase::errorHandler(lua_State *L)
+	{
+		std::ostringstream out; // Use lua pushfstring and so on...
+		lua_Debug debug;
+
+		out << "SLB Exception: "
+			<< std::endl << "-------------------------------------------------------"
+			<< std::endl;
+		out << "Lua Error:" << std::endl << "\t" 
+			<<  lua_tostring(L, -1) << std::endl
+			<< "Traceback:" << std::endl;
+		for ( int level = 0; lua_getstack(L, level, &debug ); level++)
+		{
+			if (lua_getinfo(L, "Sln", &debug) )
+			{
+				//TODO use debug.name and debug.namewhat
+				//make this more friendly
+				out << "\t [ " << level << " (" << debug.what << ") ] ";
+				if (debug.currentline > 0 )
+				{
+					out << debug.short_src << ":" << debug.currentline; 
+					if (debug.name)
+						out << " @ " << debug.name << "(" << debug.namewhat << ")";
+				}
+				out << std::endl;
+			}
+			else
+			{
+				out << "[ERROR using Lua DEBUG INTERFACE]" << std::endl;
+			}
+		}
+
+		lua_pushstring(L, out.str().c_str()) ;
+		return 1;
+	}
+
 	void LuaCallBase::execute(int numArgs, int numOutput, int top)
 	{
-		if(lua_pcall(_L, numArgs, numOutput, 0)) 
+		int base = lua_gettop(_L) - numArgs;
+		lua_pushcfunction(_L, LuaCallBase::errorHandler);
+		lua_insert(_L, base);
+
+		if(lua_pcall(_L, numArgs, numOutput, base)) 
 		{
-			std::ostringstream out;
-			out << "Lua Error: " <<  lua_tostring(_L, -1) << std::endl;
-			std::runtime_error exception( out.str() );
-			lua_settop(_L,top);
+			std::runtime_error exception( lua_tostring(_L, -1) );
+			lua_remove(_L, base);
+			lua_settop(_L,top); // TODO: Remove this.
 			throw exception;
 		}
+		lua_remove(_L, base);
 	}
 
 }}

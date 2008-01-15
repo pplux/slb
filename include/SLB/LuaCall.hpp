@@ -50,6 +50,8 @@ namespace SLB
 
 			lua_State *_L;
 			int _ref; 
+		private:
+			static int errorHandler(lua_State *L);
 		}; 
 	}
 
