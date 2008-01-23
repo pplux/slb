@@ -44,12 +44,12 @@
 	#define SPP_STRING(X)                 #X
 	#define SPP_TOSTRING(X)               SPP_STRING(X)
 
-	#define SPP_STATIC_BLOCK(ID,...) \
+	#define SPP_STATIC_BLOCK(...) \
 	    namespace { \
-		static struct SPP_LINEID(ID) { SPP_LINEID(ID)() {      \
+		static struct SPP_LINEID(DUMMY) { SPP_LINEID(DUMMY)() {      \
 			__VA_ARGS__ \
 		}                                    \
-		} __dummy__; }
+		} SPP_LINEID(__dummy__); }
 
 	//enumerates "X" from 1 to num with "INTER" as separator
 	// SPP_ENUM(3,class T, = void SPP_COMMA) --> class T1 = void, class T2 = void, class T3 = void
