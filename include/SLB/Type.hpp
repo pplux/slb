@@ -365,6 +365,46 @@ namespace Private {
 		}
 	};
 
+	template<>
+	struct Type<unsigned long>
+	{
+		static void push(lua_State *L, unsigned long v)
+		{
+			SLB_DEBUG(6, "Push unsigned long = %f",v);
+			lua_pushnumber(L,v);
+		}
+
+		static unsigned long get(lua_State *L, int p)
+		{
+			unsigned long v = (unsigned long) lua_tonumber(L,p);
+			SLB_DEBUG(6,"Get unsigned long (pos %d) = %f",p,v);
+			return v;
+		}
+
+		static bool check(lua_State *L, int pos)
+		{
+			return (lua_isnumber(L,pos) != 0);
+		}
+	};
+
+	template<>
+	struct Type<const unsigned long&>
+	{
+		static void push(lua_State *L, const unsigned long &v)
+		{
+			Type<unsigned long>::push(L,v);
+		}
+
+		static unsigned long get(lua_State *L, int p)
+		{
+			return Type<unsigned long>::get(L,p);
+		}
+
+		static bool check(lua_State *L, int pos)
+		{
+			return Type<unsigned long>::check(L,pos);
+		}
+	};
 	
 	// Type specialization for <bool>
 	template<>
