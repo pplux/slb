@@ -497,6 +497,28 @@ namespace Private {
 		}
 	};
 
+	template<>
+	struct Type<const unsigned char*>
+	{
+		static void push(lua_State *L, const unsigned char* v)
+		{
+			SLB_DEBUG(6, "Push const unsigned char* = %s",v);
+			lua_pushstring(L,(const char*)v);
+		}
+
+		static const unsigned char* get(lua_State *L, int p)
+		{
+			const unsigned char* v = (const unsigned char*) lua_tostring(L,p);
+			SLB_DEBUG(6,"Get const unsigned char* (pos %d) = %s",p,v);
+			return v;
+		}
+
+		static bool check(lua_State *L, int pos)
+		{
+			return (lua_isstring(L,pos) != 0);
+		}
+	};
+
 }} // end of SLB::Private
 
 #endif
