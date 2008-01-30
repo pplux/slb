@@ -161,8 +161,14 @@ namespace SLB {
 			lua_getfield(L, -1, "__class_ptr");
 			if (!lua_isnil(L,-1))
 			{
-				instance = 
-					*reinterpret_cast<InstanceBase**>(lua_touserdata(L, pos));
+				void *obj = lua_touserdata(L, pos);
+				if (obj == 0) 
+				{
+					luaL_error(L,
+						"Expected object of type %s at #%d", 
+						_name.c_str(), pos);
+				}
+				instance = *reinterpret_cast<InstanceBase**>(obj);
 			}
 		}
 		lua_settop(L, top);
