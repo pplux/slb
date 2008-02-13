@@ -140,11 +140,48 @@ namespace SLB {
 		return 0;
 	}
 
+	int SLB_isA(lua_State *L)
+	{
+		int top = lua_gettop(L);
+		if (top != 2)
+			luaL_error(L, "Invalid number of arguments (instance, class)");
+
+		ClassInfo* ci_a = 0;
+		if (lua_getmetatable(L,1))
+		{
+			lua_getfield(L, -1, "__class_ptr");
+			if (!lua_isnil(L,-1))
+			{
+				ci_a = reinterpret_cast<ClassInfo*>( lua_touserdata(L,-1) );
+			}
+		}
+		ClassInfo* ci_b = 0;
+		if (lua_getmetatable(L,2))
+		{
+			lua_getfield(L, -1, "__class_ptr");
+			if (!lua_isnil(L,-1))
+			{
+				ci_b = reinterpret_cast<ClassInfo*>( lua_touserdata(L,-1) );
+			}
+		}
+		lua_settop(L, top);
+		if ( ci_a && ci_b ) 
+		{
+			lua_pushboolean(L, ci_a->isSubClassOf(ci_b) );
+		}
+		else
+		{
+			lua_pushboolean(L, false);
+		}
+		return 1;
+	}
+
 	static const luaL_Reg SLB_funcs[] = {
 		{"type", SLB_type},
 		{"copy", SLB_copy},
 		{"using", SLB_using},
 		{"rawptr", SLB_rawptr},
+		{"isA", SLB_isA},
 		{NULL, NULL}
 	};
 

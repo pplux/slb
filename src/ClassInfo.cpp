@@ -300,5 +300,12 @@ namespace SLB {
 		}
 		return 1;
 	}
+	
+	bool ClassInfo::isSubClassOf( const ClassInfo *base )
+	{
+		if (base == this) return true;
+		BaseClassMap::iterator i = _baseClasses.find( base->getTypeid() );
+		return (i != _baseClasses.end());
+	}
 
 }

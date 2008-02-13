@@ -71,6 +71,8 @@ namespace SLB {
 		//This is used by some default initializations...
 		bool initialized() const { return _instanceFactory != 0; }
 
+		bool isSubClassOf( const ClassInfo* );
+
 	protected:
 		ClassInfo(const std::type_info&);
 		virtual ~ClassInfo();
