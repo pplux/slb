@@ -27,13 +27,14 @@ namespace Unit_001 {
 		;
 		
 		typedef std::vector<Element> Vector;
+
 		SLB::Class< Vector >("Unit_001::Vector")
 			.constructor()
 			.set("push_back", &Vector::push_back)
-			.nonconst_set("get", &Vector::operator[] )
-			.const_set("get_const", &Vector::operator[] )
-			.iterator("iterator", &Vector::begin, &Vector::end )
-			.const_iterator("const_iterator", &Vector::begin, &Vector::end )
+			.set("get", (Vector::const_reference (Vector::*)(Vector::size_type))  &Vector::operator[] )
+			.const_set("get_const",  (Vector::const_reference (Vector::*)(Vector::size_type) const) &Vector::operator[] )
+			.iterator<Vector::iterator>("iterator", &Vector::begin, &Vector::end )
+			.const_iterator<Vector::const_iterator>("const_iterator", &Vector::begin, &Vector::end )
 		;
 
 

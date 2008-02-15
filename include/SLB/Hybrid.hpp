@@ -23,6 +23,7 @@
 #ifndef __SLB_HYBRID__
 #define __SLB_HYBRID__
 
+#include "Export.hpp"
 #include "SPP.hpp"
 #include "Manager.hpp"
 #include "LuaCall.hpp"
@@ -38,7 +39,7 @@ struct lua_State;
 
 namespace SLB {
 
-	class HybridBase {
+	class SLB_EXPORT HybridBase {
 	public:
 
 		bool linkFromFile(const char *file);

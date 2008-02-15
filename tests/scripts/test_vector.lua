@@ -1,6 +1,7 @@
 SLB.using(SLB.Unit_001)
 
 v = Vector() -- defined as std::vector< Element > 
+print(v)
 v:push_back( Element("1 - Element") )
 v:push_back( Element("2 - Element") )
 v:push_back( Element("3 - Element") )

@@ -20,20 +20,6 @@
 	pplux@pplux.com
 */
 
-/* SLB - Copyright (C) 2005-2006 Okode
- *
- * This library is open source and may be redistributed and/or modified under 
- * the terms of the Okode Public License (OKODEPL) version 1.0 or 
- * (at your option) any later version. The full license is in LICENSE file 
- * included with this distribution, and on the www.okode.com website.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * Okode Public License for more details.
- */
-// Copyright (C) 2006 Jose L. Hidalgo <jhidalgo@okode.com>
-
 #ifndef __SIMPLE_PREPROCESSOR__
 #define __SIMPLE_PREPROCESSOR__
 

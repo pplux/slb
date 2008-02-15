@@ -73,7 +73,7 @@ namespace SLB
 	};
 
 	template<typename Traits>
-	class SLB_EXPORT StdIterator : public IteratorBase
+	class StdIterator : public IteratorBase
 	{
 	public:
 		typedef typename Traits::GetIteratorMember MemberFuncs ;
