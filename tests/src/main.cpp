@@ -1,7 +1,9 @@
 #include <SLB/SLB.hpp>
 #include <iostream>
 
+#ifdef USE_VALGRIND
 #include <valgrind/memcheck.h>
+#endif
 
 int main(int argc, char **argv)
 {
@@ -24,7 +26,7 @@ int main(int argc, char **argv)
 
 	SLB::Manager::getInstance().reset(); // clear all memory
 
-//TODO: #ifdef VALGRIND...	
+#ifdef USE_VALGRIND
 //Thanks to:  http://thread.gmane.org/gmane.comp.debugging.valgrind/6504/focus=6505
 	if (RUNNING_ON_VALGRIND) {
 		VALGRIND_DO_LEAK_CHECK;
@@ -33,6 +35,7 @@ int main(int argc, char **argv)
 
 		if (vg_leaks || vg_dubious || vg_reachable) exit(1);
 	}
+#endif
 
 	exit(0);
 }

@@ -23,6 +23,7 @@
 #ifndef __SLB_LUACALL__
 #define __SLB_LUACALL__
 
+#include "Export.hpp"
 #include "SPP.hpp"
 #include "Object.hpp"
 #include "PushGet.hpp"
@@ -39,7 +40,7 @@ namespace SLB
 
 	namespace Private
 	{
-		class LuaCallBase 
+		class SLB_EXPORT LuaCallBase 
 		{ 
 		protected: 
 			LuaCallBase(lua_State *L, int index);
@@ -65,7 +66,7 @@ namespace SLB
 	\
 		/* LuaCall: functions that return something  */ \
 		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-		struct LuaCall<R( SPP_ENUM_D(N,T) )> : private Private::LuaCallBase\
+		struct SLB_EXPORT LuaCall<R( SPP_ENUM_D(N,T) )> : private Private::LuaCallBase\
 		{ \
 			LuaCall(lua_State *L, int index) : LuaCallBase(L,index) {} \
 			LuaCall(lua_State *L, const char *func) : LuaCallBase(L,func) {} \
@@ -89,7 +90,7 @@ namespace SLB
 	\
 		/*LuaCall: functions that doesn't return anything */  \
 		template<SPP_ENUM_D(N, class T)> \
-		struct LuaCall<void( SPP_ENUM_D(N,T) )> : private Private::LuaCallBase\
+		struct SLB_EXPORT LuaCall<void( SPP_ENUM_D(N,T) )> : private Private::LuaCallBase\
 		{ \
 			LuaCall(lua_State *L, int index) : LuaCallBase(L,index) {} \
 			LuaCall(lua_State *L, const char *func) : LuaCallBase(L,func) {} \

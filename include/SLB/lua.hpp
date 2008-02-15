@@ -29,10 +29,15 @@ extern "C" {
 	#include <lauxlib.h>
 	#include <lualib.h>
 #else
-	// Local (static) lua (v 5.1.2)
+	#ifdef SLB_LIBRARY
+		#define LUA_CORE
+		#define LUA_LIB
+	#endif
+	// Local (static) lua (v 5.1.3)
 	#include "lua/lua.h"
 	#include "lua/lauxlib.h"
 	#include "lua/lualib.h"
+
 #endif
 }
 
