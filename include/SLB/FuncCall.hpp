@@ -70,8 +70,10 @@ namespace SLB
 		static Object* create(lua_CFunction f);
 
 		size_t getNumArguments() const { return _Targs.size(); }
-		const std::type_info* getArgType(size_t p) const { return _Targs[p]; }
+		const std::type_info* getArgType(size_t p) const { return _Targs[p].first; }
+		const std::string& getArgComment(size_t p) const { return _Targs[p].second; }
 		const std::type_info* getReturnedType() const { return _Treturn; }
+		void setArgComment(size_t p, const std::string& c);
 
 	protected:
 		FuncCall();
@@ -80,7 +82,7 @@ namespace SLB
 		void pushImplementation(lua_State *L);
 		virtual int call(lua_State *L) = 0;
 
-		std::vector< const std::type_info* > _Targs;
+		std::vector< std::pair<const std::type_info*, std::string> > _Targs;
 		const std::type_info* _Treturn;
 	private:
 		static int _call(lua_State *L);

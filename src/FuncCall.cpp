@@ -48,6 +48,18 @@ namespace SLB {
 		return fc->call(L);
 	}
 	
+	void FuncCall::setArgComment(size_t p, const std::string& c)
+	{
+		if (p < _Targs.size())
+		{
+			_Targs[p].second = c;
+		}
+		else
+		{
+			//TODO warning or exception here.
+		}
+	}
+	
 
 	/* For lua functions.... */
 	class LuaCFunction : public virtual Object

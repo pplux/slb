@@ -259,7 +259,7 @@ namespace SLB {
 	int ClassInfo::__tostring(lua_State *L)
 	{
 		int top = lua_gettop(L);
-		lua_pushfstring(L, "Class(%p)", _name.c_str());
+		lua_pushfstring(L, "Class(%s) [%s]", _name.c_str(), getInfo().c_str());
 		;
 		for(BaseClassMap::iterator i = _baseClasses.begin(); i != _baseClasses.end(); ++i)
 		{
@@ -271,11 +271,19 @@ namespace SLB {
 			FuncCall *fc = dynamic_cast<FuncCall*>(obj);
 			if (fc)
 			{
-				lua_pushfstring(L, "\n\tfunction (%s) ",i->first.c_str());
+				lua_pushfstring(L, "\n\tfunction (%s) [%s]",i->first.c_str(), obj->getInfo().c_str() );
+				for (size_t i = 0; i < fc->getNumArguments(); ++i)
+				{
+					lua_pushfstring(L, "\n\t\t[%d] (%s) [%s]",i,
+						fc->getArgType(i)->name(),
+						fc->getArgComment(i).c_str()
+						);
+				}
+				//TODO, print return type
 			}
 			else
 			{
-				lua_pushfstring(L, "\n\t%s -> %p [%s]",i->first.c_str(), obj, typeid(*obj).name());
+				lua_pushfstring(L, "\n\t%s -> %p [%s] [%s]",i->first.c_str(), obj, typeid(*obj).name(), obj->getInfo().c_str() );
 			}
 		}
 		lua_concat(L, lua_gettop(L) - top);

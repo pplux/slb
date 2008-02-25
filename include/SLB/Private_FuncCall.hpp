@@ -30,6 +30,7 @@
 #include "lua.hpp"
 #include <typeinfo>
 
+
 namespace SLB {
 namespace Private {
 
@@ -53,7 +54,8 @@ namespace Private {
 //----------------------------------------------------------------------------
 
 	// SLB_INFO: Collects info of the arguments
-	#define SLB_INFO_PARAMS(N) _Targs.push_back(&typeid(T##N));
+	#define SLB_INFO_PARAMS(N) _Targs.push_back(\
+			std::pair<const std::type_info*, std::string>( &typeid(T##N), "") ); 
 	#define SLB_INFO(RETURN, N) \
 		_Treturn = &typeid(RETURN);\
 		SPP_REPEAT(N,SLB_INFO_PARAMS ) \
@@ -96,6 +98,7 @@ namespace Private {
 		public: \
 			NAME( RETURN (C::*func)(SPP_ENUM_D(N,T)) CONST ) : _func(func) \
 			{\
+				SLB_INFO(RETURN, N) \
 			}\
 		protected: \
 			int call(lua_State *L) \

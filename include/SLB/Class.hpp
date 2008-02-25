@@ -38,6 +38,8 @@
 #include <vector>
 #include <string>
 
+#include <iostream>
+
 struct lua_State;
 
 namespace SLB {
@@ -88,7 +90,9 @@ namespace SLB {
 		__Self &const_iterator(const char *name, T_Iterator (T::*first)() const, T_Iterator (T::*end)() const )
 		{ return rawSet(name, new Iterator( new StdIterator< StdConstIteratorTraits<T, T_Iterator> >(first, end ) ) ); }
 
-		__Self &operator<<(const std::string&);
+		// Metada
+		__Self &comment(const std::string&);
+		__Self &param(const std::string&);
 
 		#define SLB_REPEAT(N) \
 		\
@@ -117,13 +121,15 @@ namespace SLB {
 
 	protected:
 		ClassInfo *_class;
+		// For metadata
 		Object *_lastObj;
+		size_t _param;
 
 	};
 	
 	template<typename T, typename W>
 	inline Class<T,W>::Class(const char *name)
-		: _class(0), _lastObj(0)
+		: _class(0), _lastObj(0), _param(0)
 	{
 		// we expect to have a template "Implementation" inside W
 		typedef typename W::template Implementation<T> Adapter;
@@ -149,6 +155,7 @@ namespace SLB {
 	{
 		_class->set(name, obj);
 		_lastObj = obj;
+		_param = 0;
 		return *this;
 	}
 	
@@ -160,12 +167,46 @@ namespace SLB {
 	}
 
 	template<typename T,  typename W>
-	inline Class<T,W> &Class<T,W>::operator<<( const std::string &s )
+	inline Class<T,W> &Class<T,W>::comment( const std::string &s )
 	{
 		if (_lastObj) _lastObj->setInfo(s);
+		else _class->setInfo(s);
 		return *this;
 	}
 
+	template<typename T,  typename W>
+	inline Class<T,W> &Class<T,W>::param( const std::string &s )
+	{
+		//TODO: This should also work for constructors, and so on.
+		if (_lastObj)
+		{
+			FuncCall *fc = dynamic_cast<FuncCall*>(_lastObj);
+			if (fc)
+			{
+				size_t max_param = fc->getNumArguments();
+				if (_param >= max_param)
+				{
+				std::cerr
+					<< "SLB_Warning: " << fc->getInfo() <<" to many parameters (total args=" << max_param << ")" 
+					<< "("  << _param << ", " << s << ")"
+					<< std::endl;
+				}
+				else
+				{
+					fc->setArgComment(_param, s);
+				}
+			}
+			else
+			{
+				std::cerr
+					<< "SLB_Warning: Can not set param info to a non-funcCall object " 
+					<< "("  << _param << ", " << s << ")"
+					<< std::endl;
+			}
+		}
+		_param++;
+		return *this;
+	}
 	#define SLB_REPEAT(N) \
 	\
 		/* Methods */ \
