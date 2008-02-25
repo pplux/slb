@@ -88,6 +88,8 @@ namespace SLB {
 		__Self &const_iterator(const char *name, T_Iterator (T::*first)() const, T_Iterator (T::*end)() const )
 		{ return rawSet(name, new Iterator( new StdIterator< StdConstIteratorTraits<T, T_Iterator> >(first, end ) ) ); }
 
+		__Self &operator<<(const std::string&);
+
 		#define SLB_REPEAT(N) \
 		\
 			/* Methods */ \
@@ -115,11 +117,13 @@ namespace SLB {
 
 	protected:
 		ClassInfo *_class;
+		Object *_lastObj;
 
 	};
 	
 	template<typename T, typename W>
 	inline Class<T,W>::Class(const char *name)
+		: _class(0), _lastObj(0)
 	{
 		// we expect to have a template "Implementation" inside W
 		typedef typename W::template Implementation<T> Adapter;
@@ -144,6 +148,7 @@ namespace SLB {
 	inline Class<T,W> &Class<T,W>::rawSet(const char *name, Object *obj)
 	{
 		_class->set(name, obj);
+		_lastObj = obj;
 		return *this;
 	}
 	
@@ -151,6 +156,13 @@ namespace SLB {
 	inline Class<T,W> &Class<T,W>::constructor()
 	{
 		_class->setConstructor( FuncCall::classConstructor<T>() );
+		return *this;
+	}
+
+	template<typename T,  typename W>
+	inline Class<T,W> &Class<T,W>::operator<<( const std::string &s )
+	{
+		if (_lastObj) _lastObj->setInfo(s);
 		return *this;
 	}
 
