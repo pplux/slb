@@ -1,5 +1,3 @@
-remove_definitions(-DLUA_BUILD_AS_DLL)
-remove_definitions(-DSLB_LIBRARY)
 
 file(GLOB SOURCES_TEST "${SLB_SOURCE_DIR}/tests/src/*.cpp")
 add_executable(SLB_test ${SOURCES_TEST})
@@ -23,7 +21,9 @@ foreach(script ${SCRIPTS_TEST})
 	endif(SLB_USE_VALGRIND)
 endforeach(script)
 
-if(WIN32)
+if(${WIN32})
+	remove_definitions(-DLUA_BUILD_AS_DLL)
+	remove_definitions(-DSLB_LIBRARY)
 	# Copy dll to the same directory as the executable
 	GET_TARGET_PROPERTY(SLB_DLL_OUTPUT_PATH SLB LOCATION)
 	GET_TARGET_PROPERTY(SLB_TEST_OUTPUT_PATH SLB_test LOCATION)
@@ -33,4 +33,4 @@ if(WIN32)
 		POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy "${SLB_DLL_OUTPUT_PATH}" "${SLB_DLL_FINAL_PATH}/SLB.dll"
 		)
-endif(WIN32)
+endif(${WIN32})
