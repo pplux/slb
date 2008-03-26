@@ -66,6 +66,8 @@ namespace SLB {
 		/// Pushes onto the lua_stack the function, if exists returns true.
 		bool pushFunction(const char *name);
 
+		virtual void onInit(lua_State *) {}
+
 		lua_State *_L;
 		int _table_ref;
 		MethodMap  _methods;
