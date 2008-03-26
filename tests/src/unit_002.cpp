@@ -14,6 +14,7 @@ namespace Unit_002
 			.constructor()
 			.set( "get", &HClass::get )
 			.set( "calc", &HClass::calc)
+			.hybrid() //< register basic functionality
 		;
 
 		SLB_DEBUG(1, "<-- Loading unit_002 wrapper <--");

@@ -33,6 +33,7 @@
 #include "Value.hpp"
 #include "Instance.hpp"
 #include "Iterator.hpp"
+#include "Hybrid.hpp"
 #include <typeinfo>
 #include <map>
 #include <vector>
@@ -71,6 +72,17 @@ namespace SLB {
 		{ return rawSet(name, FuncCall::create(func)); }
 
 		__Self &constructor();
+
+		/** Add basic hybrid functionality */
+		__Self &hybrid()
+		{
+			// Basic hybrid functions:
+			rawSet("linkFromMemory", FuncCall::create(&HybridBase::linkFromMemory));
+			rawSet("linkFromFile",   FuncCall::create(&HybridBase::linkFromFile));
+			rawSet("linkFromTable",  FuncCall::create(HybridBase::lua_linkFromLuaTable));
+			inherits<HybridBase>();
+			return *this;
+		}
 
 		template<typename TBase>
 		__Self &inherits()
