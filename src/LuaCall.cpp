@@ -25,7 +25,6 @@
 #include <sstream>
 
 namespace SLB {
-namespace Private {
 
 	LuaCallBase::LuaCallBase(lua_State *L, int index) : _L(L) { getFunc(index); } 
 
@@ -99,4 +98,4 @@ namespace Private {
 		lua_remove(_L, base);
 	}
 
-}}
+}
