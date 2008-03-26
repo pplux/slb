@@ -63,13 +63,6 @@ namespace SLB {
 		HybridBase();
 		virtual ~HybridBase();
 
-		/** Will be called each time the instance needs a new state (its own state):
-		 *    - here you can open lua default tables (it is not done by default).
-		 *    - this function will be called only when needed, for example
-		 *    it will NOT be called with linkFromLuaTable. 
-		 */
-		virtual void onInitState(lua_State *L) {}
-
 		/// Pushes onto the lua_stack the function, if exists returns true.
 		bool pushFunction(const char *name);
 

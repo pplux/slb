@@ -46,8 +46,6 @@ namespace SLB {
 		clearData();
 		_ownState = true;
 		_L = luaL_newstate();
-		// call user:
-		onInitState(_L);
 		// add our SLB :)
 		Manager::getInstance().registerSLB(_L);
 	}
@@ -137,13 +135,18 @@ namespace SLB {
 		{
 			lua_rawgeti(_L, LUA_REGISTRYINDEX, _table_ref);
 			lua_getfield(_L, -1, name);
-			lua_replace(_L, -2);
 			if (!lua_isfunction(_L,-1))
 			{
 				SLB_DEBUG(0, "WARNING: entry [%s] as hybrid method is NOT a function",name);
-				lua_pop(_L,1);
+				lua_pop(_L,2);
 				return false;
 			}
+			// [table]
+			// [function] 
+			lua_pushvalue(_L,-2); // [copy of table]
+			lua_setfenv(_L,-2);  //  remove ^
+
+			lua_replace(_L, -2); // will leave the function at top
 			// everything correct !
 			return true;
 		}
