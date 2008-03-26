@@ -5,7 +5,7 @@ set(LIBRARY_OUTPUT_PATH ${SLB_BINARY_DIR}/lib)
 OPTION(SLB_BUILD_TESTS "Enable building Tests" OFF)
 OPTION(SLB_USE_EMBEDDED_LUA "Use Lua embedded" ON)
 OPTION(SLB_USE_VALGRIND "Use valgrind to check memory leaks" OFF)
-SET(SLB_DEBUG_LEVEL 0)
+SET(SLB_DEBUG_LEVEL 100)
 
 link_directories( ${LIBRARY_OUTPUT_PATH} )
 

@@ -56,6 +56,7 @@ namespace SLB {
 		// set a global value ( will be registered authomatically on every lua_State )
 		void set(const std::string &, Object *obj);
 
+		// This will add a SLB table to the current global state
 		void registerSLB(lua_State *L);
 
 		// convert from C1 -> C2

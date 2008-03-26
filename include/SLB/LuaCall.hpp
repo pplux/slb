@@ -38,23 +38,23 @@
 namespace SLB
 {
 
-	namespace Private
-	{
-		class SLB_EXPORT LuaCallBase 
-		{ 
-		protected: 
-			LuaCallBase(lua_State *L, int index);
-			LuaCallBase(lua_State *L, const char *func);
-			~LuaCallBase();
-			void getFunc(int index);
-			void execute(int numArgs, int numOutput, int top);
+	class SLB_EXPORT LuaCallBase 
+	{ 
+	public:
+		// this allows to store a luaCall, mainly used by
+		// Hybrid classes...
+		virtual ~LuaCallBase();
+	protected: 
+		LuaCallBase(lua_State *L, int index);
+		LuaCallBase(lua_State *L, const char *func);
+		void execute(int numArgs, int numOutput, int top);
 
-			lua_State *_L;
-			int _ref; 
-		private:
-			static int errorHandler(lua_State *L);
-		}; 
-	}
+		lua_State *_L;
+		int _ref; 
+	private:
+		void getFunc(int index);
+		static int errorHandler(lua_State *L);
+	}; 
 
 	template<typename T>
 	struct LuaCall;
@@ -66,7 +66,7 @@ namespace SLB
 	\
 		/* LuaCall: functions that return something  */ \
 		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-		struct SLB_EXPORT LuaCall<R( SPP_ENUM_D(N,T) )> : private Private::LuaCallBase\
+		struct SLB_EXPORT LuaCall<R( SPP_ENUM_D(N,T) )> : public LuaCallBase\
 		{ \
 			LuaCall(lua_State *L, int index) : LuaCallBase(L,index) {} \
 			LuaCall(lua_State *L, const char *func) : LuaCallBase(L,func) {} \
@@ -90,7 +90,7 @@ namespace SLB
 	\
 		/*LuaCall: functions that doesn't return anything */  \
 		template<SPP_ENUM_D(N, class T)> \
-		struct SLB_EXPORT LuaCall<void( SPP_ENUM_D(N,T) )> : private Private::LuaCallBase\
+		struct SLB_EXPORT LuaCall<void( SPP_ENUM_D(N,T) )> : public LuaCallBase\
 		{ \
 			LuaCall(lua_State *L, int index) : LuaCallBase(L,index) {} \
 			LuaCall(lua_State *L, const char *func) : LuaCallBase(L,func) {} \
