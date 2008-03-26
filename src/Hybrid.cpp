@@ -46,6 +46,7 @@ namespace SLB {
 		clearData();
 		_ownState = true;
 		_L = luaL_newstate();
+		onInit(_L);
 		// add our SLB :)
 		Manager::getInstance().registerSLB(_L);
 	}
@@ -67,7 +68,7 @@ namespace SLB {
 	bool HybridBase::link(const char *errMSG)
 	{
 		/* [top] * there is a function to execute */
-		lua_newtable(_L); // independent global table...
+		lua_pushvalue(_L, LUA_GLOBALSINDEX); // global table...
 		/*ref*/lua_pushvalue(_L, -1); // copy the _G to _table_ref
 		/*ref*/_table_ref = luaL_ref(_L, LUA_REGISTRYINDEX); // keep a copy
 		lua_setfenv(_L, -2);
