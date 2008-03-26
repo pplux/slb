@@ -80,7 +80,7 @@ namespace SLB {
 	template<class BaseClass>
 	class Hybrid : public virtual HybridBase {
 	public:
-		Hybrid() : HybridBase()
+		Hybrid()
 		{
 			ClassInfo *c;
 			c = Manager::getInstance().getOrCreateClass( typeid(BaseClass) );
@@ -94,11 +94,6 @@ namespace SLB {
 						Instance::NoCopyNoDestroy::Implementation<BaseClass> >()
 				);
 			}
-			// Basic hybrid functions:
-			c->set("linkFromMemory", FuncCall::create(&HybridBase::linkFromMemory));
-			c->set("linkFromFile",   FuncCall::create(&HybridBase::linkFromFile));
-			c->set("linkFromTable",  FuncCall::create(HybridBase::lua_linkFromLuaTable));
-			c->inheritsFrom<BaseClass,HybridBase>();
 		}
 		virtual ~Hybrid() {}
 	protected:
