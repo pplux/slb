@@ -6,11 +6,6 @@ namespace Unit_002
 	int  HClass::get()  { return LCall<int>("get"); }
 	void HClass::calc(int a, int b) { return LCall<void, int, int>("calc", a, b); }
 	
-	void HClass::onInitState(lua_State *L)
-	{
-		luaL_openlibs(L);
-	}
-
 	void wrapper()
 	{
 		SLB_DEBUG(1, "--> Loading unit_002 wrapper -->");

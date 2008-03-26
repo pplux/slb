@@ -12,7 +12,6 @@ namespace Unit_002 {
 		int  get();
 		void calc(int a, int b);
 	protected:
-		virtual void onInitState(lua_State *L);
 	};
 
 } // end of unit 002
