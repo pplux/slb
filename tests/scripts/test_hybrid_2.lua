@@ -14,7 +14,13 @@ v:linkFromTable
 }
 
 v:calc(6,7)
+
+if not v:checkSharedState() then
+	error("CheckSharedState failed")
+end
+
 print("calc done")
 if v:get() ~= 13 then
 	error("Result given invalid...")
 end
+

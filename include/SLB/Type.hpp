@@ -370,14 +370,14 @@ namespace Private {
 	{
 		static void push(lua_State *L, unsigned long v)
 		{
-			SLB_DEBUG(6, "Push unsigned long = %f",v);
+			SLB_DEBUG(6, "Push unsigned long = %lu",v);
 			lua_pushnumber(L,v);
 		}
 
 		static unsigned long get(lua_State *L, int p)
 		{
 			unsigned long v = (unsigned long) lua_tonumber(L,p);
-			SLB_DEBUG(6,"Get unsigned long (pos %d) = %f",p,v);
+			SLB_DEBUG(6,"Get unsigned long (pos %d) = %lu",p,v);
 			return v;
 		}
 
