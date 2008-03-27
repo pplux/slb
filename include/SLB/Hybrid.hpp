@@ -50,12 +50,8 @@ namespace SLB {
 		/** Will use a given luaState and a table to search (hybrid-)methods */
 		bool linkFromLuaTable(lua_State *L, int pos);
 
-		/** That function will call linkFromLuaTable, but can easily wrapped :) */
+		/** That function will call linkFromLuaTable, it can easily be wrapped :) */
 		static int lua_linkFromLuaTable(lua_State *L);
-
-		/** returns the luaState used... DO NOT USE in case this object creates its own
-		 * state because the luaState will be eventually destroyed.*/
-		lua_State *getLuaState() { return _L; }
 
 	protected:
 		typedef std::map< const char *, LuaCallBase *> MethodMap;
@@ -63,19 +59,59 @@ namespace SLB {
 		HybridBase();
 		virtual ~HybridBase();
 
+		/** This method will be called each time this instance creates a new
+		 * lua_State. Here you can add initialization code, load default libraries,
+		 * etc. */
+		virtual void onNewState(lua_State *) {}
+
+		/** This method allows to lock the lua_State when the state is not owned
+		 * by the instance (when the link was done using linkFromLuaTable). Here
+		 * you can add lock mechanism to avoid two instances accessing the same
+		 * lua_State */
+		virtual void lockBegin(lua_State *) {}
+
+		/** This method is called at the end of the call, see lockBegin */
+		virtual void lockEnd(lua_State *) {}
+
+		//---------------------------------------------------------------------
+		///--- For Internal use ONLY -------------------------------------------
+		//---------------------------------------------------------------------
 		/// Pushes onto the lua_stack the function, if exists returns true.
 		bool pushFunction(const char *name);
 
-		virtual void onInit(lua_State *) {}
+		// This class helps to handle the lockBegin, lockEnd. Using methods
+		// directly will require to split LCall to handle return of void or not.
+		// (this is a little trick)
+		struct AutoLock
+		{
+			AutoLock(HybridBase *h) : _hybrid(h)
+			{
+				if (!_hybrid->_ownState)
+				{
+					SLB_DEBUG(6, "Lock state %p to access hybrid method (%p)", _hybrid->_L, (void*) _hybrid);
+					_hybrid->lockBegin( _hybrid->_L );
+				}
+			}
+			~AutoLock()
+			{
+				if (!_hybrid->_ownState)
+				{
+					SLB_DEBUG(6, "Unlock state %p to access hybrid method (%p)", _hybrid->_L, (void*) _hybrid);
+					_hybrid->lockEnd( _hybrid->_L);
+				}
+			}
+			HybridBase* _hybrid;
+		};
 
 		lua_State *_L;
-		int _table_ref;
 		MethodMap  _methods;
+		//---------------------------------------------------------------------
 	private:
 
 		void clearData();
 		void initState();
 		bool link(const char *errMSG);
+		int _table_ref;
 		bool _ownState;
 	};
 
@@ -98,6 +134,7 @@ namespace SLB {
 			}
 		}
 		virtual ~Hybrid() {}
+	private:
 	protected:
 		
 	#define SLB_ARG_H(N) ,T##N arg_##N
@@ -108,20 +145,21 @@ namespace SLB {
 		R LCall( const char *name SPP_REPEAT(N, SLB_ARG_H) ) \
 		{ \
 			typedef SLB::LuaCall<R(BaseClass* SPP_COMMA_IF(N) SPP_ENUM_D(N,T))> LC;\
+			AutoLock lock(this); \
 			LC *method = 0; \
 			SLB_DEBUG(3,"Call Hybrid-method [%s]", name)\
 			MethodMap::iterator it = _methods.find(name) ; \
 			if (it != _methods.end()) \
 			{ \
 				method = reinterpret_cast<LC*>(it->second); \
-				SLB_DEBUG(4,"method [%s] was found %x", name,method)\
+				SLB_DEBUG(4,"method [%s] was found %p", name,method)\
 			} \
 			else \
 			{ \
 				if (pushFunction(name)) \
 				{ \
 					method = new LC(_L, -1);\
-					SLB_DEBUG(2,"method [%s] found in lua [OK] -> %x", name,method)\
+					SLB_DEBUG(2,"method [%s] found in lua [OK] -> %p", name,method)\
 					_methods[name] = method;\
 				} \
 				else \

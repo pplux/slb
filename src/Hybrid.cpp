@@ -46,7 +46,7 @@ namespace SLB {
 		clearData();
 		_ownState = true;
 		_L = luaL_newstate();
-		onInit(_L);
+		onNewState(_L);
 		// add our SLB :)
 		Manager::getInstance().registerSLB(_L);
 	}
