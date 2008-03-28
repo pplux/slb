@@ -51,7 +51,7 @@ namespace SLB {
 		bool linkFromLuaTable(lua_State *L, int pos);
 
 		/** That function will call linkFromLuaTable, it can easily be wrapped :) */
-		static int lua_linkFromLuaTable(lua_State *L);
+		static int lua_link(lua_State *L);
 
 	protected:
 		typedef std::map< const char *, LuaCallBase *> MethodMap;

@@ -3,7 +3,7 @@ SLB.using(SLB.Unit_002)
 v = HClass()
 
 -- equivalent to a link from file...
-v:linkFromTable
+v:link
 {
 	calc = function (instance, a, b)
 		result = a + b

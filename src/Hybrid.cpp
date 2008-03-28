@@ -154,7 +154,7 @@ namespace SLB {
 		return false;
 	}
 	
-	int HybridBase::lua_linkFromLuaTable(lua_State *L)
+	int HybridBase::lua_link(lua_State *L)
 	{
 		HybridBase *obj = get<HybridBase*>(L,1);
 		if (obj)
