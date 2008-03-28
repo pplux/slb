@@ -79,7 +79,7 @@ namespace SLB {
 			// Basic hybrid functions:
 			rawSet("linkFromMemory", FuncCall::create(&HybridBase::linkFromMemory));
 			rawSet("linkFromFile",   FuncCall::create(&HybridBase::linkFromFile));
-			rawSet("linkFromTable",  FuncCall::create(HybridBase::lua_linkFromLuaTable));
+			rawSet("link",  FuncCall::create(HybridBase::lua_link));
 			inherits<HybridBase>();
 			return *this;
 		}
