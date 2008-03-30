@@ -73,20 +73,134 @@ namespace SLB {
 
 		__Self &constructor();
 
-		/** Add basic hybrid functionality */
-		__Self &hybrid()
+
+		/** Add basic hybrid functionality. If extensible == true then instances
+		 * of this hybrid will be able to be extendend with lua methods */
+		__Self &hybrid(bool extensible = true)
 		{
 			// Basic hybrid functions:
 			rawSet("linkFromMemory", FuncCall::create(&HybridBase::linkFromMemory));
 			rawSet("linkFromFile",   FuncCall::create(&HybridBase::linkFromFile));
 			rawSet("link",  FuncCall::create(HybridBase::lua_link));
 			inherits<HybridBase>();
+			if (extensible)
+			{
+				class__newindex( HybridBase::class__newindex );
+			}
 			return *this;
 		}
 
 		template<typename TBase>
 		__Self &inherits()
 		{ _class->inheritsFrom<T,TBase>(); return *this;}
+
+		/* Class__index for (non-const)methods */
+		template<class C, class R, class P>
+		__Self &class__index( R (C::*func)(P) )
+		{
+			_class->setClass__index( FuncCall::create(func) ); return *this;
+		}
+
+		/* Class__index for const methods */
+		template<class C, class R, class P>
+		__Self &class__index( R (C::*func)(P) const )
+		{
+			_class->setClass__index( FuncCall::create(func) ); return *this;
+		}
+
+		/* Class__index for C functions */
+		template<class R, class P>
+		__Self &class__index( R (*func)(P) )
+		{
+			_class->setClass__index( FuncCall::create(func) ); return *this;
+		}
+		
+		/* Class__index for lua_functions */
+		__Self &class__index(lua_CFunction func)
+		{
+			_class->setClass__index( FuncCall::create(func) ); return *this;
+		}
+
+		/* Class__newindex for (non-const)methods */
+		template<class C, class R, class K, class V>
+		__Self &class__newindex( R (C::*func)(K,V) )
+		{
+			_class->setClass__newindex( FuncCall::create(func) ); return *this;
+		}
+
+		/* Class__newindex for const methods */
+		template<class C, class R, class K, class V>
+		__Self &class__newindex( R (C::*func)(K,V) const )
+		{
+			_class->setClass__newindex( FuncCall::create(func) ); return *this;
+		}
+
+		/* Class__newindex for C functions */
+		template<class R, class K, class V>
+		__Self &class__newindex( R (*func)(K,V) )
+		{
+			_class->setClass__newindex( FuncCall::create(func) ); return *this;
+		}
+		
+		/* Class__newindex for lua_functions */
+		__Self &class__newindex(lua_CFunction func)
+		{
+			_class->setClass__newindex( FuncCall::create(func) ); return *this;
+		}
+
+		/* Object__index for (non-const)methods */
+		template<class C, class R, class P>
+		__Self &object__index( R (C::*func)(P) )
+		{
+			_class->setObject__index( FuncCall::create(func) ); return *this;
+		}
+
+		/* Object__index for const methods */
+		template<class C, class R, class P>
+		__Self &object__index( R (C::*func)(P) const )
+		{
+			_class->setObject__index( FuncCall::create(func) ); return *this;
+		}
+
+		/* Object__index for C functions */
+		template<class R, class P>
+		__Self &object__index( R (*func)(P) )
+		{
+			_class->setObject__index( FuncCall::create(func) ); return *this;
+		}
+		
+		/* Object__index for lua_functions */
+		__Self &object__index(lua_CFunction func)
+		{
+			_class->setObject__index( FuncCall::create(func) ); return *this;
+		}
+
+		/* Object__newindex for (non-const)methods */
+		template<class C, class R, class K, class V>
+		__Self &object__newindex( R (C::*func)(K,V) )
+		{
+			_class->setObject__newindex( FuncCall::create(func) ); return *this;
+		}
+
+		/* Object__newindex for const methods */
+		template<class C, class R, class K, class V>
+		__Self &object__newindex( R (C::*func)(K,V) const )
+		{
+			_class->setObject__newindex( FuncCall::create(func) ); return *this;
+		}
+
+		/* Object__newindex for C functions */
+		template<class R, class K, class V>
+		__Self &object__newindex( R (*func)(K,V) )
+		{
+			_class->setObject__newindex( FuncCall::create(func) ); return *this;
+		}
+		
+		/* Object__newindex for lua_functions */
+		__Self &object__newindex(lua_CFunction func)
+		{
+			_class->setObject__newindex( FuncCall::create(func) ); return *this;
+		}
 		
 		__Self &__add()
 		{ SLB_DEBUG(0, "NOT IMPLEMENTED!"); return *this; }

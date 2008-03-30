@@ -64,7 +64,7 @@ namespace SLB {
 
 		struct Default {
 			template<class T>
-			class Implementation : public InstanceBase
+			class Implementation : public virtual InstanceBase
 			{
 			public:
 				// constructor from a pointer 
@@ -104,10 +104,47 @@ namespace SLB {
 		};
 
 
+		struct NoCopy
+		{
+			template<class T>
+			class Implementation : public virtual InstanceBase
+			{
+			public:
+				Implementation( T* ptr, bool fromConstructor = false ) : InstanceBase( I_Pointer, typeid(T) ), _ptr(ptr)
+				{
+					if (fromConstructor) _flags |= I_Copy;
+				}
+				// constructor from const pointer
+				Implementation( const T *ptr ) : InstanceBase( I_Const_Pointer, typeid(T)), _const_ptr(ptr)
+				{
+				}
+
+				// constructor from reference
+				Implementation( T &ref ) : InstanceBase( I_Reference, typeid(T) ), _ptr( &ref )
+				{
+				}
+
+				// copy constructor,  
+				Implementation( const T &ref) : InstanceBase( I_Invalid, typeid(T) ), _ptr( 0L )
+				{
+				}
+
+				virtual ~Implementation() { if (isCopy()) delete _ptr; }
+
+				void* get_ptr() { return (isConst())? 0L : _ptr; }
+				const void* get_const_ptr() { return _const_ptr; }
+			protected:
+				union {
+					T *_ptr;
+					const T *_const_ptr;
+				};
+			};
+		};
+
 		struct NoCopyNoDestroy 
 		{
 			template<class T>
-			class Implementation : public InstanceBase
+			class Implementation : public virtual InstanceBase
 			{
 			public:
 				// constructor form a pointer 
@@ -150,7 +187,7 @@ namespace SLB {
 		struct SmartPtr 
 		{
 			template<class T>
-			class Implementation : public InstanceBase
+			class Implementation : public virtual InstanceBase
 			{
 			public:
 				Implementation( T* ptr, bool) : InstanceBase( I_Pointer, typeid(T) ), _sm_ptr(ptr)
@@ -186,7 +223,7 @@ namespace SLB {
 		struct SmartPtrNoCopy
 		{
 			template<class T>
-			class Implementation : public InstanceBase
+			class Implementation : public virtual InstanceBase
 			{
 			public:
 				Implementation( T* ptr, bool) : InstanceBase( I_Pointer, typeid(T) ), _sm_ptr(ptr)

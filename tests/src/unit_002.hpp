@@ -10,8 +10,12 @@ namespace Unit_002 {
 	{
 	public:
 		HClass();
-		int  get();
-		void calc(int a, int b);
+
+		/* int get() { return LCall<int>("get"); } */
+		HYBRID_method_0(get,int);
+
+		/* void calc(int a, int b) { return LCall<void, int, int>("calc"); } */
+		HYBRID_method_2(calc,void,int,int);
 
 		bool checkOwnState(); //< should be true when linking from disk or memory
 		bool checkSharedState(); //< should be true when linking from a lua_table

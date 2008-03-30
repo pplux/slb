@@ -62,17 +62,22 @@ namespace SLB {
 	
 
 	/* For lua functions.... */
-	class LuaCFunction : public virtual Object
+	class LuaCFunction : public FuncCall
 	{
 	public:
 		LuaCFunction(lua_CFunction f) : _func(f) {}
 	protected:
 		void pushImplementation(lua_State *L) { lua_pushcfunction(L,_func); }
+		virtual int call(lua_State *L)
+		{
+			luaL_error(L, "Code should never be reached %s:%d",__FILE__,__LINE__);
+			return 0;
+		}
 		virtual ~LuaCFunction() {}
 		lua_CFunction _func;
 	};
 
-	Object* FuncCall::create(lua_CFunction f)
+	FuncCall* FuncCall::create(lua_CFunction f)
 	{
 		return new LuaCFunction(f);
 	}

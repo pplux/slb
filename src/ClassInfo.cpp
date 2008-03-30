@@ -27,7 +27,11 @@
 
 namespace SLB {
 
-	ClassInfo::ClassInfo(const std::type_info &ti) : _typeid(0), _name(""), _instanceFactory(0)
+	ClassInfo::ClassInfo(const std::type_info &ti) :
+		Namespace(true),
+		_typeid(0), 
+		_name(""), 
+		_instanceFactory(0)
 	{
 		_typeid = &ti;
 		Manager::getInstance().addClass(this);
@@ -55,6 +59,30 @@ namespace SLB {
 	void ClassInfo::setConstructor( FuncCall *constructor )
 	{
 		_constructor = constructor;
+	}
+	
+	void ClassInfo::setClass__index( FuncCall *func )
+	{
+		SLB_DEBUG(2, "ClassInfo(%p) '%s' set Class __index -> %p", this, _name.c_str(), func);
+		_meta__index[0] = func;
+	}
+
+	void ClassInfo::setClass__newindex( FuncCall *func )
+	{
+		SLB_DEBUG(2, "ClassInfo(%p) '%s' set Class __newindex -> %p", this, _name.c_str(), func);
+		_meta__newindex[0] = func;
+	}
+
+	void ClassInfo::setObject__index( FuncCall *func )
+	{
+		SLB_DEBUG(2, "ClassInfo(%p) '%s' set Object __index -> %p", this, _name.c_str(), func);
+		_meta__index[1] = func;
+	}
+
+	void ClassInfo::setObject__newindex( FuncCall *func )
+	{
+		SLB_DEBUG(2, "ClassInfo(%p) '%s' set Object __newindex -> %p", this, _name.c_str(), func);
+		_meta__newindex[1] = func;
 	}
 
 	void ClassInfo::pushImplementation(lua_State *L)
@@ -129,7 +157,7 @@ namespace SLB {
 					i->get_ptr()
 				);
 		}
-		SLB_DEBUG(7, "Class(%s) get_ptr -> %p", _name.c_str(), obj);
+		SLB_DEBUG(7, "Class(%s) get_ptr at %d -> %p", _name.c_str(), pos, obj);
 		return obj;
 	}
 
@@ -241,6 +269,56 @@ namespace SLB {
 		}
 	}
 	
+	int ClassInfo::__index(lua_State *L)
+	{
+		int result = Table::__index(L); // default implementation
+		if ( result < 0 )
+		{
+			// 0 = class __index
+			// 1 = object __index
+			int type = lua_istable(L,1)? 0 : 1; 
+			SLB_DEBUG(4, "Called ClassInfo(%p) '%s' __index %s", this, _name.c_str(), type? "OBJECT" : "CLASS");
+			if (_meta__index[type].valid())
+			{
+				// 1 - func to call
+				_meta__index[type]->push(L);
+				lua_insert(L,1);	
+				// 2 - object/table
+				// 3 - key
+				SLB_DEBUG_STACK(8,L,  "Class(%s) __index {%s} metamethod -> %p",
+					_name.c_str(), type? "OBJECT" : "CLASS", (void*)_meta__index[type].get() );
+
+				assert("Error in number of stack elements" && lua_gettop(L) == 3);
+				lua_call(L,lua_gettop(L)-1, LUA_MULTRET);
+				result = lua_gettop(L);
+			}
+		}
+		return result;
+	}
+
+	int ClassInfo::__newindex(lua_State *L)
+	{
+		// 0 = class __index
+		// 1 = object __index
+		int type = lua_istable(L,1)? 0 : 1; 
+		SLB_DEBUG(4, "Called ClassInfo(%p) '%s' __newindex %s", this, _name.c_str(), type? "OBJECT" : "CLASS");
+		if (_meta__newindex[type].valid())
+		{
+			// 1 - func to call
+			_meta__newindex[type]->push(L);
+			lua_insert(L,1);
+			// 2 - object
+			// 3 - key/table
+			// 4 - value
+			SLB_DEBUG_STACK(8,L,  "Class(%s) __index {%s} metamethod -> %p",
+				_name.c_str(), type?  "OBJECT" :"CLASS", (void*)_meta__newindex[type].get() );
+
+			assert("Error in number of stack elements" && lua_gettop(L) == 4);
+			lua_call(L,lua_gettop(L)-1, LUA_MULTRET);
+			return lua_gettop(L);
+		}
+		return Table::__newindex(L);
+	}
 	
 	int ClassInfo::__garbageCollector(lua_State *L)
 	{

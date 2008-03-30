@@ -53,6 +53,11 @@ namespace SLB {
 		/** That function will call linkFromLuaTable, it can easily be wrapped :) */
 		static int lua_link(lua_State *L);
 
+		/** You can bind this function using ClassInfo::set__newindex to allow
+		 * the hybrid instance to have lua methods. Only functions can be added to
+		 * a class, all instances will have these extra methods. */
+		static int class__newindex(lua_State *);
+
 	protected:
 		typedef std::map< const char *, LuaCallBase *> MethodMap;
 
@@ -76,6 +81,7 @@ namespace SLB {
 		//---------------------------------------------------------------------
 		///--- For Internal use ONLY -------------------------------------------
 		//---------------------------------------------------------------------
+
 		/// Pushes onto the lua_stack the function, if exists returns true.
 		bool pushFunction(const char *name);
 
@@ -111,8 +117,11 @@ namespace SLB {
 		void clearData();
 		void initState();
 		bool link(const char *errMSG);
+		static int call_lua_method(lua_State *L);
+
 		int _table_ref;
 		bool _ownState;
+		bool _linked;
 	};
 
 	template<class BaseClass>
@@ -139,11 +148,7 @@ namespace SLB {
 		
 	#define SLB_ARG_H(N) ,T##N arg_##N
 	#define SLB_ARG(N) , arg_##N
-	#define SLB_REPEAT(N) \
-	\
-		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-		R LCall( const char *name SPP_REPEAT(N, SLB_ARG_H) ) \
-		{ \
+	#define SLB_BODY(N) \
 			typedef SLB::LuaCall<R(BaseClass* SPP_COMMA_IF(N) SPP_ENUM_D(N,T))> LC;\
 			AutoLock lock(this); \
 			LC *method = 0; \
@@ -167,16 +172,59 @@ namespace SLB {
 					_methods[name] = 0L; \
 					SLB_DEBUG(2,"method [%s] found in lua [FAIL!]", name)\
 				}\
-			} \
+			} 
+
+	#define SLB_REPEAT(N) \
+	\
+		/* non const version */\
+		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+		R LCall( const char *name SPP_REPEAT(N, SLB_ARG_H) ) \
+		{ \
+			SLB_BODY(N) \
 			if (method) return (*method)(static_cast<BaseClass*>(this) SPP_REPEAT(N, SLB_ARG) ); \
+			return R(); \
+		} \
+		/* const version */\
+		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+		R LCall( const char *name SPP_REPEAT(N, SLB_ARG_H) ) const \
+		{ \
+			SLB_BODY(N) \
+			if (method) return (*method)(static_cast<const BaseClass*>(this) SPP_REPEAT(N, SLB_ARG) ); \
 			return R(); \
 		} \
 
 	SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
 	#undef SLB_REPEAT
+	#undef SLB_BODY
 	#undef SLB_ARG
 	#undef SLB_ARG_H
 	};
 }
+
+#define HYBRID_method_0(name,ret_T) \
+	ret_T name() { return LCall<ret_T>(#name); }
+#define HYBRID_method_1(name,ret_T, T1) \
+	ret_T name(T1 p1) { return LCall<ret_T,T1>(#name,p1); }
+#define HYBRID_method_2(name,ret_T, T1, T2) \
+	ret_T name(T1 p1,T2 p2) { return LCall<ret_T,T1,T2>(#name,p1,p2); }
+#define HYBRID_method_3(name,ret_T, T1, T2, T3) \
+	ret_T name(T1 p1,T2 p2, T3 p3) { return LCall<ret_T,T1,T2>(#name,p1,p2, p3); }
+#define HYBRID_method_4(name,ret_T, T1, T2, T3, T4) \
+	ret_T name(T1 p1,T2 p2, T3 p3, T4 p4) { return LCall<ret_T,T1,T2>(#name,p1,p2, p3,p4); }
+#define HYBRID_method_5(name,ret_T, T1, T2, T3, T4,T5) \
+	ret_T name(T1 p1,T2 p2, T3 p3, T4 p4, T5 p5) { return LCall<ret_T,T1,T2>(#name,p1,p2, p3,p4,p5); }
+
+#define HYBRID_const_method_0(name,ret_T) \
+	ret_T name() const { return LCall<ret_T>(#name); }
+#define HYBRID_const_method_1(name,ret_T, T1) \
+	ret_T name(T1 p1) const { return LCall<ret_T,T1>(#name,p1); }
+#define HYBRID_const_method_2(name,ret_T, T1, T2) \
+	ret_T name(T1 p1,T2 p2) const { return LCall<ret_T,T1,T2>(#name,p1,p2); }
+#define HYBRID_const_method_3(name,ret_T, T1, T2, T3) \
+	ret_T name(T1 p1,T2 p2, T3 p3) const { return LCall<ret_T,T1,T2>(#name,p1,p2, p3); }
+#define HYBRID_const_method_4(name,ret_T, T1, T2, T3, T4) \
+	ret_T name(T1 p1,T2 p2, T3 p3, T4 p4) const { return LCall<ret_T,T1,T2>(#name,p1,p2, p3,p4); }
+#define HYBRID_const_method_5(name,ret_T, T1, T2, T3, T4,T5) \
+	ret_T name(T1 p1,T2 p2, T3 p3, T4 p4, T5 p5) const { return LCall<ret_T,T1,T2>(#name,p1,p2, p3,p4,p5); }
 
 #endif

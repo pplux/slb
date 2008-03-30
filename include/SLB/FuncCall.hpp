@@ -67,7 +67,7 @@ namespace SLB
 		#undef SLB_REPEAT
 
 		/* special case of a proper lua Function */
-		static Object* create(lua_CFunction f);
+		static FuncCall* create(lua_CFunction f);
 
 		size_t getNumArguments() const { return _Targs.size(); }
 		const std::type_info* getArgType(size_t p) const { return _Targs[p].first; }
