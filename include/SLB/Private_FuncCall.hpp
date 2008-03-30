@@ -72,9 +72,8 @@ namespace Private {
 	#define SLB_GET(N,START) \
 		if (lua_gettop(L) != N + (START) ) \
 		{ \
-			lua_pushfstring(L, "Error number of arguments (given %d -> expected %d)", \
+			luaL_error(L, "Error number of arguments (given %d -> expected %d)", \
 					lua_gettop(L)-(START), N); \
-			lua_error(L);\
 		}\
 		SPP_REPEAT_BASE(N,SLB_GET_PARAMS, (START) ) \
 		

@@ -68,6 +68,34 @@ namespace SLB {
 
 		void setConstructor( FuncCall *constructor );
 		void setInstanceFactory( InstanceFactory *);
+
+		/** __index method will receive:
+		 *  - object
+		 *  - key */
+		void setObject__index( FuncCall* );
+
+		/** __index method will receive:
+		 *  - object
+		 *  - key
+		 *  - value */
+		void setObject__newindex( FuncCall* );
+
+		/** Here you can use setCache/getCache methods to
+		 * speed up indexing.
+		 *
+		 * __index method will receive:
+		 *  - [table] -> ClassInfo
+		 *  - key */
+		void setClass__index( FuncCall* );
+
+		/** Here you can use setCache/getCache methods to
+		 * speed up indexing.
+		 * __index method will receive:
+		 *  - [table] -> ClassInfo
+		 *  - key
+		 *  - value */
+		void setClass__newindex( FuncCall* );
+
 		//This is used by some default initializations...
 		bool initialized() const { return _instanceFactory != 0; }
 
@@ -77,6 +105,8 @@ namespace SLB {
 		ClassInfo(const std::type_info&);
 		virtual ~ClassInfo();
 		void pushImplementation(lua_State *);
+		virtual int __index(lua_State*);
+		virtual int __newindex(lua_State*);
 		virtual int __call(lua_State*);
 		virtual int __garbageCollector(lua_State*);
 		virtual int __tostring(lua_State*);
@@ -88,6 +118,8 @@ namespace SLB {
 		InstanceFactory  *_instanceFactory;
 		BaseClassMap      _baseClasses;
 		ref_ptr<FuncCall> _constructor;
+		ref_ptr<FuncCall> _meta__index[2]; // 0 = class, 1 = object
+		ref_ptr<FuncCall> _meta__newindex[2]; // 0 = class, 1 = object
 
 	private:
 		void pushInstance(lua_State *L, InstanceBase *instance);

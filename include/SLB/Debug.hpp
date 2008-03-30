@@ -51,8 +51,20 @@
 		{\
 			SLB_DEBUG_FUNC("SLB-" SPP_TOSTRING(level) " "__VA_ARGS__);\
 		}
+
+	#define SLB_DEBUG_STACK(level, L, label, ... ) \
+		{\
+			SLB_DEBUG(level, " {stack} " label, __VA_ARGS__ );\
+			for(int i = 1; i <= lua_gettop(L); i++) \
+			{ \
+				lua_pushvalue(L,i);\
+				SLB_DEBUG(level, "\targ %d = %s (%s)", i, lua_tostring(L,-1), luaL_typename(L,-1) );\
+				lua_pop(L,1);\
+			}\
+		}
 #else
 	#define SLB_DEBUG(level,...)
+	#define SLB_DEBUG_STACK(... ) 
 #endif
 
 #endif

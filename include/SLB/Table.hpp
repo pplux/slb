@@ -29,8 +29,7 @@
 #include <typeinfo>
 #include <map>
 #include <string>
-
-struct lua_State;
+#include <SLB/lua.hpp>
 
 namespace SLB {
 
@@ -45,6 +44,14 @@ namespace SLB {
 
 		bool isCacheable() { return _cacheable; }
 
+		// [ -2, 0, - ] pops two elements (key, value) from the top and pushes it into
+		// the cache. If _cacheable == false this won't make much sense, but you can use
+		// it anyway (you can recover the values with getCache).
+		void setCache(lua_State *L);
+
+		// [ -1, +1, - ] will pop a key, and push the value or nil if not found.
+		void getCache(lua_State *L);
+
 	protected:
 		virtual ~Table();
 
@@ -53,20 +60,29 @@ namespace SLB {
 		
 		void pushImplementation(lua_State *);
 
-		virtual int get(lua_State *L, const std::string &key);
-		virtual int get(lua_State *L, long int number);
-
-		virtual int __index(lua_State *L);
+		/** will try to find the object, if not present will return -1. If this
+		 * function is not overriden not finding an object will raise an error
+		 * It is highly recommended to call this method in subclasses of Table
+		 * first.*/
+		virtual int __index(lua_State *L); 
 		virtual int __newindex(lua_State *L);
+
 		virtual int __call(lua_State *L);
 		virtual int __garbageCollector(lua_State *L);
 		virtual int __tostring(lua_State *L);
 
 		Elements _elements;
 
+		/** this function returns the index where to find the cache table that
+		 * __index method uses if _cacheable is true. This method must NOT be called
+		 * outside metamethod's implementation. */
+		int cacheTableIndex() { return lua_upvalueindex(1); }
+
 	private:
 		typedef std::pair<Table*,const std::string> TableFind;
 		typedef int (Table::*TableMember)(lua_State*);
+
+		int __indexProxy(lua_State *L);
 		static int __meta(lua_State*);
 		void pushMeta(lua_State *L, TableMember) const;
 
@@ -83,7 +99,6 @@ namespace SLB {
 	// Inline implementations:
 	//--------------------------------------------------------------------
 		
-	inline void Table::erase(const std::string &name) { set(name, 0); }
 }
 
 

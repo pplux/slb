@@ -157,22 +157,62 @@ namespace SLB {
 		}
 		return false;
 	}
-	
-	int HybridBase::lua_link(lua_State *L)
+
+	HybridBase* get_hybrid(lua_State *L, int pos)
 	{
-		HybridBase *obj = get<HybridBase*>(L,1);
-		if (obj)
-		{
-			if(!obj->linkFromLuaTable(L,2))
-			{
-				luaL_error(L, "Can not link from table...");
-			}
-		}
-		else
+		HybridBase *obj = get<HybridBase*>(L,pos);
+		if (!obj)
 		{
 			luaL_error(L, "Invalid Hybrid object");
 		}
+		return obj;
+	}
+	
+	int HybridBase::lua_link(lua_State *L)
+	{
+		HybridBase *obj = get_hybrid(L,1);
+		if(!obj->linkFromLuaTable(L,2))
+		{
+			luaL_error(L, "Can not link from table...");
+		}
 		return 0;
 	}
+	
+	int HybridBase::call_lua_method(lua_State *L)
+	{
+		HybridBase *hb = get<HybridBase*>( L, 1 );
+		if (hb == 0) luaL_error(L, "Invalid hybrid object");
+		if (hb->_table_ref <= 0) luaL_error(L, "Hybrid method not linked");
+		// get the real function to call
+		lua_pushvalue(L, lua_upvalueindex(1));
+		// get the environment and set it
+		lua_rawgeti(L, LUA_REGISTRYINDEX, hb->_table_ref);
+		lua_setfenv(L,-2);
+		lua_insert(L,1); //put the target function at 1
+		SLB_DEBUG_STACK(10, L, "Hybrid(%p)::call_lua_method ...", hb);
+		lua_call(L, lua_gettop(L) - 1, LUA_MULTRET);
+		return lua_gettop(L);
+	}
 
+	int HybridBase::class__newindex(lua_State *L)
+	{
+		// 1 - obj (table with classInfo)
+		ClassInfo *ci = Manager::getInstance().getClass(L,1);
+		if (ci == 0) luaL_error(L, "Invalid Class at #1");
+		// 2 - key (string)
+		const int key = 2;
+		// 3 - value (func)
+		const int value = 3;
+		if (lua_isstring(L,key) && lua_isfunction(L,value))
+		{
+			// create a closure with the function to call
+			lua_pushcclosure(L, HybridBase::call_lua_method, 1);
+			ci->setCache(L);
+		}
+		else
+		{
+			luaL_error(L, "hybrid instances can only have new methods (functions) indexed by strings");
+		}
+		return 0;
+	}
 }
