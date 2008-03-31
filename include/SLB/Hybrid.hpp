@@ -47,7 +47,9 @@ namespace SLB {
 		bool linkFromFile(const char *file);
 		/** LinkfromMemory performs the same as LinkFromFile but without reading a file. */
 		bool linkFromMemory(const char *buffer);
-		/** Will use a given luaState and a table to search (hybrid-)methods */
+		/** Will use a given luaState and a table to search (hybrid-)methods, the table given
+		 * will be used as global environment of the object. If you don't want two instances share
+		 * the same env. create a new table per instance. */
 		bool linkFromLuaTable(lua_State *L, int pos);
 
 		/** That function will call linkFromLuaTable, it can easily be wrapped :) */
