@@ -111,8 +111,6 @@ namespace SLB {
 		virtual int __garbageCollector(lua_State*);
 		virtual int __tostring(lua_State*);
 
-		virtual int get(lua_State *L, const std::string &key);
-
 		const std::type_info *_typeid;
 		std::string       _name;
 		InstanceFactory  *_instanceFactory;
