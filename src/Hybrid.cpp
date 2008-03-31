@@ -67,11 +67,12 @@ namespace SLB {
 
 	bool HybridBase::link(const char *errMSG)
 	{
+		assert( "Error HybridBase::link can only be called with -> " && _ownState == true );
 		/* [top] * there is a function to execute */
 		lua_pushvalue(_L, LUA_GLOBALSINDEX); // global table...
 		/*ref*/lua_pushvalue(_L, -1); // copy the _G to _table_ref
 		/*ref*/_table_ref = luaL_ref(_L, LUA_REGISTRYINDEX); // keep a copy
-		lua_setfenv(_L, -2);
+		lua_setfenv(_L, -2); // function has _G as environment
 		if(lua_pcall(_L, 0, LUA_MULTRET, 0))
 		{
 			std::cerr << errMSG <<" " << lua_tostring(_L,-1)

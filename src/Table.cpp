@@ -255,7 +255,12 @@ namespace SLB {
 		int result = __index(L);
 		
 		if (result < 0)
-			luaL_error(L, "Table (%p) can not use '%s' as key", (void*)this, lua_typename(L, lua_type(L,2)));
+		{
+			SLB_DEBUG(9, "Nothing found....");
+			/* TODO Change the result behaviour, resturn 0 when nothing is found
+			 * and quit using result = -1 */
+			result = 0;
+		}
 		SLB_DEBUG(9, "<--- __index result = %d", result);
 		return result;
 	}
