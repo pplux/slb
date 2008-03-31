@@ -274,11 +274,28 @@ namespace SLB {
 		int result = Table::__index(L); // default implementation
 		if ( result < 0 )
 		{
-			// 0 = class __index
-			// 1 = object __index
+			// type == 0 -> class __index
+			// type == 1 -> object __index
 			int type = lua_istable(L,1)? 0 : 1; 
 			SLB_DEBUG(4, "Called ClassInfo(%p) '%s' __index %s", this, _name.c_str(), type? "OBJECT" : "CLASS");
-			if (_meta__index[type].valid())
+
+			// if looking for a class method, using an string...
+			if (lua_isstring(L,2))
+			{
+				const char *key = lua_tostring(L,2);
+				Object *obj = 0;
+				for(BaseClassMap::iterator i = _baseClasses.begin(); obj == 0L && i != _baseClasses.end(); ++i)
+				{
+					obj = ((Table*)(i->second.get()))->get(key);
+				}
+				if (obj)
+				{
+					obj->push(L);
+					result = 1;
+				}
+			}
+
+			if (result < 0 && _meta__index[type].valid())
 			{
 				// 1 - func to call
 				_meta__index[type]->push(L);
@@ -293,6 +310,7 @@ namespace SLB {
 				result = lua_gettop(L);
 			}
 		}
+
 		return result;
 	}
 
@@ -368,25 +386,6 @@ namespace SLB {
 		return 1;
 	}
 
-	int ClassInfo::get(lua_State *L, const std::string &key)
-	{
-		Object *obj = Table::get(key);
-		for(BaseClassMap::iterator i = _baseClasses.begin(); obj == 0L && i != _baseClasses.end(); ++i)
-		{
-			obj = ((Table*)(i->second.get()))->get(key);
-		}
-
-		if (obj != 0L)
-		{
-			obj->push(L);
-		}
-		else
-		{
-			lua_pushnil(L);
-		}
-		return 1;
-	}
-	
 	bool ClassInfo::isSubClassOf( const ClassInfo *base )
 	{
 		if (base == this) return true;

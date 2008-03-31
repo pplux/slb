@@ -29,7 +29,7 @@
 #include <typeinfo>
 #include <map>
 #include <string>
-#include <SLB/lua.hpp>
+#include "lua.hpp"
 
 namespace SLB {
 
