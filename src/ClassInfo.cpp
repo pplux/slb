@@ -272,7 +272,7 @@ namespace SLB {
 	int ClassInfo::__index(lua_State *L)
 	{
 		int result = Table::__index(L); // default implementation
-		if ( result < 0 )
+		if ( result < 1 )
 		{
 			// type == 0 -> class __index
 			// type == 1 -> object __index
@@ -295,19 +295,27 @@ namespace SLB {
 				}
 			}
 
-			if (result < 0 && _meta__index[type].valid())
+			if (result < 1) // still not found...
 			{
-				// 1 - func to call
-				_meta__index[type]->push(L);
-				lua_insert(L,1);	
-				// 2 - object/table
-				// 3 - key
-				SLB_DEBUG_STACK(8,L,  "Class(%s) __index {%s} metamethod -> %p",
-					_name.c_str(), type? "OBJECT" : "CLASS", (void*)_meta__index[type].get() );
+				if (_meta__index[type].valid())
+				{
+					// 1 - func to call
+					_meta__index[type]->push(L);
+					lua_insert(L,1);	
+					// 2 - object/table
+					// 3 - key
+					SLB_DEBUG_STACK(8,L,  "Class(%s) __index {%s} metamethod -> %p",
+						_name.c_str(), type? "OBJECT" : "CLASS", (void*)_meta__index[type].get() );
 
-				assert("Error in number of stack elements" && lua_gettop(L) == 3);
-				lua_call(L,lua_gettop(L)-1, LUA_MULTRET);
-				result = lua_gettop(L);
+					assert("Error in number of stack elements" && lua_gettop(L) == 3);
+					lua_call(L,lua_gettop(L)-1, LUA_MULTRET);
+					result = lua_gettop(L);
+				}
+				else
+				{
+					SLB_DEBUG(4, "ClassInfo(%p) '%s' doesn't have __index[%s] implementation.",
+						this, _name.c_str(), type? "OBJECT" : "CLASS");
+				}
 			}
 		}
 
@@ -334,6 +342,11 @@ namespace SLB {
 			assert("Error in number of stack elements" && lua_gettop(L) == 4);
 			lua_call(L,lua_gettop(L)-1, LUA_MULTRET);
 			return lua_gettop(L);
+		}
+		else
+		{
+			SLB_DEBUG(4, "ClassInfo(%p) '%s' doesn't have __newindex[%s] implementation.",
+				this, _name.c_str(), type? "OBJECT" : "CLASS");
 		}
 		return Table::__newindex(L);
 	}

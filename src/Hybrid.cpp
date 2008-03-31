@@ -28,7 +28,7 @@
 
 namespace SLB {
 
-	HybridBase::HybridBase() : _L(0), _table_ref(-1), _ownState(false)
+	HybridBase::HybridBase() : _L(0), _table_ref(0), _object_methods(0), _ownState(false)
 	{
 	}
 
@@ -59,10 +59,16 @@ namespace SLB {
 		}
 		_methods.clear();
 
-		if (_L && _table_ref >= 0) luaL_unref(_L, LUA_REGISTRYINDEX, _table_ref); 
-		if (_L  && _ownState ) lua_close(_L);
+		if (_L)
+		{
+			if (_table_ref) luaL_unref(_L, LUA_REGISTRYINDEX, _table_ref); 
+			if (_object_methods) luaL_unref(_L, LUA_REGISTRYINDEX, _object_methods); 
+			if (_ownState ) lua_close(_L);
+		}
 		_L = 0;
-		_table_ref = -1;
+		_table_ref = 0;
+		_object_methods = 0;
+		_object_methods = 0;
 	}
 
 	bool HybridBase::link(const char *errMSG)
@@ -137,7 +143,7 @@ namespace SLB {
 	
 	bool HybridBase::pushFunction(const char *name)
 	{
-		if (_table_ref > -1)
+		if (_table_ref)
 		{
 			lua_rawgeti(_L, LUA_REGISTRYINDEX, _table_ref);
 			lua_getfield(_L, -1, name);
@@ -183,7 +189,7 @@ namespace SLB {
 	{
 		HybridBase *hb = get<HybridBase*>( L, 1 );
 		if (hb == 0) luaL_error(L, "Invalid hybrid object");
-		if (hb->_table_ref <= 0) luaL_error(L, "Hybrid method not linked");
+		if (!hb->_table_ref) luaL_error(L, "Hybrid instance not linked");
 		// get the real function to call
 		lua_pushvalue(L, lua_upvalueindex(1));
 		// get the environment and set it
@@ -215,5 +221,61 @@ namespace SLB {
 			luaL_error(L, "hybrid instances can only have new methods (functions) indexed by strings");
 		}
 		return 0;
+	}
+
+	int HybridBase::object__newindex(lua_State *L)
+	{
+		// 1 - obj (table with classInfo)
+		HybridBase* obj = get<HybridBase*>(L,1);
+		if (obj == 0) luaL_error(L, "Invalid instance at #1");
+		if (!obj->_table_ref) luaL_error(L, "Hybrid instance not linked");
+		// 2 - key (string)
+		const int key = 2;
+		// 3 - value (func)
+		const int value = 3;
+		if (lua_isstring(L,key) && lua_isfunction(L,value))
+		{
+			// create a closure with the function to call
+			/* _G of obj */ lua_rawgeti(L, LUA_REGISTRYINDEX, obj->_table_ref);
+			lua_setfenv(L, value); // set the env of the new function
+			// store the func in our _object_methods table
+			if (!obj->_object_methods)
+			{
+				lua_newtable(L);
+				obj->_object_methods = luaL_ref(L, LUA_REGISTRYINDEX);
+			}
+			lua_rawgeti(L, LUA_REGISTRYINDEX, obj->_object_methods);
+			lua_insert(L, key); // move the table over key,value
+			lua_rawset(L, -3); // use key,value
+			lua_pop(L,1); // remove objects_methods table
+		}
+		else
+		{
+			luaL_error(L, "hybrid instances can only have new methods (functions) indexed by strings");
+		}
+		return 0;
+	}
+
+	int HybridBase::object__index(lua_State *L)
+	{
+		SLB_DEBUG(4, "HybridBase::object__index");
+		// 1 - obj (table with classInfo)
+		HybridBase* obj = get<HybridBase*>(L,1);
+		if (obj == 0) luaL_error(L, "Invalid instance at #1");
+		if (!obj->_table_ref) luaL_error(L, "Hybrid instance not linked");
+		if (!obj->_object_methods) return 0;
+
+		// 2 - key (string)
+		const int key = 2;
+
+		lua_rawgeti(L, LUA_REGISTRYINDEX, obj->_object_methods);
+		lua_pushvalue(L,key); // copy key
+		lua_rawget(L,-2); // get
+		// return only 1 value... 
+		lua_insert(L,1);
+		lua_settop(L,1);
+		SLB_DEBUG_STACK(8, L, "Hybrid(%p)::object__index at return",obj);
+		return 1;
+
 	}
 }

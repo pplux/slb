@@ -75,17 +75,20 @@ namespace SLB {
 
 
 		/** Add basic hybrid functionality. If extensible == true then instances
-		 * of this hybrid will be able to be extendend with lua methods */
-		__Self &hybrid(bool extensible = true)
+		 * of this hybrid will be able to be extendend with lua methods, per class
+		 * or per object: */
+		__Self &hybrid(bool class_extensible = true, bool object_extensible = true)
 		{
 			// Basic hybrid functions:
 			rawSet("linkFromMemory", FuncCall::create(&HybridBase::linkFromMemory));
 			rawSet("linkFromFile",   FuncCall::create(&HybridBase::linkFromFile));
 			rawSet("link",  FuncCall::create(HybridBase::lua_link));
 			inherits<HybridBase>();
-			if (extensible)
+			if (class_extensible)  class__newindex(  HybridBase::class__newindex );
+			if (object_extensible)
 			{
-				class__newindex( HybridBase::class__newindex );
+				object__index( HybridBase::object__index );
+				object__newindex( HybridBase::object__newindex );
 			}
 			return *this;
 		}
