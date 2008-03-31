@@ -55,10 +55,20 @@ namespace SLB {
 		/** That function will call linkFromLuaTable, it can easily be wrapped :) */
 		static int lua_link(lua_State *L);
 
-		/** You can bind this function using ClassInfo::set__newindex to allow
-		 * the hybrid instance to have lua methods. Only functions can be added to
+		/** You can bind this function using ClassInfo::setClass__newindex to allow
+		 * the hybrid-class to have lua methods. Only functions can be added to
 		 * a class, all instances will have these extra methods. */
 		static int class__newindex(lua_State *);
+
+		/** You can bind this function using ClassInfo::setObject__newindex to allow
+		 * the hybrid instances to have lua methods. Only functions can be added to
+		 * an instance, and only this instance will have these methods
+		 * (they are not shared) */
+		static int object__newindex(lua_State *);
+
+		/** Function needed with object_newindex to allow instances of hybrid classes have
+		 * its own independent methods.*/
+		static int object__index(lua_State *);
 
 	protected:
 		typedef std::map< const char *, LuaCallBase *> MethodMap;
@@ -122,6 +132,7 @@ namespace SLB {
 		static int call_lua_method(lua_State *L);
 
 		int _table_ref;
+		int _object_methods;
 		bool _ownState;
 		bool _linked;
 	};
