@@ -38,6 +38,14 @@
 struct lua_State;
 
 namespace SLB {
+		
+	struct SLB_EXPORT InvalidMethod : public std::exception
+	{	
+		InvalidMethod(lua_State *L, const char *c);
+		~InvalidMethod() throw() {}
+		const char* what() const throw() { return _what.c_str(); }
+		std::string _what;
+	};
 
 	class SLB_EXPORT HybridBase {
 	public:
@@ -194,16 +202,16 @@ namespace SLB {
 		R LCall( const char *name SPP_REPEAT(N, SLB_ARG_H) ) \
 		{ \
 			SLB_BODY(N) \
-			if (method) return (*method)(static_cast<BaseClass*>(this) SPP_REPEAT(N, SLB_ARG) ); \
-			return R(); \
+			if (!method) throw InvalidMethod(_L, name);\
+			return (*method)(static_cast<BaseClass*>(this) SPP_REPEAT(N, SLB_ARG) ); \
 		} \
 		/* const version */\
 		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 		R LCall( const char *name SPP_REPEAT(N, SLB_ARG_H) ) const \
 		{ \
 			SLB_BODY(N) \
-			if (method) return (*method)(static_cast<const BaseClass*>(this) SPP_REPEAT(N, SLB_ARG) ); \
-			return R(); \
+			if (!method) throw InvalidMethod(_L, name);\
+			return (*method)(static_cast<const BaseClass*>(this) SPP_REPEAT(N, SLB_ARG) ); \
 		} \
 
 	SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
