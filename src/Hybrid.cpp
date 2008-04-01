@@ -23,10 +23,51 @@
 #include <SLB/Hybrid.hpp>
 #include <SLB/lua.hpp>
 #include <SLB/Manager.hpp>
-
+#include <sstream>
 #include <iostream>
 
 namespace SLB {
+
+ 	InvalidMethod::InvalidMethod(lua_State  *L, const char *c)
+	{
+		
+		std::ostringstream out;
+		lua_Debug debug;
+
+		out << "Invalid Method '" << c << "' NOT FOUND!" << std::endl;
+		out << "TraceBack:" << std::endl;
+		for ( int level = 0; lua_getstack(L, level, &debug ); level++)
+		{
+			if (lua_getinfo(L, "Sln", &debug) )
+			{
+				//TODO use debug.name and debug.namewhat
+				//make this more friendly
+				out << "\t [ " << level << " (" << debug.what << ") ] ";
+				if (debug.currentline > 0 )
+				{
+					out << debug.short_src << ":" << debug.currentline; 
+					if (debug.name)
+						out << " @ " << debug.name << "(" << debug.namewhat << ")";
+				}
+				out << std::endl;
+			}
+			else
+			{
+				out << "[ERROR using Lua DEBUG INTERFACE]" << std::endl;
+			}
+		}
+		out << "Current Stack:" << std::endl;
+		for(int i = 1; i < lua_gettop(L); ++i)
+		{
+			out << "\t ["<<i<<"] " << lua_typename(L, lua_type(L,i))
+				<< " : "<< lua_tostring(L,i) ;
+			ClassInfo *ci = Manager::getInstance().getClass(L,i);
+			if (ci) out << "->" << ci->getName();
+			out << std::endl;
+		}
+		
+		_what = out.str();
+	}
 
 	HybridBase::HybridBase() : _L(0), _table_ref(0), _object_methods(0), _ownState(false)
 	{
@@ -131,10 +172,15 @@ namespace SLB {
 			{
 				clearData();
 				// we won't handle the state anymore:
-				if (_L && _ownState) lua_close(_L);
 				_L = L; _ownState = false;
 				lua_pushvalue(L,pos);
 				_table_ref = luaL_ref(_L, LUA_REGISTRYINDEX); // keep a copy
+
+				// _G to table at pos...
+				lua_newtable(L);
+				lua_pushvalue(L, LUA_GLOBALSINDEX);
+				lua_setfield(L,-2, "__index");
+				lua_setmetatable(L,pos); 
 				return true;	
 			}
 		}
