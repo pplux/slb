@@ -174,7 +174,7 @@ namespace SLB {
 			AutoLock lock(this); \
 			LC *method = 0; \
 			SLB_DEBUG(3,"Call Hybrid-method [%s]", name)\
-			MethodMap::iterator it = _methods.find(name) ; \
+			MethodMap::const_iterator it = _methods.find(name) ; \
 			if (it != _methods.end()) \
 			{ \
 				method = reinterpret_cast<LC*>(it->second); \
