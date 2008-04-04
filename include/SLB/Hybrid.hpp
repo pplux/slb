@@ -110,8 +110,10 @@ namespace SLB {
 		// (this is a little trick)
 		struct AutoLock
 		{
-			AutoLock(HybridBase *h) : _hybrid(h)
+			AutoLock(const HybridBase *hconst)
 			{
+				//TODO: Review this! (should be const?)
+				_hybrid = const_cast<HybridBase*>(hconst);
 				if (!_hybrid->_ownState)
 				{
 					SLB_DEBUG(6, "Lock state %p to access hybrid method (%p)", _hybrid->_L, (void*) _hybrid);
