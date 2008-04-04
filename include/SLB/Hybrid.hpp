@@ -103,14 +103,14 @@ namespace SLB {
 		//---------------------------------------------------------------------
 
 		/// Pushes onto the lua_stack the function, if exists returns true.
-		bool pushFunction(const char *name);
+		bool pushFunction(const char *name) const;
 
 		// This class helps to handle the lockBegin, lockEnd. Using methods
 		// directly will require to split LCall to handle return of void or not.
 		// (this is a little trick)
 		struct AutoLock
 		{
-			AutoLock(const HybridBase *hconst)
+			AutoLock(const HybridBase *hconst) 
 			{
 				//TODO: Review this! (should be const?)
 				_hybrid = const_cast<HybridBase*>(hconst);
@@ -131,8 +131,8 @@ namespace SLB {
 			HybridBase* _hybrid;
 		};
 
-		lua_State *_L;
-		MethodMap  _methods;
+		lua_State * _L;
+		mutable MethodMap _methods;
 		//---------------------------------------------------------------------
 	private:
 
@@ -172,11 +172,10 @@ namespace SLB {
 	#define SLB_ARG_H(N) ,T##N arg_##N
 	#define SLB_ARG(N) , arg_##N
 	#define SLB_BODY(N) \
-			typedef SLB::LuaCall<R(BaseClass* SPP_COMMA_IF(N) SPP_ENUM_D(N,T))> LC;\
 			AutoLock lock(this); \
 			LC *method = 0; \
 			SLB_DEBUG(3,"Call Hybrid-method [%s]", name)\
-			MethodMap::const_iterator it = _methods.find(name) ; \
+			MethodMap::iterator it = _methods.find(name) ; \
 			if (it != _methods.end()) \
 			{ \
 				method = reinterpret_cast<LC*>(it->second); \
@@ -203,6 +202,7 @@ namespace SLB {
 		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 		R LCall( const char *name SPP_REPEAT(N, SLB_ARG_H) ) \
 		{ \
+			typedef SLB::LuaCall<R(BaseClass* SPP_COMMA_IF(N) SPP_ENUM_D(N,T))> LC;\
 			SLB_BODY(N) \
 			if (!method) throw InvalidMethod(_L, name);\
 			return (*method)(static_cast<BaseClass*>(this) SPP_REPEAT(N, SLB_ARG) ); \
@@ -211,6 +211,7 @@ namespace SLB {
 		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 		R LCall( const char *name SPP_REPEAT(N, SLB_ARG_H) ) const \
 		{ \
+			typedef SLB::LuaCall<R(const BaseClass* SPP_COMMA_IF(N) SPP_ENUM_D(N,T))> LC;\
 			SLB_BODY(N) \
 			if (!method) throw InvalidMethod(_L, name);\
 			return (*method)(static_cast<const BaseClass*>(this) SPP_REPEAT(N, SLB_ARG) ); \

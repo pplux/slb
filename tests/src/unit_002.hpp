@@ -17,6 +17,8 @@ namespace Unit_002 {
 		/* void calc(int a, int b) { return LCall<void, int, int>("calc"); } */
 		HYBRID_method_2(calc,void,int,int);
 
+		HYBRID_const_method_0(update,void);
+
 		bool checkOwnState(); //< should be true when linking from disk or memory
 		bool checkSharedState(); //< should be true when linking from a lua_table
 

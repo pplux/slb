@@ -187,7 +187,7 @@ namespace SLB {
 		return false;
 	}
 	
-	bool HybridBase::pushFunction(const char *name)
+	bool HybridBase::pushFunction(const char *name) const
 	{
 		if (_table_ref)
 		{
