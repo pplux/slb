@@ -92,6 +92,11 @@ namespace SLB {
 		Manager::getInstance().registerSLB(_L);
 	}
 	
+	lua_State* HybridBase::getLuaState() const
+	{
+		return (_linked) ? _L : 0L;
+	}
+	
 	void HybridBase::clearData()
 	{
 		for(MethodMap::iterator i = _methods.begin(); i != _methods.end(); i++ )

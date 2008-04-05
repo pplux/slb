@@ -78,6 +78,10 @@ namespace SLB {
 		 * its own independent methods.*/
 		static int object__index(lua_State *);
 
+		/** Returns the lua_State, this function will be valid if the object is
+		 * linked, otherwise will return 0 */
+		lua_State* getLuaState() const;
+
 	protected:
 		typedef std::map< const char *, LuaCallBase *> MethodMap;
 
