@@ -23,6 +23,9 @@
 #ifndef __SLB_DEBUG__
 #define __SLB_DEBUG__
 
+#ifndef SLB_DEBUG_OUTPUT
+	#define SLB_DEBUG_OUTPUT stderr
+#endif
 
 // you can redefine the function to be used to debug, should have a 
 // printf-like interface.
@@ -32,9 +35,9 @@
 	{\
 		int __s = strlen(__FILE__); \
 		int __offset = (__s > 18)? __s - 18: 0; \
-		fprintf(stderr,"[%12s:%-4d] ", __FILE__+__offset, __LINE__);\
-		fprintf(stderr,__VA_ARGS__);\
-		fprintf(stderr,"\n");\
+		fprintf(SLB_DEBUG_OUTPUT,"[%12s:%-4d] ", __FILE__+__offset, __LINE__);\
+		fprintf(SLB_DEBUG_OUTPUT,__VA_ARGS__);\
+		fprintf(SLB_DEBUG_OUTPUT,"\n");\
 	}
 #endif
 
@@ -52,9 +55,9 @@
 			SLB_DEBUG_FUNC("SLB-" SPP_TOSTRING(level) " "__VA_ARGS__);\
 		}
 
-	#define SLB_DEBUG_STACK(level, L, label, ... ) \
+	#define SLB_DEBUG_STACK(level, L,  ... ) \
 		{\
-			SLB_DEBUG(level, " {stack} " label, __VA_ARGS__ );\
+			SLB_DEBUG(level, " {stack} "  __VA_ARGS__ );\
 			for(int i = 1; i <= lua_gettop(L); i++) \
 			{ \
 				lua_pushvalue(L,i);\

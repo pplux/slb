@@ -195,7 +195,7 @@ namespace Private {
 			{ \
 				ClassInfo *c = Manager::getInstance().getClass(typeid(C)); \
 				if (c == 0) luaL_error(L, "Class %s is not avaliable! ", typeid(C).name()); \
-				SLB_GET(N, 1); \
+				SLB_GET(N, 0); \
 				Private::Type<C*>::push(L, new C( SPP_ENUM_D(N,param_) ), true ); \
 				return 1; \
 			} \

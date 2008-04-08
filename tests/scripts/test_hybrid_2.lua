@@ -1,17 +1,17 @@
 SLB.using(SLB.Unit_002)
 
+-- previous to any instance
+function HClass:calc(a,b)
+	result = a+b
+end
+
+-- create one instance
 v = HClass()
 
--- equivalent to a link from file...
-v:link
-{
-	calc = function (instance, a, b)
-		result = a + b
-	end,
-	get = function ()
-		return result
-	end
-}
+-- another function:
+function HClass:get()
+	return result 
+end
 
 v:calc(6,7)
 
@@ -24,3 +24,8 @@ if v:get() ~= 13 then
 	error("Result given invalid...")
 end
 
+print("Cheking global state")
+if result ~= nil then
+	print("Result == ", result,"<-")
+	error("Hybrid class has interfered global state.")
+end

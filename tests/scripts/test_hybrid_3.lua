@@ -1,71 +1,82 @@
+print("Using SLB.Unit_002")
 SLB.using(SLB.Unit_002)
 
-
-function createObj()
-	local obj = HClass()
-	obj:link
-	{
-		-- this instances do not have shared global state, you need to
-		-- pass values of those objects they might have.
-		SLB = SLB,
-		print = print,
-
-		-- inner functions here can not be accessed from outside
-		inner = function(a,b)
-			return a + b
-		end,
-
-		-- some inner functions are used as Hybrid-methods, here
-		-- is where C++ classes look for implemented functions
-		calc = function (self, a, b)
-			if SLB.type(self) ~= "Unit_002::HClass" then
-				error("Invalid instance @ calc")
-			end
-			self:perform_calc(a,b)
-		end,
-
-		get = function (self)
-			return result
-		end
-	}
-	return obj
+-- this is a virtual function of HClass,
+-- virtual functions will only be searched in first order classes,
+-- not in derived.
+print("declare: HClass:calc")
+function HClass:calc(a,b)
+	print("Calling virtual method HClass:calc")
+	local SLB = SLB
+	if SLB.type(self) ~= "Unit_002::HClass" then
+		error("Invalid instance @ calc")
+	end
+	self:perform_calc(a,b)
 end
 
+-- this is a virtual function of HClass, like HClass:calc 
+print("declare: HClass:get")
+function HClass:get()
+	print("Calling virtual method HClass:get")
+	return result
+end
 
-print("Now, add new functions to the class-----------------------------")
-
+-- this is an extra function of HClass (not in C++)
+print("declare: HClass:perform_calc")
 function HClass:perform_calc(a, b)
+	local SLB = SLB
 	if SLB.type(self) ~= "Unit_002::HClass" then
 		error("Invalid instance @ perform_calc got : "..type(self))
 	end
 	-- here inner is a global value that must exists once this method
 	-- is called.
-	result = inner(a,b) + self:inner2(extra)
+	print("Trying to call inner --> implemented in subclasses")
+	result = self:inner(a,b) + extra
 end
 
+-- this is an extra function
+print("declare: HClass:setExtra")
 function HClass:setExtra(v)
 	if SLB.type(self) ~= "Unit_002::HClass" then
 		error("Invalid instance @ extra : "..type(self))
 	end
-	
 	extra = v
 end
 
+-- this is an extra function, and should be overriden
+print("declare: HClass:inner")
+function HClass:inner(a,b)
+	error("This method should be implemented in inherited classes")
+end
+
+print("Now, add new 'classes' ---------------------------------------------")
+
+print("declare: HClass.Type1:inner")
+function HClass.Type1:inner(a,b)
+	return a+self:other(b)
+end
+
+print("declare: HClass.Type1:other")
+function HClass.Type1:other(a)
+	extra = extra + 1
+	return a*2
+end
+
+print("---Now Type2... easier class -------------------------------------")
+print("declare: HClass.Type2:inner")
+function HClass.Type2:inner(a,b)
+	return a-b
+end
+
 print("---Create Instances ----------------------------------------------")
-obj1 = createObj()
-obj2 = createObj()
-print("Now, add functions to instances-----------------------------------")
 
-function obj1:inner2(v)
-	return v+1
-end
+print("obj1 = HClass.Type1")
+obj1 = HClass.Type1()
+print("obj1 = HClass.Type2")
+obj2 = HClass.Type2()
 
-function obj2:inner2(v)
-	return v+2
-end
-
-if obj1.inner2 == nil then error("Setting inner2 func on obj1") end
-if obj2.inner2 == nil then error("Setting inner2 func on obj2") end
+if SLB.type(obj1) ~= "Unit_002::HClass" then error("Invalid class") end
+if SLB.type(obj2) ~= "Unit_002::HClass" then error("Invalid class") end
 
 print("---TEST-----------------------------------------------------------")
 print("obj1:setExtra(3)")  obj1:setExtra(3)
@@ -75,8 +86,8 @@ print("obj2:calc(3,4)")    obj2:calc(6,8)
 
 print("obj1:get()")
 r = obj1:get()
-if r ~= 11 then error("Error in calculation = "..r) end
+if r ~= 15 then error("Error in calculation = "..r) end
 
 print("obj2:get()")
 r = obj2:get()
-if r ~= 22 then error("Error in calculation = "..r) end
+if r ~= 4 then error("Error in calculation = "..r) end

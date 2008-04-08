@@ -12,6 +12,8 @@ link_directories( ${LIBRARY_OUTPUT_PATH} )
 include_directories( "${SLB_SOURCE_DIR}/include" )
 
 add_definitions(-DSLB_DEBUG_LEVEL=${SLB_DEBUG_LEVEL})
+#TODO: make this an option
+add_definitions(-DSLB_DEBUG_OUTPUT=stdout)
 
 # SLB core files (headers and sources)
 file(GLOB HEADERS_SLB "${SLB_SOURCE_DIR}/include/SLB/*.hpp")

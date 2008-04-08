@@ -100,6 +100,11 @@ namespace SLB {
 		bool initialized() const { return _instanceFactory != 0; }
 
 		bool isSubClassOf( const ClassInfo* );
+		bool hasConstructor() const { return _constructor.valid(); }
+
+		//--Private methods -(not meant to be used)-------------------
+		void setHybrid() { _isHybrid = true; }
+		FuncCall* getConstructor() { return _constructor.get(); }
 
 	protected:
 		ClassInfo(const std::type_info&);
@@ -118,6 +123,7 @@ namespace SLB {
 		ref_ptr<FuncCall> _constructor;
 		ref_ptr<FuncCall> _meta__index[2]; // 0 = class, 1 = object
 		ref_ptr<FuncCall> _meta__newindex[2]; // 0 = class, 1 = object
+		bool _isHybrid;
 
 	private:
 		void pushInstance(lua_State *L, InstanceBase *instance);
