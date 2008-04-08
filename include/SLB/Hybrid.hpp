@@ -50,48 +50,25 @@ namespace SLB {
 	class SLB_EXPORT HybridBase {
 	public:
 
-		/** LinkFromfile will load a file, create a new lua_state and search global functions there
-		 * for hybrid methods ("LCall" calls) */
-		bool linkFromFile(const char *file);
-		/** LinkfromMemory performs the same as LinkFromFile but without reading a file. */
-		bool linkFromMemory(const char *buffer);
-		/** Will use a given luaState and a table to search (hybrid-)methods, the table given
-		 * will be used as global environment of the object. If you don't want two instances share
-		 * the same env. create a new table per instance. */
-		bool linkFromLuaTable(lua_State *L, int pos);
-
-		/** That function will call linkFromLuaTable, it can easily be wrapped :) */
-		static int lua_link(lua_State *L);
-
-		/** You can bind this function using ClassInfo::setClass__newindex to allow
-		 * the hybrid-class to have lua methods. Only functions can be added to
-		 * a class, all instances will have these extra methods. */
-		static int class__newindex(lua_State *);
-
-		/** You can bind this function using ClassInfo::setObject__newindex to allow
-		 * the hybrid instances to have lua methods. Only functions can be added to
-		 * an instance, and only this instance will have these methods
-		 * (they are not shared) */
-		static int object__newindex(lua_State *);
-
-		/** Function needed with object_newindex to allow instances of hybrid classes have
-		 * its own independent methods.*/
-		static int object__index(lua_State *);
-
 		/** Returns the lua_State, this function will be valid if the object is
-		 * linked, otherwise will return 0 */
-		lua_State* getLuaState() const;
+		 * attached, otherwise will return 0 */
+		lua_State* getLuaState() const { return _L; }
+
+		/** Indicates where this instance will look for its hybrid methods; */
+		void attach(lua_State *);
+		bool isAttached() const { return (_L != 0); }
+
+		/** Use this function to register this class as hybrid, it will override
+		 * ClassInfo metamethods of class__index, class__newindex and object__index
+		 * if your class requires those methods contact me to see if it is possible
+		 * to do it, by the moment this is the only way this works */
+		static void registerAsHybrid(ClassInfo *ci);
 
 	protected:
 		typedef std::map< const char *, LuaCallBase *> MethodMap;
 
 		HybridBase();
 		virtual ~HybridBase();
-
-		/** This method will be called each time this instance creates a new
-		 * lua_State. Here you can add initialization code, load default libraries,
-		 * etc. */
-		virtual void onNewState(lua_State *) {}
 
 		/** This method allows to lock the lua_State when the state is not owned
 		 * by the instance (when the link was done using linkFromLuaTable). Here
@@ -102,53 +79,39 @@ namespace SLB {
 		/** This method is called at the end of the call, see lockBegin */
 		virtual void lockEnd(lua_State *) {}
 
-		//---------------------------------------------------------------------
-		///--- For Internal use ONLY -------------------------------------------
-		//---------------------------------------------------------------------
 
-		/// Pushes onto the lua_stack the function, if exists returns true.
-		bool pushFunction(const char *name) const;
+		//-- Private data -----------------------------------------------------
+		bool getMethod(const char *name) const;
+		virtual ClassInfo* getClassInfo() const = 0;
+		void clearMethodMap();
+
+
+		lua_State * _L;
+		mutable MethodMap _methods;
+		ref_ptr<Table> _subclassMethods;
+
+		friend class InternalHybridSubclass;
+	private:
+		int _table_globals;
+
+		// pops a key,value from tom and sets as our method
+		static void setMethod(lua_State *L, ClassInfo *ci);
+
+		static int call_lua_method(lua_State *L);
+		static int class__newindex(lua_State *);
+		static int class__index(lua_State *);
+		static int object__index(lua_State *);
 
 		// This class helps to handle the lockBegin, lockEnd. Using methods
 		// directly will require to split LCall to handle return of void or not.
 		// (this is a little trick)
 		struct AutoLock
 		{
-			AutoLock(const HybridBase *hconst) 
-			{
-				//TODO: Review this! (should be const?)
-				_hybrid = const_cast<HybridBase*>(hconst);
-				if (!_hybrid->_ownState)
-				{
-					SLB_DEBUG(6, "Lock state %p to access hybrid method (%p)", _hybrid->_L, (void*) _hybrid);
-					_hybrid->lockBegin( _hybrid->_L );
-				}
-			}
-			~AutoLock()
-			{
-				if (!_hybrid->_ownState)
-				{
-					SLB_DEBUG(6, "Unlock state %p to access hybrid method (%p)", _hybrid->_L, (void*) _hybrid);
-					_hybrid->lockEnd( _hybrid->_L);
-				}
-			}
+			AutoLock(const HybridBase *hconst);
+			~AutoLock();
 			HybridBase* _hybrid;
 		};
 
-		lua_State * _L;
-		mutable MethodMap _methods;
-		//---------------------------------------------------------------------
-	private:
-
-		void clearData();
-		void initState();
-		bool link(const char *errMSG);
-		static int call_lua_method(lua_State *L);
-
-		int _table_ref;
-		int _object_methods;
-		bool _ownState;
-		bool _linked;
 	};
 
 	template<class BaseClass>
@@ -172,11 +135,15 @@ namespace SLB {
 		virtual ~Hybrid() {}
 	private:
 	protected:
+		ClassInfo* getClassInfo() const
+		{
+			return Manager::getInstance().getClass( typeid(BaseClass) );
+		}
 		
 	#define SLB_ARG_H(N) ,T##N arg_##N
 	#define SLB_ARG(N) , arg_##N
 	#define SLB_BODY(N) \
-			AutoLock lock(this); \
+			AutoLock __dummy__lock(this); \
 			LC *method = 0; \
 			SLB_DEBUG(3,"Call Hybrid-method [%s]", name)\
 			MethodMap::iterator it = _methods.find(name) ; \
@@ -187,7 +154,7 @@ namespace SLB {
 			} \
 			else \
 			{ \
-				if (pushFunction(name)) \
+				if (getMethod(name)) \
 				{ \
 					method = new LC(_L, -1);\
 					SLB_DEBUG(2,"method [%s] found in lua [OK] -> %p", name,method)\
@@ -198,7 +165,8 @@ namespace SLB {
 					_methods[name] = 0L; \
 					SLB_DEBUG(2,"method [%s] found in lua [FAIL!]", name)\
 				}\
-			} 
+			}\
+			if (!method) throw InvalidMethod(_L, name);\
 
 	#define SLB_REPEAT(N) \
 	\
@@ -208,7 +176,6 @@ namespace SLB {
 		{ \
 			typedef SLB::LuaCall<R(BaseClass* SPP_COMMA_IF(N) SPP_ENUM_D(N,T))> LC;\
 			SLB_BODY(N) \
-			if (!method) throw InvalidMethod(_L, name);\
 			return (*method)(static_cast<BaseClass*>(this) SPP_REPEAT(N, SLB_ARG) ); \
 		} \
 		/* const version */\
@@ -217,7 +184,6 @@ namespace SLB {
 		{ \
 			typedef SLB::LuaCall<R(const BaseClass* SPP_COMMA_IF(N) SPP_ENUM_D(N,T))> LC;\
 			SLB_BODY(N) \
-			if (!method) throw InvalidMethod(_L, name);\
 			return (*method)(static_cast<const BaseClass*>(this) SPP_REPEAT(N, SLB_ARG) ); \
 		} \
 

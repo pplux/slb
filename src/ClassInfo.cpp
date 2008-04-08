@@ -22,6 +22,7 @@
 
 #include <SLB/ClassInfo.hpp>
 #include <SLB/Manager.hpp>
+#include <SLB/Hybrid.hpp>
 #include <SLB/Debug.hpp>
 #include <SLB/util.hpp>
 
@@ -31,7 +32,8 @@ namespace SLB {
 		Namespace(true),
 		_typeid(0), 
 		_name(""), 
-		_instanceFactory(0)
+		_instanceFactory(0),
+		_isHybrid(false)
 	{
 		_typeid = &ti;
 		Manager::getInstance().addClass(this);
@@ -98,13 +100,6 @@ namespace SLB {
 		lua_pushlightuserdata(L, (void*)this);
 		lua_rawset(L, -3);
 
-		if ( _constructor.valid() )
-		{
-			lua_pushstring(L, "__call");
-			_constructor->push(L);
-			lua_rawset(L, -3);
-		}
-
 		lua_pop(L,1); // remove metatable
 	}
 
@@ -140,6 +135,7 @@ namespace SLB {
 		lua_rawset(L, -3);
 
 		lua_settop(L, top+1);
+
 	}
 
 	void *ClassInfo::get_ptr(lua_State *L, int pos) const
@@ -229,6 +225,19 @@ namespace SLB {
 		{
 			pushInstance(L, _instanceFactory->create_ptr(ptr, fromConstructor) );
 			SLB_DEBUG(7, "Class(%s) push_ptr (from_Constructor %d) -> %p", _name.c_str(), fromConstructor, ptr);
+
+			// if is Hybrid and fromConstructor
+			if (_isHybrid && fromConstructor)
+			{
+				int top = lua_gettop(L);
+				//suppose that this state will hold the Object..
+				HybridBase *hb = SLB::get<HybridBase*>(L,top);
+				if (!hb) assert("Invalid push of hybrid object" && false);
+				hb->attach(L);
+				// check... just in case
+				assert("Invalid lua stack..." && (top == lua_gettop(L)));
+			}
+
 		}
 		else
 		{
@@ -361,7 +370,18 @@ namespace SLB {
 
 	int ClassInfo::__call(lua_State *L)
 	{
-		luaL_error(L, "ClassInfo '%s' is abstract ( or doesn't have a constructor ) ", _name.c_str());
+		if ( _constructor.valid() )
+		{
+			_constructor->push(L);
+			lua_replace(L, 1); // remove ClassInfo table
+			lua_call(L, lua_gettop(L)-1 , LUA_MULTRET);
+			return lua_gettop(L);
+		}
+		else
+		{
+			luaL_error(L,
+				"ClassInfo '%s' is abstract ( or doesn't have a constructor ) ", _name.c_str());
+		}
 		return 0;
 	}
 

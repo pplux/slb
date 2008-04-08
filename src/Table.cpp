@@ -88,7 +88,7 @@ namespace SLB {
 	void Table::getCache(lua_State *L)
 	{
 		int top = lua_gettop(L);
-		if (top < 1 ) luaL_error(L, "Not enough elements to perform Table::setCache");
+		if (top < 1 ) luaL_error(L, "Not enough elements to perform Table::getCache");
 		push(L); // push ::Table
 		if (luaL_getmetafield(L,-1, "__indexCache"))
 		{

@@ -1,23 +1,22 @@
 SLB.using(SLB.Unit_002)
 
-v = HClass()
-
--- equivalent to a link from file...
-if not v:linkFromMemory[[
+-- example of how to use an string to define functions of an Hybrid class
+chunk = assert(loadstring[[
 print("Loading hybrid members...")
-function calc(instance, a, b)
+
+function HClass:calc(a, b)
 	result = a + b
 end
-function get()
+
+function HClass:get()
 	return result
 end
-]] then
-	error("Error at linking...")
-end
 
-if calc ~= nil then
-	error("Hybrid has changed GLOBAL state")
-end
+]])()
+
+print("constructor...")
+-- that's the constructor:
+v = HClass()
 
 v:calc(6,7)
 print("calc done")
@@ -25,7 +24,13 @@ if v:get() ~= 13 then
 	error("Result given invalid...")
 end
 
-if not v:checkOwnState() then
-	error("CheckOwnState failed")
+if not v:checkSharedState() then
+	error("CheckSharedState failed")
+end
+
+print("Cheking global state")
+if result ~= nil then
+	print("Result == ", result,"<-")
+	error("Hybrid class has interfered global state.")
 end
 

@@ -4,36 +4,30 @@
 namespace Unit_002 
 {
 	HClass::HClass() :
-		_newStateCalled(false),
 		_lockBeginCalled(false),
-		_lockEndCalled(false)
+		_lockEndCalled(false),
+		_total(0)
 	{
 	}
 
-	bool HClass::checkOwnState()
-	{
-		return (_newStateCalled && !(_lockEndCalled && _lockEndCalled));
-	}
 
 	bool HClass::checkSharedState()
 	{
-		return (!_newStateCalled && (_lockEndCalled && _lockEndCalled));
-	}
-	
-	void HClass::onNewState(lua_State *L)
-	{
-		luaL_openlibs(L);
-		_newStateCalled = true;
+		return (_lockBeginCalled && _lockEndCalled && _total == 0);
 	}
 
 	void HClass::lockBegin(lua_State *L)
 	{
+		std::cout << "Called LOCK BEGIN" << std::endl;
 		_lockBeginCalled = true;
+		_total++;
 	}
 
 	void HClass::lockEnd(lua_State *L)
 	{
+		std::cout << "Called LOCK END" << std::endl;
 		_lockEndCalled = true;
+		_total--;
 	}
 	
 	void wrapper()
@@ -45,7 +39,6 @@ namespace Unit_002
 			.set( "get", &HClass::get )
 			.set( "calc", &HClass::calc)
 			.set( "checkSharedState", &HClass::checkSharedState)
-			.set( "checkOwnState", &HClass::checkOwnState)
 			.hybrid() //< register basic functionality
 		;
 
