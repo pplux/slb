@@ -43,6 +43,7 @@ namespace SLB {
 	void LuaCallBase::getFunc(int index)
 	{
 		lua_pushvalue(_L,index);
+		assert("Invalid function!" && (lua_type(_L, -1) == LUA_TFUNCTION) );
 		_ref = luaL_ref(_L, LUA_REGISTRYINDEX);
 	}
 

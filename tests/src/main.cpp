@@ -14,11 +14,13 @@ int main(int argc, char **argv)
 	SLB::Manager::getInstance().registerSLB(L);
 
 	SLB_DEBUG(0, "Loading script...");
+	assert("Stack not clean" && lua_gettop(L) == 0);
 	if( luaL_dofile(L, argv[1]) )
 	{
 		std::cerr << "Error: " << lua_tostring(L,-1) << std::endl;
 		exit(1);
 	}
+	assert("Stack not clean" && lua_gettop(L) == 0);
 
 	SLB_DEBUG(0, "Closing script...");
 	lua_close(L);

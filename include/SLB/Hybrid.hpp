@@ -83,6 +83,7 @@ namespace SLB {
 
 
 		//-- Private data -----------------------------------------------------
+		// [-1, (0|+1)]
 		bool getMethod(const char *name) const;
 		virtual ClassInfo* getClassInfo() const = 0;
 		void clearMethodMap();
@@ -100,6 +101,7 @@ namespace SLB {
 		int _table_globals;
 
 		// pops a key,value from tom and sets as our method
+		// [-2,0]
 		static void setMethod(lua_State *L, ClassInfo *ci);
 
 		static int call_lua_method(lua_State *L);
@@ -148,30 +150,36 @@ namespace SLB {
 	#define SLB_ARG_H(N) ,T##N arg_##N
 	#define SLB_ARG(N) , arg_##N
 	#define SLB_BODY(N) \
+			\
 			AutoLock __dummy__lock(this); \
 			LC *method = 0; \
 			SLB_DEBUG(3,"Call Hybrid-method [%s]", name)\
-			MethodMap::iterator it = _methods.find(name) ; \
-			if (it != _methods.end()) \
-			{ \
-				method = reinterpret_cast<LC*>(it->second); \
-				SLB_DEBUG(4,"method [%s] was found %p", name,method)\
-			} \
-			else \
-			{ \
-				if (getMethod(name)) \
+			lua_State *L = getLuaState(); \
+			{\
+				SLB_DEBUG_CLEAN_STACK(L,0)\
+				MethodMap::iterator it = _methods.find(name) ; \
+				if (it != _methods.end()) \
 				{ \
-					method = new LC(getLuaState(), -1);\
-					SLB_DEBUG(2,"method [%s] found in lua [OK] -> %p", name,method)\
-					_methods[name] = method;\
+					method = reinterpret_cast<LC*>(it->second); \
+					SLB_DEBUG(4,"method [%s] was found %p", name,method)\
 				} \
 				else \
 				{ \
-					_methods[name] = 0L; \
-					SLB_DEBUG(2,"method [%s] found in lua [FAIL!]", name)\
+					if (getMethod(name)) \
+					{ \
+						method = new LC(L, -1);\
+						lua_pop(L,1); /*method is stored in the luaCall*/\
+						SLB_DEBUG(2,"method [%s] found in lua [OK] -> %p", name,method)\
+						_methods[name] = method;\
+					} \
+					else \
+					{ \
+						_methods[name] = 0L; \
+						SLB_DEBUG(2,"method [%s] found in lua [FAIL!]", name)\
+					}\
 				}\
+				if (!method) throw InvalidMethod(this, name);\
 			}\
-			if (!method) throw InvalidMethod(this, name);\
 
 	#define SLB_REPEAT(N) \
 	\

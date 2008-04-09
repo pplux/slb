@@ -58,16 +58,58 @@
 	#define SLB_DEBUG_STACK(level, L,  ... ) \
 		{\
 			SLB_DEBUG(level, " {stack} "  __VA_ARGS__ );\
-			for(int i = 1; i <= lua_gettop(L); i++) \
+			int top = lua_gettop(L); \
+			for(int i = 1; i <= top; i++) \
 			{ \
-				lua_pushvalue(L,i);\
-				SLB_DEBUG(level, "\targ %d = %s (%s)", i, lua_tostring(L,-1), luaL_typename(L,-1) );\
-				lua_pop(L,1);\
+				if (lua_type(L,i) == LUA_TNONE) \
+				{ \
+					SLB_DEBUG(level, "\targ %d = (Invalid)", i);\
+				} \
+				else \
+				{ \
+					lua_pushvalue(L,i);\
+					SLB_DEBUG(level, "\targ %d = %s -> %s", i, \
+						lua_typename(L,lua_type(L,-1)), lua_tostring(L,-1) );\
+					lua_pop(L,1);\
+				} \
 			}\
 		}
+
+		#include<sstream>
+		#include<stdexcept>
+		struct lua_State;
+		extern "C" int lua_gettop(struct lua_State*);
+		struct __SLB__cleanstack
+		{
+			__SLB__cleanstack(struct lua_State *L, int delta, const char *where, int line)
+				: L(L), delta(delta), where(where), line(line)
+			{
+				top = lua_gettop(L);
+			}
+			~__SLB__cleanstack()
+			{
+				if (top+delta != lua_gettop(L))
+				{
+					std::ostringstream out;
+					out << where << ":" << line << " -> ";
+					out << "Invalid Stack Check. current = " << lua_gettop(L) << " expected = " << top + delta << std::endl;
+					throw std::runtime_error(out.str());
+				}
+			}
+			struct lua_State *L;
+			int top;
+			int delta;
+			const char *where;
+			int line;
+		};
+
+	#define SLB_DEBUG_CLEAN_STACK(Lua_Stack_L, delta)  \
+		__SLB__cleanstack __dummy__SLB_cleanstack_object__(Lua_Stack_L, delta, __FILE__, __LINE__);
+
 #else
 	#define SLB_DEBUG(level,...)
 	#define SLB_DEBUG_STACK(... ) 
+	#define SLB_DEBUG_CLEAN_STACK(...)
 #endif
 
 #endif
