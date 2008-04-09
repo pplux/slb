@@ -1,9 +1,7 @@
 print("Using SLB.Unit_002")
 SLB.using(SLB.Unit_002)
 
--- this is a virtual function of HClass,
--- virtual functions will only be searched in first order classes,
--- not in derived.
+-- this is a virtual function of HClass.
 print("declare: HClass:calc")
 function HClass:calc(a,b)
 	print("Calling virtual method HClass:calc")
@@ -62,6 +60,14 @@ function HClass.Type1:other(a)
 	return a*2
 end
 
+
+print("declare: HClass.Type1:get")
+-- This implements a C++-virtual function, overriding parent
+-- implementation.
+function HClass.Type1:get(a)
+	return result*2
+end
+
 print("---Now Type2... easier class -------------------------------------")
 print("declare: HClass.Type2:inner")
 function HClass.Type2:inner(a,b)
@@ -86,7 +92,7 @@ print("obj2:calc(3,4)")    obj2:calc(6,8)
 
 print("obj1:get()")
 r = obj1:get()
-if r ~= 15 then error("Error in calculation = "..r) end
+if r ~= 30 then error("Error in calculation = "..r) end
 
 print("obj2:get()")
 r = obj2:get()

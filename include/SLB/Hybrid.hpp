@@ -38,10 +38,12 @@
 struct lua_State;
 
 namespace SLB {
+
+	class HybridBase;
 		
 	struct SLB_EXPORT InvalidMethod : public std::exception
 	{	
-		InvalidMethod(lua_State *L, const char *c);
+		InvalidMethod(const HybridBase*, const char *c);
 		~InvalidMethod() throw() {}
 		const char* what() const throw() { return _what.c_str(); }
 		std::string _what;
@@ -86,12 +88,15 @@ namespace SLB {
 		void clearMethodMap();
 
 
-		lua_State * _L;
 		mutable MethodMap _methods;
-		ref_ptr<Table> _subclassMethods;
+		mutable ref_ptr<Table> _subclassMethods;
 
 		friend class InternalHybridSubclass;
+		friend class InvalidMethod;
+		//-- Private data -----------------------------------------------------
+
 	private:
+		lua_State * _L;
 		int _table_globals;
 
 		// pops a key,value from tom and sets as our method
@@ -133,7 +138,7 @@ namespace SLB {
 			}
 		}
 		virtual ~Hybrid() {}
-	private:
+
 	protected:
 		ClassInfo* getClassInfo() const
 		{
@@ -156,7 +161,7 @@ namespace SLB {
 			{ \
 				if (getMethod(name)) \
 				{ \
-					method = new LC(_L, -1);\
+					method = new LC(getLuaState(), -1);\
 					SLB_DEBUG(2,"method [%s] found in lua [OK] -> %p", name,method)\
 					_methods[name] = method;\
 				} \
@@ -166,7 +171,7 @@ namespace SLB {
 					SLB_DEBUG(2,"method [%s] found in lua [FAIL!]", name)\
 				}\
 			}\
-			if (!method) throw InvalidMethod(_L, name);\
+			if (!method) throw InvalidMethod(this, name);\
 
 	#define SLB_REPEAT(N) \
 	\

@@ -29,12 +29,15 @@
 namespace SLB {
 
 	/*--- Invalid Method (exception) ----------------------------------------------*/
- 	InvalidMethod::InvalidMethod(lua_State  *L, const char *c)
+ 	InvalidMethod::InvalidMethod(const HybridBase *obj, const char *c)
 	{
+		lua_State  *L = obj->getLuaState();
+		const ClassInfo  *CI = obj->getClassInfo();
 		std::ostringstream out;
 		lua_Debug debug;
 
-		out << "Invalid Method '" << c << "' NOT FOUND!" << std::endl;
+		out << "Invalid Method '" << CI->getName() << "::" <<
+			c << "' NOT FOUND!" << std::endl;
 		out << "TraceBack:" << std::endl;
 		for ( int level = 0; lua_getstack(L, level, &debug ); level++)
 		{
@@ -196,6 +199,28 @@ namespace SLB {
 		SLB_DEBUG(5, "HybridBase(%p)::getMethod '%s' (_L = %p)", this, name, _L); 
 		if (_L == 0) throw std::runtime_error("Hybrid instance not attached");\
 		int top = lua_gettop(_L);
+
+		// first try to find in _subclassMethods
+		if (_subclassMethods.valid())
+		{
+			//TODO: NEED DEBUG...
+			// ---- why not:
+			// Object *m = obj->_subclassMethods->get(key);
+			// if (m)
+			// {
+			// 	SLB_DEBUG(5, "Hybrid subclassed instance, looking for '%s' method [OK]", key);
+			// 	m->push(L);
+			// 	return 1;
+			// }
+			// else SLB_DEBUG(5, "Hybrid subclassed instance, looking for '%s' method [FAIL!]", key);
+			// ---- instead of: (even though this is quicker) but code above should work
+			lua_pushstring(_L,name); // [+1]
+			_subclassMethods->getCache(_L); // [-1, +1] will pop key's copy and return the cache 
+			if (!lua_isnil(_L,-1)) return true;
+			lua_pop(_L,1); // [-1] remove nil
+			//end TODO-------------------------------------------------------------------------------
+		}
+
 		ClassInfo *ci = getClassInfo();
 		ci->push(_L);
 		lua_getmetatable(_L,-1);
@@ -266,7 +291,7 @@ namespace SLB {
 		HybridBase *obj = get<HybridBase*>(L,pos);
 		if (!obj)
 		{
-			luaL_error(L, "Invalid Hybrid object");
+			luaL_error(L, "Invalid Hybrid object (index=%d)", pos);
 		}
 		return obj;
 	}
@@ -274,8 +299,7 @@ namespace SLB {
 
 	int HybridBase::call_lua_method(lua_State *L)
 	{
-		HybridBase *hb = get<HybridBase*>( L, 1 );
-		if (hb == 0) luaL_error(L, "Invalid hybrid object");
+		HybridBase *hb = get_hybrid( L, 1 );
 		if (hb->_L == 0) luaL_error(L, "Instance(%p) not attached to any lua_State...", hb);
 		if (hb->_L != L) luaL_error(L, "This instance(%p) is attached to another lua_State(%p)", hb, hb->_L);
 		// get the real function to call
@@ -329,25 +353,6 @@ namespace SLB {
 
 		// 2 - key (string) (at top)
 		const char *key = lua_tostring(L,2);
-		if (obj->_subclassMethods.valid())
-		{
-			//TODO: NEED DEBUG...
-			// ---- why not:
-			// Object *m = obj->_subclassMethods->get(key);
-			// if (m)
-			// {
-			// 	SLB_DEBUG(5, "Hybrid subclassed instance, looking for '%s' method [OK]", key);
-			// 	m->push(L);
-			// 	return 1;
-			// }
-			// else SLB_DEBUG(5, "Hybrid subclassed instance, looking for '%s' method [FAIL!]", key);
-			// ---- instead of: (even though this is quicker) but code above should work
-			lua_pushvalue(L,2); // [+1]
-			obj->_subclassMethods->getCache(L); // [-1, +1] will pop key's copy and return the cache 
-			if (!lua_isnil(L,-1)) return 1;
-			lua_pop(L,1); // [-1] remove nil
-			//TODO:....................................................
-		}
 		// call getMethod of hybrid (basic)
 		if(!obj->getMethod(key)) luaL_error(L, "Invalid method %s", key);
 		return 1;
