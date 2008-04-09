@@ -5,7 +5,6 @@ SLB.using(SLB.Unit_002)
 print("declare: HClass:calc")
 function HClass:calc(a,b)
 	print("Calling virtual method HClass:calc")
-	local SLB = SLB
 	if SLB.type(self) ~= "Unit_002::HClass" then
 		error("Invalid instance @ calc")
 	end
@@ -22,7 +21,6 @@ end
 -- this is an extra function of HClass (not in C++)
 print("declare: HClass:perform_calc")
 function HClass:perform_calc(a, b)
-	local SLB = SLB
 	if SLB.type(self) ~= "Unit_002::HClass" then
 		error("Invalid instance @ perform_calc got : "..type(self))
 	end

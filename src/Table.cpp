@@ -68,6 +68,8 @@ namespace SLB {
 
 	void Table::setCache(lua_State *L)
 	{
+		SLB_DEBUG_CLEAN_STACK(L,-2);
+		SLB_DEBUG_STACK(8, L, "Table(%p) :: setCache BEGIN ", this);
 		int top = lua_gettop(L);
 		if (top < 2 ) luaL_error(L, "Not enough elements to perform Table::setCache");
 		push(L); // push ::Table
@@ -75,33 +77,32 @@ namespace SLB {
 		{
 			lua_insert(L, top - 1); // move the metatable above key,value
 			lua_settop(L, top + 1); // remove everything else
-			SLB_DEBUG_STACK(4, L, "Table(%p) :: setCache (before raw_set) ", this);
 			lua_rawset(L,-3);
 		}
 		else
 		{
 			luaL_error(L, "Invalid setCache;  %s:%d", __FILE__, __LINE__ );
 		}
+		SLB_DEBUG_STACK(8, L, "Table(%p) :: setCache END original top = %d", this, top);
 		lua_settop(L, top - 2);
 	}
 
 	void Table::getCache(lua_State *L)
 	{
+		SLB_DEBUG_CLEAN_STACK(L,0);
+		SLB_DEBUG_STACK(8, L, "Table(%p) :: getCache BEGIN ", this);
 		int top = lua_gettop(L);
 		if (top < 1 ) luaL_error(L, "Not enough elements to perform Table::getCache");
-		push(L); // push ::Table
-		if (luaL_getmetafield(L,-1, "__indexCache"))
-		{
-			lua_pushvalue(L, top); // copy value
-			SLB_DEBUG_STACK(4, L, "Table(%p) :: getCache (before raw_get) ", this);
-			lua_rawget(L, -2);
-			lua_insert(L, top + 1); // as result
-		}
-		else
+		push(L); // [+1] push ::Table 
+		if (!luaL_getmetafield(L,-1, "__indexCache")) // [+1]
 		{
 			luaL_error(L, "Invalid setCache;  %s:%d", __FILE__, __LINE__ );
 		}
-		lua_settop(L, top + 1);
+		lua_pushvalue(L, top); // [+1] copy value
+		lua_rawget(L, -2); // [-2]
+		SLB_DEBUG_STACK(8, L, "Table(%p) :: getCache END (result is at top) top was = %d", this, top);
+		lua_replace(L, top); // [-1,+1] as result
+		lua_settop(L, top);
 	}
 
 

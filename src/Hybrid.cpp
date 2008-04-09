@@ -101,6 +101,7 @@ namespace SLB {
 
 		int __newindex(lua_State *L)
 		{
+			SLB_DEBUG_CLEAN_STACK(L,-2);
 			SLB_DEBUG_STACK(6,L, "Call InternalHybridSubclass(%p)::__nexindex", this);
 			//1 = table
 			//2 = string
@@ -126,11 +127,14 @@ namespace SLB {
 			fc->push(L);
 			lua_replace(L,1); // table of metamethod __call
 			lua_call(L, lua_gettop(L) -1 , LUA_MULTRET);
-			// at 1 we should have an HybridBase instance...
-			HybridBase *obj = SLB::get<HybridBase*>(L,1);
-			if (obj == 0) luaL_error(L, "Output(1) of constructor should be an HybridBase instance");
-			// now our table... to find methods
-			obj->_subclassMethods = this;
+			{
+				SLB_DEBUG_CLEAN_STACK(L,0);
+				// at 1 we should have an HybridBase instance...
+				HybridBase *obj = SLB::get<HybridBase*>(L,1);
+				if (obj == 0) luaL_error(L, "Output(1) of constructor should be an HybridBase instance");
+				// now our table... to find methods
+				obj->_subclassMethods = this;
+			}
 			return lua_gettop(L);
 		}
 
@@ -158,18 +162,20 @@ namespace SLB {
 
 	void HybridBase::attach(lua_State *L)
 	{
+		SLB_DEBUG_CLEAN_STACK(L,0);
 		//TODO allow reattaching...
 		if (_L) throw std::runtime_error("Trying to reattach an Hybrid instance");
 
 		if (L)
 		{
 			_L = L;
-			lua_newtable(_L);
+			lua_newtable(_L); // [+1]
 			// use "global" state as __index to access outside values like
 			// normal functions. And always try to reuse it to every instance.
-			lua_getfield(_L, LUA_REGISTRYINDEX, "__SLB_HYBRID_GLOBALS__");
+			lua_getfield(_L, LUA_REGISTRYINDEX, "__SLB_HYBRID_GLOBALS__"); // [+1]
 			if (lua_isnil(_L,-1))
 			{
+				SLB_DEBUG_CLEAN_STACK(L,0);
 				lua_pop(_L,1); // [-1] remove nil
 				lua_newtable(_L); // [+1] meta-table
 				lua_pushvalue(_L, LUA_GLOBALSINDEX); // [+1] globals _G
@@ -177,10 +183,10 @@ namespace SLB {
 				lua_pushvalue(_L,-1); // [+1] a copy for registry
 				lua_setfield(_L, LUA_REGISTRYINDEX, "__SLB_HYBRID_GLOBALS__"); // [-1]
 			}
-			lua_setmetatable(L,-2);
+			lua_setmetatable(L,-2); // [-1]
 			// done
 
-			_table_globals = luaL_ref(_L, LUA_REGISTRYINDEX);
+			_table_globals = luaL_ref(_L, LUA_REGISTRYINDEX); // [-1]
 		}
 	}
 	
@@ -196,8 +202,8 @@ namespace SLB {
 	
 	bool HybridBase::getMethod(const char *name) const
 	{
-		SLB_DEBUG(5, "HybridBase(%p)::getMethod '%s' (_L = %p)", this, name, _L); 
 		if (_L == 0) throw std::runtime_error("Hybrid instance not attached");\
+		SLB_DEBUG_STACK(5,_L, "HybridBase(%p)::getMethod '%s' (_L = %p)", this, name, _L); 
 		int top = lua_gettop(_L);
 
 		// first try to find in _subclassMethods
@@ -216,8 +222,13 @@ namespace SLB {
 			// ---- instead of: (even though this is quicker) but code above should work
 			lua_pushstring(_L,name); // [+1]
 			_subclassMethods->getCache(_L); // [-1, +1] will pop key's copy and return the cache 
-			if (!lua_isnil(_L,-1)) return true;
+			if (!lua_isnil(_L,-1))
+			{
+				assert("Invalid Stack" && (lua_gettop(_L) == top+1));
+				return true;
+			}
 			lua_pop(_L,1); // [-1] remove nil
+			assert("Invalid Stack" && (lua_gettop(_L) == top));
 			//end TODO-------------------------------------------------------------------------------
 		}
 
@@ -235,6 +246,7 @@ namespace SLB {
 				lua_settop(_L,top+1);
 				SLB_DEBUG(6, "HybridBase(%p-%s)::getMethod '%s' (_L = %p) -> FOUND",
 						this, ci->getName().c_str(),name, _L); 
+				assert("Invalid Stack" && (lua_gettop(_L) == top+1));
 				return true;
 			}
 			else SLB_DEBUG(6, "HybridBase(%p-%s)::getMethod '%s' (_L = %p) -> *NOT* FOUND",
@@ -249,6 +261,7 @@ namespace SLB {
 	
 	void HybridBase::setMethod(lua_State *L, ClassInfo *ci)
 	{
+		SLB_DEBUG_CLEAN_STACK(L,-2);
 		// key
 		// value [top]
 		int top = lua_gettop(L);
@@ -291,7 +304,7 @@ namespace SLB {
 		HybridBase *obj = get<HybridBase*>(L,pos);
 		if (!obj)
 		{
-			luaL_error(L, "Invalid Hybrid object (index=%d)", pos);
+			luaL_error(L, "Invalid Hybrid object (index=%d) found %s", pos, lua_typename(L,pos));
 		}
 		return obj;
 	}
@@ -315,6 +328,7 @@ namespace SLB {
 
 	int HybridBase::class__newindex(lua_State *L)
 	{
+		SLB_DEBUG_CLEAN_STACK(L,-2);
 		// 1 - obj (table with classInfo)
 		ClassInfo *ci = Manager::getInstance().getClass(L,1);
 		if (ci == 0) luaL_error(L, "Invalid Class at #1");
@@ -344,6 +358,7 @@ namespace SLB {
 
 	int HybridBase::object__index(lua_State *L)
 	{
+		SLB_DEBUG_CLEAN_STACK(L,+1);
 		SLB_DEBUG(4, "HybridBase::object__index");
 		// 1 - obj (table with classInfo)
 		HybridBase* obj = get<HybridBase*>(L,1);
@@ -355,35 +370,34 @@ namespace SLB {
 		const char *key = lua_tostring(L,2);
 		// call getMethod of hybrid (basic)
 		if(!obj->getMethod(key)) luaL_error(L, "Invalid method %s", key);
+		assert("Invalid stored function" && (lua_type(L,-1) == LUA_TFUNCTION) );
 		return 1;
 	}
 	
 	int HybridBase::class__index(lua_State *L)
 	{
+		SLB_DEBUG_CLEAN_STACK(L,+1);
 		SLB_DEBUG_STACK(6, L, "Call class__index");
 		// trying to traverse the class... create a new InternalHybridSubclass
 		ClassInfo *ci = Manager::getInstance().getClass(L,1);
 		if (ci == 0) luaL_error(L, "Expected a valid class.");
 		luaL_checkstring(L,2); // only valid with strings
-		if (ci->hasConstructor())
-		{
-			ref_ptr<InternalHybridSubclass> subc = new InternalHybridSubclass(ci);
-			subc->push(L);
-
-			// -- set cache...
-			lua_pushvalue(L,2);  // [+1] key
-			lua_pushvalue(L,-2); // [+1] copy of new InternalHybrid...
-			ci->setCache(L);     // [-2] keep a copy in the cache
-			// -- set cache done
-
-			return 1;
-		}
-		else
+		if (!ci->hasConstructor())
 		{
 			luaL_error(L, "Hybrid Class(%s) doesn't have constructor."
 				" You can not subclass(%s) from it", ci->getName().c_str(),
 				lua_tostring(L,2));
-			return 0;
 		}
+
+		ref_ptr<InternalHybridSubclass> subc = new InternalHybridSubclass(ci);
+		subc->push(L);
+
+		// -- set cache...
+		lua_pushvalue(L,2);  // [+1] key
+		lua_pushvalue(L,-2); // [+1] copy of new InternalHybrid...
+		ci->setCache(L);     // [-2] keep a copy in the cache
+		// -- set cache done
+
+		return 1;
 	}
 }
