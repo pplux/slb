@@ -26,10 +26,11 @@
 
 namespace SLB {
 
-	LuaCallBase::LuaCallBase(lua_State *L, int index) : _L(L) { getFunc(index); } 
+	LuaCallBase::LuaCallBase(lua_State *L, int index) : _L(L) { SLB_DEBUG_CALL; getFunc(index); } 
 
 	LuaCallBase::LuaCallBase(lua_State *L, const char *func) : _L(L) 
 	{
+		SLB_DEBUG_CALL;
 		lua_getglobal(L,func);
 		getFunc(-1);
 		lua_pop(L,1); 
@@ -37,11 +38,13 @@ namespace SLB {
 
 	LuaCallBase::~LuaCallBase()
 	{
+		SLB_DEBUG_CALL;
 		luaL_unref(_L, LUA_REGISTRYINDEX, _ref); 
 	}
 
 	void LuaCallBase::getFunc(int index)
 	{
+		SLB_DEBUG_CALL;
 		lua_pushvalue(_L,index);
 		assert("Invalid function!" && (lua_type(_L, -1) == LUA_TFUNCTION) );
 		_ref = luaL_ref(_L, LUA_REGISTRYINDEX);
@@ -49,6 +52,7 @@ namespace SLB {
 
 	int LuaCallBase::errorHandler(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		std::ostringstream out; // Use lua pushfstring and so on...
 		lua_Debug debug;
 
@@ -85,6 +89,7 @@ namespace SLB {
 
 	void LuaCallBase::execute(int numArgs, int numOutput, int top)
 	{
+		SLB_DEBUG_CALL;
 		int base = lua_gettop(_L) - numArgs;
 		lua_pushcfunction(_L, LuaCallBase::errorHandler);
 		lua_insert(_L, base);

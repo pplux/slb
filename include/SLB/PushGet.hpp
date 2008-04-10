@@ -24,6 +24,7 @@
 #define __SLB_PUSH_GET__
 
 #include "lua.hpp"
+#include "Debug.hpp"
 
 // Fixed Apple problems
 #ifdef check
@@ -54,6 +55,7 @@ namespace Private {
 template<class T>
 inline void push(lua_State *L, T v)
 {
+	SLB_DEBUG_CALL; 
 	Private::Type<T>::push(L,v);
 }
 
@@ -61,17 +63,20 @@ inline void push(lua_State *L, T v)
 template<class T>
 inline T get(lua_State *L, int pos)
 {
+	SLB_DEBUG_CALL; 
 	return Private::Type<T>::get(L,pos);
 }
 
 template<class T>
 inline bool check(lua_State *L, int pos)
 {
+	SLB_DEBUG_CALL; 
 	return Private::Type<T>::check(L,pos);
 }
 template<class T> 
 inline void setGlobal(lua_State *L, T v, const char *name)
 {
+	SLB_DEBUG_CALL; 
 	SLB::push(L,v);
 	lua_setglobal(L,name);
 }
@@ -79,6 +84,7 @@ inline void setGlobal(lua_State *L, T v, const char *name)
 template<class T>
 inline T getGlobal(lua_State *L, const char *name)
 {
+	SLB_DEBUG_CALL; 
 	lua_getglobal(L,name);
 	T value = SLB::get<T>(L, -1);
 	lua_pop(L,1); // remove the value

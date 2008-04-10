@@ -35,6 +35,7 @@ namespace SLB {
 		_instanceFactory(0),
 		_isHybrid(false)
 	{
+		SLB_DEBUG_CALL;
 		_typeid = &ti;
 		Manager::getInstance().addClass(this);
 		_name = _typeid->name();
@@ -42,11 +43,13 @@ namespace SLB {
 
 	ClassInfo::~ClassInfo()
 	{
+		SLB_DEBUG_CALL;
 		delete _instanceFactory; 
 	}
 
 	void ClassInfo::setName(const std::string& name)
 	{
+		SLB_DEBUG_CALL;
 		// rename first in the manager...
 		Manager::getInstance().rename(this, name);
 		_name = name;
@@ -54,35 +57,41 @@ namespace SLB {
 	
 	void ClassInfo::setInstanceFactory( InstanceFactory *factory)
 	{
+		SLB_DEBUG_CALL;
 		delete _instanceFactory; // delete old..
 		_instanceFactory = factory;
 	}
 
 	void ClassInfo::setConstructor( FuncCall *constructor )
 	{
+		SLB_DEBUG_CALL;
 		_constructor = constructor;
 	}
 	
 	void ClassInfo::setClass__index( FuncCall *func )
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(2, "ClassInfo(%p) '%s' set Class __index -> %p", this, _name.c_str(), func);
 		_meta__index[0] = func;
 	}
 
 	void ClassInfo::setClass__newindex( FuncCall *func )
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(2, "ClassInfo(%p) '%s' set Class __newindex -> %p", this, _name.c_str(), func);
 		_meta__newindex[0] = func;
 	}
 
 	void ClassInfo::setObject__index( FuncCall *func )
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(2, "ClassInfo(%p) '%s' set Object __index -> %p", this, _name.c_str(), func);
 		_meta__index[1] = func;
 	}
 
 	void ClassInfo::setObject__newindex( FuncCall *func )
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(2, "ClassInfo(%p) '%s' set Object __newindex -> %p", this, _name.c_str(), func);
 		_meta__newindex[1] = func;
 	}
@@ -105,6 +114,7 @@ namespace SLB {
 
 	void ClassInfo::pushInstance(lua_State *L, InstanceBase *instance)
 	{
+		SLB_DEBUG_CALL;
 		int top = lua_gettop(L);
 		if (instance == 0)
 		{
@@ -140,6 +150,7 @@ namespace SLB {
 
 	void *ClassInfo::get_ptr(lua_State *L, int pos) const
 	{
+		SLB_DEBUG_CALL;
 		pos = L_abs_index(L,pos);
 		void *obj = 0;
 		InstanceBase *i = getInstance(L, pos);
@@ -159,6 +170,7 @@ namespace SLB {
 
 	const void* ClassInfo::get_const_ptr(lua_State *L, int pos) const
 	{
+		SLB_DEBUG_CALL;
 		pos = L_abs_index(L,pos);
 		const void *obj = 0;
 		InstanceBase *i = getInstance(L, pos);
@@ -177,6 +189,8 @@ namespace SLB {
 
 	InstanceBase* ClassInfo::getInstance(lua_State *L, int pos) const
 	{
+		SLB_DEBUG_CALL;
+		SLB_DEBUG(10, "L=%p; Pos = %i (abs = %i)",L, pos, L_abs_index(L,pos) );
 		pos = L_abs_index(L,pos);
 		InstanceBase *instance = 0;
 		int top = lua_gettop(L);
@@ -196,11 +210,16 @@ namespace SLB {
 			}
 		}
 		lua_settop(L, top);
+		SLB_DEBUG(10, "Instance(%p) -> %p (%s)",
+			instance,
+			instance? instance->get_const_ptr() : 0,
+			instance? (instance->get_const_ptr() ? "const" : "non_const") : "nil");
 		return instance;
 	}
 
 	void ClassInfo::push_ref(lua_State *L, void *ref )
 	{
+		SLB_DEBUG_CALL;
 		if (_instanceFactory)
 		{
 			if (ref)
@@ -221,6 +240,7 @@ namespace SLB {
 
 	void ClassInfo::push_ptr(lua_State *L, void *ptr, bool fromConstructor)
 	{
+		SLB_DEBUG_CALL;
 		if (_instanceFactory)
 		{
 			pushInstance(L, _instanceFactory->create_ptr(ptr, fromConstructor) );
@@ -247,6 +267,7 @@ namespace SLB {
 
 	void ClassInfo::push_const_ptr(lua_State *L, const void *const_ptr)
 	{
+		SLB_DEBUG_CALL;
 		if (_instanceFactory)
 		{
 			pushInstance(L, _instanceFactory->create_const_ptr(const_ptr) );
@@ -260,6 +281,7 @@ namespace SLB {
 
 	void ClassInfo::push_copy(lua_State *L, const void *ptr)
 	{
+		SLB_DEBUG_CALL;
 		if (_instanceFactory)
 		{
 			if (ptr)
@@ -280,6 +302,7 @@ namespace SLB {
 	
 	int ClassInfo::__index(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		int result = Table::__index(L); // default implementation
 		if ( result < 1 )
 		{
@@ -333,6 +356,7 @@ namespace SLB {
 
 	int ClassInfo::__newindex(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		// 0 = class __index
 		// 1 = object __index
 		int type = lua_istable(L,1)? 0 : 1; 
@@ -370,6 +394,7 @@ namespace SLB {
 
 	int ClassInfo::__call(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		if ( _constructor.valid() )
 		{
 			_constructor->push(L);
@@ -387,6 +412,7 @@ namespace SLB {
 
 	int ClassInfo::__tostring(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		int top = lua_gettop(L);
 		lua_pushfstring(L, "Class(%s) [%s]", _name.c_str(), getInfo().c_str());
 		;
@@ -421,6 +447,7 @@ namespace SLB {
 
 	bool ClassInfo::isSubClassOf( const ClassInfo *base )
 	{
+		SLB_DEBUG_CALL;
 		if (base == this) return true;
 		BaseClassMap::iterator i = _baseClasses.find( base->getTypeid() );
 		return (i != _baseClasses.end());

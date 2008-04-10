@@ -18,6 +18,7 @@ namespace Unit_001 {
 
 	void wrapper()
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(1, "--> Loading unit_001 wrapper -->");
 		
 		SLB::Class<Element>("Unit_001::Element")

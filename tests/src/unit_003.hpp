@@ -11,11 +11,13 @@ namespace Unit_003 {
 	{
 		Value get(Key k)
 		{
+			SLB_DEBUG_CALL;
 			SLB_DEBUG(2, "map::GET [%s->%s]", typeid(Key).name(), typeid(Value).name())
 			return (*this)[k];
 		}
 		void set(Key k, Value v)
 		{
+			SLB_DEBUG_CALL;
 			SLB_DEBUG(2, "map::SET [%s->%s]", typeid(Key).name(), typeid(Value).name())
 			(*this)[k] = v; 
 		}

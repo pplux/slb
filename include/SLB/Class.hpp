@@ -197,10 +197,10 @@ namespace SLB {
 		}
 		
 		__Self &__add()
-		{ SLB_DEBUG(0, "NOT IMPLEMENTED!"); return *this; }
+		{ SLB_DEBUG_CALL; SLB_DEBUG(0, "NOT IMPLEMENTED!"); return *this; }
 
 		__Self &__mult()
-		{ SLB_DEBUG(0, "NOT IMPLEMENTED!"); return *this; }
+		{ SLB_DEBUG_CALL; SLB_DEBUG(0, "NOT IMPLEMENTED!"); return *this; }
 
 		template<typename T_Iterator>
 		__Self &iterator(const char *name, T_Iterator (T::*first)(), T_Iterator (T::*end)() )
@@ -251,6 +251,7 @@ namespace SLB {
 	inline Class<T,W>::Class(const char *name)
 		: _class(0), _lastObj(0), _param(0)
 	{
+		SLB_DEBUG_CALL;
 		// we expect to have a template "Implementation" inside W
 		typedef typename W::template Implementation<T> Adapter;
 		_class = Manager::getInstance().getOrCreateClass( typeid(T) );

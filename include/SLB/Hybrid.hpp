@@ -187,6 +187,7 @@ namespace SLB {
 		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 		R LCall( const char *name SPP_REPEAT(N, SLB_ARG_H) ) \
 		{ \
+			SLB_DEBUG_CALL;\
 			typedef SLB::LuaCall<R(BaseClass* SPP_COMMA_IF(N) SPP_ENUM_D(N,T))> LC;\
 			SLB_BODY(N) \
 			return (*method)(static_cast<BaseClass*>(this) SPP_REPEAT(N, SLB_ARG) ); \
@@ -195,6 +196,7 @@ namespace SLB {
 		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 		R LCall( const char *name SPP_REPEAT(N, SLB_ARG_H) ) const \
 		{ \
+			SLB_DEBUG_CALL;\
 			typedef SLB::LuaCall<R(const BaseClass* SPP_COMMA_IF(N) SPP_ENUM_D(N,T))> LC;\
 			SLB_BODY(N) \
 			return (*method)(static_cast<const BaseClass*>(this) SPP_REPEAT(N, SLB_ARG) ); \
@@ -209,29 +211,29 @@ namespace SLB {
 }
 
 #define HYBRID_method_0(name,ret_T) \
-	ret_T name() { return LCall<ret_T>(#name); }
+	ret_T name() { SLB_DEBUG_CALL; return LCall<ret_T>(#name); }
 #define HYBRID_method_1(name,ret_T, T1) \
-	ret_T name(T1 p1) { return LCall<ret_T,T1>(#name,p1); }
+	ret_T name(T1 p1) { SLB_DEBUG_CALL; return LCall<ret_T,T1>(#name,p1); }
 #define HYBRID_method_2(name,ret_T, T1, T2) \
-	ret_T name(T1 p1,T2 p2) { return LCall<ret_T,T1,T2>(#name,p1,p2); }
+	ret_T name(T1 p1,T2 p2) { SLB_DEBUG_CALL; return LCall<ret_T,T1,T2>(#name,p1,p2); }
 #define HYBRID_method_3(name,ret_T, T1, T2, T3) \
-	ret_T name(T1 p1,T2 p2, T3 p3) { return LCall<ret_T,T1,T2>(#name,p1,p2, p3); }
+	ret_T name(T1 p1,T2 p2, T3 p3) { SLB_DEBUG_CALL; return LCall<ret_T,T1,T2>(#name,p1,p2, p3); }
 #define HYBRID_method_4(name,ret_T, T1, T2, T3, T4) \
-	ret_T name(T1 p1,T2 p2, T3 p3, T4 p4) { return LCall<ret_T,T1,T2>(#name,p1,p2, p3,p4); }
+	ret_T name(T1 p1,T2 p2, T3 p3, T4 p4) {  SLB_DEBUG_CALL; return LCall<ret_T,T1,T2>(#name,p1,p2, p3,p4); }
 #define HYBRID_method_5(name,ret_T, T1, T2, T3, T4,T5) \
-	ret_T name(T1 p1,T2 p2, T3 p3, T4 p4, T5 p5) { return LCall<ret_T,T1,T2>(#name,p1,p2, p3,p4,p5); }
+	ret_T name(T1 p1,T2 p2, T3 p3, T4 p4, T5 p5) {  SLB_DEBUG_CALL; return LCall<ret_T,T1,T2>(#name,p1,p2, p3,p4,p5); }
 
 #define HYBRID_const_method_0(name,ret_T) \
-	ret_T name() const { return LCall<ret_T>(#name); }
+	ret_T name() const {  SLB_DEBUG_CALL; return LCall<ret_T>(#name); }
 #define HYBRID_const_method_1(name,ret_T, T1) \
-	ret_T name(T1 p1) const { return LCall<ret_T,T1>(#name,p1); }
+	ret_T name(T1 p1) const {  SLB_DEBUG_CALL; return LCall<ret_T,T1>(#name,p1); }
 #define HYBRID_const_method_2(name,ret_T, T1, T2) \
-	ret_T name(T1 p1,T2 p2) const { return LCall<ret_T,T1,T2>(#name,p1,p2); }
+	ret_T name(T1 p1,T2 p2) const {  SLB_DEBUG_CALL; return LCall<ret_T,T1,T2>(#name,p1,p2); }
 #define HYBRID_const_method_3(name,ret_T, T1, T2, T3) \
-	ret_T name(T1 p1,T2 p2, T3 p3) const { return LCall<ret_T,T1,T2>(#name,p1,p2, p3); }
+	ret_T name(T1 p1,T2 p2, T3 p3) const {  SLB_DEBUG_CALL; return LCall<ret_T,T1,T2>(#name,p1,p2, p3); }
 #define HYBRID_const_method_4(name,ret_T, T1, T2, T3, T4) \
-	ret_T name(T1 p1,T2 p2, T3 p3, T4 p4) const { return LCall<ret_T,T1,T2>(#name,p1,p2, p3,p4); }
+	ret_T name(T1 p1,T2 p2, T3 p3, T4 p4) const {  SLB_DEBUG_CALL; return LCall<ret_T,T1,T2>(#name,p1,p2, p3,p4); }
 #define HYBRID_const_method_5(name,ret_T, T1, T2, T3, T4,T5) \
-	ret_T name(T1 p1,T2 p2, T3 p3, T4 p4, T5 p5) const { return LCall<ret_T,T1,T2>(#name,p1,p2, p3,p4,p5); }
+	ret_T name(T1 p1,T2 p2, T3 p3, T4 p4, T5 p5) const {  SLB_DEBUG_CALL; return LCall<ret_T,T1,T2>(#name,p1,p2, p3,p4,p5); }
 
 #endif

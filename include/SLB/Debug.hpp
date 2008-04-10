@@ -31,14 +31,7 @@
 // printf-like interface.
 #ifndef SLB_DEBUG_FUNC
 	#include <cstdio>
-	#define SLB_DEBUG_FUNC(...) \
-	{\
-		int __s = strlen(__FILE__); \
-		int __offset = (__s > 18)? __s - 18: 0; \
-		fprintf(SLB_DEBUG_OUTPUT,"[%12s:%-4d] ", __FILE__+__offset, __LINE__);\
-		fprintf(SLB_DEBUG_OUTPUT,__VA_ARGS__);\
-		fprintf(SLB_DEBUG_OUTPUT,"\n");\
-	}
+	#define SLB_DEBUG_FUNC(...) fprintf(SLB_DEBUG_OUTPUT, __VA_ARGS__);
 #endif
 
 //----------------------------------------------------------------------------
@@ -50,9 +43,25 @@
 	
 #if SLB_DEBUG_LEVEL != 0
 	#include<SLB/SPP.hpp>
+	extern int __SLB_DEBUG_LEVEL_TAB__;
+	inline void __SLB_ADJUST__(bool terminator = true)
+	{
+		if (__SLB_DEBUG_LEVEL_TAB__)
+		{
+			for(int i = 0; i < __SLB_DEBUG_LEVEL_TAB__-1; ++i) SLB_DEBUG_FUNC("| ");
+			if (terminator) SLB_DEBUG_FUNC("|_");
+		}
+	}
+
 	#define SLB_DEBUG(level,...) if (level <= SLB_DEBUG_LEVEL)\
 		{\
-			SLB_DEBUG_FUNC("SLB-" SPP_TOSTRING(level) " "__VA_ARGS__);\
+			__dummy__SLB__debugcall(); /* to check a previous SLB_DEBUG_CALL */ \
+			int __s = strlen(__FILE__); \
+			int __offset = (__s > 18)? __s - 18: 0; \
+			__SLB_ADJUST__();\
+			SLB_DEBUG_FUNC("SLB-%-2d [%12s:%-4d] ", level, __FILE__+__offset, __LINE__);\
+			SLB_DEBUG_FUNC(__VA_ARGS__);\
+			SLB_DEBUG_FUNC("\n");\
 		}
 
 	#define SLB_DEBUG_STACK(level, L,  ... ) \
@@ -68,7 +77,7 @@
 				else \
 				{ \
 					lua_pushvalue(L,i);\
-					SLB_DEBUG(level, "\targ %d = %s -> %s", i, \
+					SLB_DEBUG(level+1, "\targ %d = %s -> %s", i, \
 						lua_typename(L,lua_type(L,-1)), lua_tostring(L,-1) );\
 					lua_pop(L,1);\
 				} \
@@ -96,6 +105,7 @@
 					throw std::runtime_error(out.str());
 				}
 			}
+
 			struct lua_State *L;
 			int top;
 			int delta;
@@ -104,12 +114,46 @@
 		};
 
 	#define SLB_DEBUG_CLEAN_STACK(Lua_Stack_L, delta)  \
-		__SLB__cleanstack __dummy__SLB_cleanstack_object__(Lua_Stack_L, delta, __FILE__, __LINE__);
+		__SLB__cleanstack __dummy__SLB__cleanstack__(Lua_Stack_L, delta, __FILE__, __LINE__);
+
+		struct __SLB__debugcall
+		{
+			__SLB__debugcall(const char *f, int l, const char *n)
+				: file(f), line(l), name(n)
+			{
+				int s = strlen(__FILE__);
+				int offset = (s > 18)? s - 18: 0;
+				file = file + offset;
+				__SLB_ADJUST__();
+				SLB_DEBUG_FUNC("SLB >>> [%12s:%-4d] %s\n", file, line, name);
+				__SLB_DEBUG_LEVEL_TAB__++;
+			}
+
+			~__SLB__debugcall()
+			{
+				__SLB_ADJUST__();
+				SLB_DEBUG_FUNC("SLB <<< [%12s:%-4d] %s\n", file, line, name);
+				__SLB_ADJUST__(false);
+				SLB_DEBUG_FUNC("\n");
+				__SLB_DEBUG_LEVEL_TAB__--;
+			}
+
+			void operator()(void) const {}
+
+
+			const char *file;
+			int line;
+			const char *name;
+
+		};
+	#define SLB_DEBUG_CALL \
+		__SLB__debugcall __dummy__SLB__debugcall(__FILE__,__LINE__,__FUNCTION__);
 
 #else
 	#define SLB_DEBUG(level,...)
 	#define SLB_DEBUG_STACK(... ) 
 	#define SLB_DEBUG_CLEAN_STACK(...)
+	#define SLB_DEBUG_CALL
 #endif
 
 #endif
