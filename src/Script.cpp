@@ -21,6 +21,8 @@
 */
 
 #include<SLB/Script.hpp>
+#include<stdexcept>
+#include<sstream>
 
 namespace SLB {
 
@@ -46,9 +48,12 @@ namespace SLB {
 		}
 	}
 
-	void Script::doString(const std::string &code)
+	void Script::doString(const std::string &o_code, const std::string &hint)
 	{
-		if ( luaL_dostring(L, code.c_str()) )
+		std::stringstream code;
+		code << "--" << hint << std::endl << o_code;
+
+		if ( luaL_dostring(L, code.str().c_str()) )
 		{
 			throw std::runtime_error( lua_tostring(L,-1) );
 		}

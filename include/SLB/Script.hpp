@@ -35,7 +35,7 @@ namespace SLB {
 		Script(bool loadDefaultLibs = true);
 		~Script();
 		void doFile(const std::string &filename);
-		void doString(const std::string &codeChunk);
+		void doString(const std::string &codeChunk, const std::string &where_hint ="[SLB]");
 
 		template<class T>
 		void set(const std::string &name, T value) { SLB::setGlobal<T>(L, value, name.c_str()); }
@@ -44,6 +44,9 @@ namespace SLB {
 		T get(const std::string&name) { return SLB::getGlobal<T>(L, name); }
 
 	protected:
+		lua_State* getState() { return L; }
+
+	private:
 		lua_State *L;
 	};
 

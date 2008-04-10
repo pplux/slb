@@ -77,6 +77,11 @@ namespace SLB {
 		template<class Derived, class Base>
 		void addConversor();
 
+		/** Returns the classMap with all defined classes */
+		ClassMap& getClasses() { return _classes; }
+
+		friend int SLB_allTypes(lua_State *);
+
 	private:
 		Manager();
 		~Manager();
