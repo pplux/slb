@@ -20,28 +20,24 @@
 	pplux@pplux.com
 */
 
-#ifndef __SLB__
-#define __SLB__
+#ifndef __SLB_STATEFUL_HYBRID__
+#define __SLB_STATEFUL_HYBRID__
 
-#include "Manager.hpp"
-#include "ClassInfo.hpp"
-#include "PushGet.hpp"
-#include "Type.hpp"
-#include "Table.hpp"
-#include "Value.hpp"
-#include "Class.hpp"
-#include "Enum.hpp"
-#include "Hybrid.hpp"
-#include "StatefulHybrid.hpp"
-#include "Script.hpp"
-#include "SPP.hpp"
+#include "Hybrid.hpp" 
+#include "Script.hpp" 
 
-// just for help....
-#define SLB_ON_LOAD( FuncName ) \
-	SPP_STATIC_BLOCK( FuncName(); )
+namespace SLB {
+	
+	template<class T, class S = SLB::Script>
+	class SLB_EXPORT StatefulHybrid :
+		public Hybrid< T >,
+		public S /* Requires to have a method "getState" */
+	{	
+	public:
+		StatefulHybrid() { HybridBase::attach( S::getState() ); }
+		virtual ~StatefulHybrid() {}
+	};
 
-#define SLB_abs_index(L, i)     ((i) > 0 || (i) <= LUA_REGISTRYINDEX ? (i) : \
-		                    lua_gettop(L) + (i) + 1)
-
+}
 
 #endif

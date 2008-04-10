@@ -181,6 +181,21 @@ namespace SLB {
 		}
 		return 1;
 	}
+	
+	int SLB_allTypes(lua_State *L)
+	{
+		SLB_DEBUG_CALL;
+		Manager::ClassMap &map =  Manager::getInstance().getClasses();
+
+		lua_newtable(L);
+		for(Manager::ClassMap::iterator i = map.begin(); i != map.end(); ++i)
+		{
+			lua_pushstring(L, i->second->getName().c_str());
+			i->second->push(L);
+			lua_rawset(L,-3);
+		}
+		return 1;
+	}
 
 	static const luaL_Reg SLB_funcs[] = {
 		{"type", SLB_type},
@@ -188,6 +203,7 @@ namespace SLB {
 		{"using", SLB_using},
 		{"rawptr", SLB_rawptr},
 		{"isA", SLB_isA},
+		{"allTypes", SLB_allTypes},
 		{NULL, NULL}
 	};
 
