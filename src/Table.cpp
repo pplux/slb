@@ -25,11 +25,12 @@
 
 namespace SLB {
 
-	Table::Table(const std::string &sep, bool c) : _cacheable(c), _separator(sep) {}
-	Table::~Table() {}
+	Table::Table(const std::string &sep, bool c) : _cacheable(c), _separator(sep) {SLB_DEBUG_CALL;}
+	Table::~Table() {SLB_DEBUG_CALL;}
 		
 	Object* Table::rawGet(const std::string &name)
 	{
+		SLB_DEBUG_CALL;
 		Elements::iterator i = _elements.find(name);
 		if (i == _elements.end())
 		{
@@ -42,6 +43,7 @@ namespace SLB {
 
 	inline void Table::rawSet(const std::string &name, Object *obj)
 	{
+		SLB_DEBUG_CALL;
 		if (obj == 0)
 		{
 			SLB_DEBUG(6, "Table (%p) remove '%s'", this, name.c_str());
@@ -56,6 +58,7 @@ namespace SLB {
 
 	Object* Table::get(const std::string &name)
 	{
+		SLB_DEBUG_CALL;
 		TableFind t = getTable(name, false);
 		if (t.first != 0) return t.first->rawGet(t.second);
 		return 0;
@@ -63,11 +66,13 @@ namespace SLB {
 
 	void Table::erase(const std::string &name)
 	{
+		SLB_DEBUG_CALL;
 		set(name, 0);
 	}
 
 	void Table::setCache(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG_CLEAN_STACK(L,-2);
 		SLB_DEBUG_STACK(8, L, "Table(%p) :: setCache BEGIN ", this);
 		int top = lua_gettop(L);
@@ -89,6 +94,7 @@ namespace SLB {
 
 	void Table::getCache(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG_CLEAN_STACK(L,0);
 		SLB_DEBUG_STACK(8, L, "Table(%p) :: getCache BEGIN ", this);
 		int top = lua_gettop(L);
@@ -108,12 +114,14 @@ namespace SLB {
 
 	void Table::set(const std::string &name, Object *obj)
 	{
+		SLB_DEBUG_CALL;
 		TableFind t = getTable(name, true);
 		t.first->rawSet(t.second, obj);
 	}
 
 	Table::TableFind Table::getTable(const std::string &key, bool create)
 	{
+		SLB_DEBUG_CALL;
 		if (_separator.empty()) return TableFind(this,key);
 
 		std::string::size_type pos = key.find(_separator);
@@ -148,6 +156,7 @@ namespace SLB {
 	
 	int Table::__index(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG_STACK(10,L,"Table::__index (%p)",this);
 		int result = -1;
 		
@@ -190,6 +199,7 @@ namespace SLB {
 	
 	int Table::__newindex(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG_STACK(10,L,"Table::__newindex (%p)",this);
 		luaL_error(L, "(%p)__newindex metamethod not implemented", (void*)this);
 		return 0;
@@ -197,6 +207,7 @@ namespace SLB {
 
 	int Table::__call(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG_STACK(10,L,"Table::__call (%p)",this);
 		luaL_error(L, "(%p)__call metamethod not implemented", (void*)this);
 		return 0;
@@ -204,6 +215,7 @@ namespace SLB {
 
 	int Table::__garbageCollector(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG_STACK(10,L,"Table::__GC (%p)",this);
 		luaL_error(L, "(%p) __gc metamethod not implemented", (void*)this);
 		return 0;
@@ -211,6 +223,7 @@ namespace SLB {
 
 	int Table::__tostring(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG_STACK(10,L,"Table::__tostring (%p)",this);
 		int top = lua_gettop(L);
 		lua_pushfstring(L, "Table(%p) [%s] with keys:", this, typeid(*this).name());
@@ -224,6 +237,7 @@ namespace SLB {
 
 	void Table::pushImplementation(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		lua_newtable(L); // an NEW empty table
 
 		lua_newtable(L); // and its metatable:
@@ -251,6 +265,7 @@ namespace SLB {
 
 	int Table::__indexProxy(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(9, "---> __index search");
 		SLB_DEBUG_STACK(10,L,"Table::__indexProxy (%p)",this);
 		int result = __index(L);
@@ -269,6 +284,7 @@ namespace SLB {
 	
 	int Table::__meta(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		// upvalue(1) is the cache table...
 		Table *table = reinterpret_cast<Table*>(lua_touserdata(L, lua_upvalueindex(2)));
 		TableMember member = *reinterpret_cast<TableMember*>(lua_touserdata(L, lua_upvalueindex(3)));

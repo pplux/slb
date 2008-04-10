@@ -4,16 +4,19 @@ namespace Unit_SLB {
 
 	Table::Table()
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(2, "Constructor Table(%p)", this);
 	}
 
 	Table::~Table()
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(2, "Destructor Table(%p)", this);
 	}
 
 	int Table::class__index(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(2, "Test __index metamethod & getCache");
 		SLB::ClassInfo *c = SLB::Manager::getInstance().getClass(L,1);
 		if (c)
@@ -29,6 +32,7 @@ namespace Unit_SLB {
 
 	int Table::class__newindex(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(2, "Test __newindex metamethod & setCache");
 		SLB::ClassInfo *c = SLB::Manager::getInstance().getClass(L,1);
 		if (c)
@@ -44,6 +48,7 @@ namespace Unit_SLB {
 
 	void wrapper()
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(1, "--> Loading unit_SLB wrapper -->");
 		
 

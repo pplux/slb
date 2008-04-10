@@ -33,6 +33,7 @@ namespace SLB {
 	/* Global functions */
 	int SLB_type(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		const ClassInfo *ci = Manager::getInstance().getClass(L,-1);
 		if (ci)
 		{
@@ -44,6 +45,7 @@ namespace SLB {
 
 	int SLB_rawptr(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		int top = lua_gettop(L);
 		if (lua_getmetatable(L,1))
 		{
@@ -63,6 +65,7 @@ namespace SLB {
 
 	int SLB_copy(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		int top = lua_gettop(L);
 		if (lua_getmetatable(L,1))
 		{
@@ -81,6 +84,7 @@ namespace SLB {
 
 	int SLB_using_index(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		lua_pushnil(L);
 		while( lua_next(L, lua_upvalueindex(1)) )
 		{
@@ -97,6 +101,7 @@ namespace SLB {
 
 	int SLB_using(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		int top = lua_gettop(L);
 		luaL_checktype(L, 1, LUA_TTABLE);
 
@@ -142,6 +147,7 @@ namespace SLB {
 
 	int SLB_isA(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		int top = lua_gettop(L);
 		if (top != 2)
 			luaL_error(L, "Invalid number of arguments (instance, class)");
@@ -189,17 +195,20 @@ namespace SLB {
 
 	Manager::Manager()
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(0, "Manager initialization");
 		_global = new Namespace();
 	}
 
 	Manager::~Manager()
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(0, "Manager destruction");
 	}
 	
 	void Manager::registerSLB(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		int top = lua_gettop(L);
 
 		// Register global functions
@@ -216,6 +225,7 @@ namespace SLB {
 	
 	Manager *Manager::getInstancePtr()
 	{
+		//too noisy: SLB_DEBUG_CALL;
 		static bool _atexit = false;
 		if (_atexit == false)
 		{
@@ -228,17 +238,20 @@ namespace SLB {
 
 	void Manager::reset()
 	{
+		SLB_DEBUG_CALL;
 		delete _singleton;
 		_singleton = 0;
 	}
 	
 	void Manager::addClass( ClassInfo *c )
 	{
+		SLB_DEBUG_CALL;
 		_classes[ c->getTypeid() ] = c;
 	}
 
 	const ClassInfo *Manager::getClass(const std::type_info &ti) const
 	{
+		SLB_DEBUG_CALL;
 		ClassMap::const_iterator i = _classes.find(&ti);
 		if ( i != _classes.end() ) return i->second.get();
 		return 0;
@@ -246,6 +259,7 @@ namespace SLB {
 
 	const ClassInfo *Manager::getClass(const std::string &name) const
 	{
+		SLB_DEBUG_CALL;
 		NameMap::const_iterator i = _names.find(name);
 		if ( i != _names.end() ) return getClass( *i->second );
 		return 0;
@@ -253,6 +267,7 @@ namespace SLB {
 
 	ClassInfo *Manager::getClass(lua_State *L, int pos) const
 	{
+		SLB_DEBUG_CALL;
 		pos = L_abs_index(L,pos);
 		int top = lua_gettop(L);
 		ClassInfo* ci = 0L;
@@ -271,6 +286,7 @@ namespace SLB {
 
 	ClassInfo *Manager::getClass(const std::string &name)
 	{
+		SLB_DEBUG_CALL;
 		NameMap::iterator i = _names.find(name);
 		if ( i != _names.end() ) return getClass( *i->second );
 		return 0;
@@ -278,6 +294,7 @@ namespace SLB {
 
 	ClassInfo *Manager::getClass(const std::type_info &ti)
 	{
+		SLB_DEBUG_CALL;
 		ClassMap::iterator i = _classes.find(&ti);
 		if ( i != _classes.end() ) return i->second.get();
 		return 0;
@@ -286,6 +303,7 @@ namespace SLB {
 
 	ClassInfo *Manager::getOrCreateClass(const std::type_info &ti)
 	{
+		SLB_DEBUG_CALL;
 		ClassInfo *c = 0;
 		ClassMap::iterator i = _classes.find(&ti);
 		if ( i != _classes.end() )
@@ -301,11 +319,13 @@ namespace SLB {
 	
 	void Manager::set(const std::string &name, Object *obj)
 	{
+		SLB_DEBUG_CALL;
 		_global->set(name, obj);
 	}
 	
 	void Manager::rename(ClassInfo *ci, const std::string &new_name)
 	{
+		SLB_DEBUG_CALL;
 		const std::string old_name = ci->getName();
 
 		NameMap::iterator i = _names.find(old_name);

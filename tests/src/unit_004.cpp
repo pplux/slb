@@ -5,6 +5,7 @@ namespace Unit_004 {
 
 	void wrapper()
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(1, "--> Loading unit_004 wrapper -->");
 		
 		SLB::Class<Animal, SLB::Instance::NoCopy >("Unit_004::Animal")

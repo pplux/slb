@@ -31,6 +31,7 @@ namespace SLB {
 	/*--- Invalid Method (exception) ----------------------------------------------*/
  	InvalidMethod::InvalidMethod(const HybridBase *obj, const char *c)
 	{
+		SLB_DEBUG_CALL;
 		lua_State  *L = obj->getLuaState();
 		const ClassInfo  *CI = obj->getClassInfo();
 		std::ostringstream out;
@@ -76,6 +77,7 @@ namespace SLB {
 	/*--- HybridBase::AutoLock ----------------------------------------------------*/
 	HybridBase::AutoLock::AutoLock(const HybridBase *hconst) 
 	{
+		SLB_DEBUG_CALL;
 		//TODO: Review this! (should be const?)
 		_hybrid = const_cast<HybridBase*>(hconst);
 		SLB_DEBUG(6, "Lock state %p to access hybrid method (%p)",
@@ -85,6 +87,7 @@ namespace SLB {
 
 	HybridBase::AutoLock::~AutoLock()
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(6, "Unlock state %p to access hybrid method (%p)",
 			_hybrid->_L, (void*) _hybrid);
 		_hybrid->lockEnd( _hybrid->_L);
@@ -96,11 +99,13 @@ namespace SLB {
 	{
 		InternalHybridSubclass(ClassInfo *ci) : _CI(ci)
 		{
+			SLB_DEBUG_CALL;
 			assert("Invalid ClassInfo" && _CI.valid());
 		}
 
 		int __newindex(lua_State *L)
 		{
+			SLB_DEBUG_CALL;
 			SLB_DEBUG_CLEAN_STACK(L,-2);
 			SLB_DEBUG_STACK(6,L, "Call InternalHybridSubclass(%p)::__nexindex", this);
 			//1 = table
@@ -120,6 +125,7 @@ namespace SLB {
 
 		int __call(lua_State *L)
 		{
+			SLB_DEBUG_CALL;
 			SLB_DEBUG_STACK(6,L, "Call InternalHybridSubclass(%p)::__call", this);
 			// create new instance:
 			ref_ptr<FuncCall> fc = _CI->getConstructor();
@@ -147,10 +153,12 @@ namespace SLB {
 	HybridBase::HybridBase() : _L(0),
 		_table_globals(0)
 	{
+		SLB_DEBUG_CALL;
 	}
 
 	HybridBase::~HybridBase()
 	{
+		SLB_DEBUG_CALL;
 		clearMethodMap();
 		if (_L)
 		{
@@ -162,6 +170,7 @@ namespace SLB {
 
 	void HybridBase::attach(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG_CLEAN_STACK(L,0);
 		//TODO allow reattaching...
 		if (_L) throw std::runtime_error("Trying to reattach an Hybrid instance");
@@ -192,6 +201,7 @@ namespace SLB {
 	
 	void HybridBase::clearMethodMap()
 	{
+		SLB_DEBUG_CALL;
 		// delete the list of _methods
 		for(MethodMap::iterator i = _methods.begin(); i != _methods.end(); i++ )
 		{
@@ -202,6 +212,7 @@ namespace SLB {
 	
 	bool HybridBase::getMethod(const char *name) const
 	{
+		SLB_DEBUG_CALL;
 		if (_L == 0) throw std::runtime_error("Hybrid instance not attached");\
 		SLB_DEBUG_STACK(5,_L, "HybridBase(%p)::getMethod '%s' (_L = %p)", this, name, _L); 
 		int top = lua_gettop(_L);
@@ -261,6 +272,7 @@ namespace SLB {
 	
 	void HybridBase::setMethod(lua_State *L, ClassInfo *ci)
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG_CLEAN_STACK(L,-2);
 		// key
 		// value [top]
@@ -289,6 +301,7 @@ namespace SLB {
 
 	void HybridBase::registerAsHybrid(ClassInfo *ci)
 	{
+		SLB_DEBUG_CALL;
 		//TODO: Check first if the class already has __index, __newindex
 		//Maybe this should be a feature at ClassInfo to warn in case
 		//the user sets these functions more than once.
@@ -299,12 +312,33 @@ namespace SLB {
 	}
 	
 
-	HybridBase* get_hybrid(lua_State *L, int pos)
+	const HybridBase* get_hybrid(lua_State *L, int pos)
 	{
-		HybridBase *obj = get<HybridBase*>(L,pos);
+		SLB_DEBUG_CALL;
+		//TODO: Generalize this to be used in all SLB
+		const HybridBase *obj = get<const HybridBase*>(L,pos);
 		if (!obj)
 		{
-			luaL_error(L, "Invalid Hybrid object (index=%d) found %s", pos, lua_typename(L,pos));
+			if (lua_type(L,pos) == LUA_TUSERDATA)
+			{
+				void *dir = lua_touserdata(L,pos);
+				// try to get the class info:
+				ClassInfo *ci = Manager::getInstance().getClass(L,pos);
+				if (ci == 0)
+				{
+					luaL_error(L, "Invalid Hybrid object (index=%d) "
+					"'%s' %p", pos, ci->getName().c_str(), dir);
+				}
+				else
+				{
+					luaL_error(L, "Invalid Hybrid object (index=%d) "
+					"userdata (NOT REGISTERED WITH SLB) %p", pos, dir);
+				}
+			}
+			else
+			{
+				luaL_error(L, "Invalid Hybrid object (index=%d) found %s", pos, luaL_typename(L,pos));
+			}
 		}
 		return obj;
 	}
@@ -312,7 +346,8 @@ namespace SLB {
 
 	int HybridBase::call_lua_method(lua_State *L)
 	{
-		HybridBase *hb = get_hybrid( L, 1 );
+		SLB_DEBUG_CALL;
+		const HybridBase *hb = get_hybrid( L, 1 );
 		if (hb->_L == 0) luaL_error(L, "Instance(%p) not attached to any lua_State...", hb);
 		if (hb->_L != L) luaL_error(L, "This instance(%p) is attached to another lua_State(%p)", hb, hb->_L);
 		// get the real function to call
@@ -328,6 +363,7 @@ namespace SLB {
 
 	int HybridBase::class__newindex(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG_CLEAN_STACK(L,-2);
 		// 1 - obj (table with classInfo)
 		ClassInfo *ci = Manager::getInstance().getClass(L,1);
@@ -358,6 +394,7 @@ namespace SLB {
 
 	int HybridBase::object__index(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG_CLEAN_STACK(L,+1);
 		SLB_DEBUG(4, "HybridBase::object__index");
 		// 1 - obj (table with classInfo)
@@ -376,6 +413,7 @@ namespace SLB {
 	
 	int HybridBase::class__index(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG_CLEAN_STACK(L,+1);
 		SLB_DEBUG_STACK(6, L, "Call class__index");
 		// trying to traverse the class... create a new InternalHybridSubclass

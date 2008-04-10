@@ -39,6 +39,7 @@ namespace Private {
 	{
 		static ClassInfo *getClass(lua_State *L)
 		{
+			SLB_DEBUG_CALL; 
 			ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(T));
 			if (c == 0) luaL_error(L, "Unknown class %s", typeid(T).name());
 			return c;
@@ -46,16 +47,21 @@ namespace Private {
 
 		static void push(lua_State *L,const T &obj)
 		{
+			SLB_DEBUG_CALL; 
+			SLB_DEBUG(8,"Push<T=%s>(L=%p, obj =%p)", typeid(T).name(), L, &obj);
 			getClass(L)->push_copy(L, (void*) &obj);
 		}
 
 		static T get(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
+			SLB_DEBUG(8,"Get<T=%s>(L=%p, pos = %i)", typeid(T).name(), L, pos);
 			return *( reinterpret_cast<T*>( getClass(L)->get_ptr(L, pos) ));
 		}
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return getClass(L)->check(L, pos);
 		}
 		
@@ -66,6 +72,7 @@ namespace Private {
 	{
 		static ClassInfo *getClass(lua_State *L)
 		{
+			SLB_DEBUG_CALL; 
 			ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(T));
 			if (c == 0) luaL_error(L, "Unknown class %s", typeid(T).name());
 			return c;
@@ -73,6 +80,7 @@ namespace Private {
 
 		static void push(lua_State *L, T *obj, bool fromConstructor = false)
 		{
+			SLB_DEBUG_CALL; 
 			if (obj == 0)
 			{
 				lua_pushnil(L);
@@ -84,6 +92,9 @@ namespace Private {
 				ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(*obj));
 				if ( c ) 
 				{
+					SLB_DEBUG(8,"Push<T*=%s> with conversion from "
+						"T(%p)->T(%p) (L=%p, obj =%p)",
+						c->getName().c_str(), typeid(*obj).name(), typeid(T).name(),L, obj);
 					// covert the object to the internal class...
 					void *real_obj = SLB::Manager::getInstance().convert( &typeid(T), &typeid(*obj), obj );
 					c->push_ptr(L, real_obj, fromConstructor);
@@ -97,11 +108,13 @@ namespace Private {
 
 		static T* get(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return reinterpret_cast<T*>( getClass(L)->get_ptr(L, pos) );
 		}
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return getClass(L)->check(L, pos);
 		}
 	};
@@ -111,6 +124,7 @@ namespace Private {
 	{
 		static ClassInfo *getClass(lua_State *L)
 		{
+			SLB_DEBUG_CALL; 
 			ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(T));
 			if (c == 0) luaL_error(L, "Unknown class %s", typeid(T).name());
 			return c;
@@ -118,6 +132,7 @@ namespace Private {
 
 		static void push(lua_State *L,const T *obj)
 		{
+			SLB_DEBUG_CALL; 
 			if (obj == 0)
 			{
 				lua_pushnil(L);
@@ -129,6 +144,9 @@ namespace Private {
 				ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(*obj));
 				if ( c ) 
 				{
+					SLB_DEBUG(8,"Push<const T*=%s> with conversion from "
+						"T(%p)->T(%p) (L=%p, obj =%p)",
+						c->getName().c_str(), typeid(*obj).name(), typeid(T).name(),L, obj);
 					// covert the object to the internal class...
 					const void *real_obj = SLB::Manager::getInstance().convert( &typeid(T), &typeid(*obj), obj );
 					c->push_const_ptr(L, real_obj);
@@ -140,11 +158,13 @@ namespace Private {
 
 		static const T* get(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return reinterpret_cast<const T*>( getClass(L)->get_const_ptr(L, pos) );
 		}
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return getClass(L)->check(L, pos);
 		}
 	};
@@ -154,11 +174,13 @@ namespace Private {
 	{
 		static void push(lua_State *L,const T &obj)
 		{
+			SLB_DEBUG_CALL; 
 			Type<const T*>::push(L, &obj);
 		}
 
 		static const T& get(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			const T* obj = Type<const T*>::get(L,pos);
 			//TODO: remove the typeid(T).getName() and use classInfo :)
 			if (obj == 0L) luaL_error(L, "Can not get a reference of class %s", typeid(T).name());
@@ -167,6 +189,7 @@ namespace Private {
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return Type<const T*>::check(L,pos);
 		}
 	};
@@ -176,6 +199,7 @@ namespace Private {
 	{
 		static ClassInfo *getClass(lua_State *L)
 		{
+			SLB_DEBUG_CALL; 
 			ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(T));
 			if (c == 0) luaL_error(L, "Unknown class %s", typeid(T).name());
 			return c;
@@ -183,16 +207,19 @@ namespace Private {
 
 		static void push(lua_State *L,T &obj)
 		{
+			SLB_DEBUG_CALL; 
 			getClass(L)->push_ref(L, (void*) &obj);
 		}
 
 		static T& get(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return *(Type<T*>::get(L,pos));
 		}
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return Type<T*>::check(L,pos);
 		}
 	};
@@ -202,12 +229,19 @@ namespace Private {
 	{
 		static void push(lua_State *L,void* obj)
 		{
+			SLB_DEBUG_CALL; 
 			if (obj == 0) lua_pushnil(L);
-			else lua_pushlightuserdata(L, obj);
+			else
+			{
+				SLB_DEBUG(8,"Push<void*> (L=%p, obj =%p)",L, obj);
+				lua_pushlightuserdata(L, obj);
+			}
 		}
 
 		static void *get(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
+			SLB_DEBUG(8,"Get<void*> (L=%p, pos=%i ) =%p)",L, pos, lua_touserdata(L,pos));
 			if (check(L,pos)) return lua_touserdata(L,pos);
 			//TODO: Check here if is an userdata and convert it to void
 			return 0;
@@ -215,6 +249,7 @@ namespace Private {
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return (lua_islightuserdata(L,pos) != 0);
 		}
 	};
@@ -225,11 +260,13 @@ namespace Private {
 	{
 		static void push(lua_State *L, size_t v)
 		{
+			SLB_DEBUG_CALL; 
 			SLB_DEBUG(6, "Push unsigned integer = %d",v);
 			lua_pushinteger(L,v);
 		}
 		static size_t get(lua_State *L, int p)
 		{
+			SLB_DEBUG_CALL; 
 			size_t v = static_cast<size_t>(lua_tointeger(L,p));
 			SLB_DEBUG(6,"Get unsigned integer (pos %d) = %d",p,v);
 			return v;
@@ -237,6 +274,7 @@ namespace Private {
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return (lua_isnumber(L,pos) != 0);
 		}
 	};
@@ -246,16 +284,19 @@ namespace Private {
 	{
 		static void push(lua_State *L, const size_t &v)
 		{
+			SLB_DEBUG_CALL; 
 			Type<size_t>::push(L,v);
 		}
 
 		static size_t get(lua_State *L, int p)
 		{
+			SLB_DEBUG_CALL; 
 			return Type<size_t>::get(L,p);
 		}
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return Type<size_t>::check(L,pos);
 		}
 	};
@@ -266,11 +307,13 @@ namespace Private {
 	{
 		static void push(lua_State *L, int v)
 		{
+			SLB_DEBUG_CALL; 
 			SLB_DEBUG(6, "Push integer = %d",v);
 			lua_pushinteger(L,v);
 		}
 		static int get(lua_State *L, int p)
 		{
+			SLB_DEBUG_CALL; 
 			int v = (int) lua_tointeger(L,p);
 			SLB_DEBUG(6,"Get integer (pos %d) = %d",p,v);
 			return v;
@@ -278,6 +321,7 @@ namespace Private {
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return (lua_isnumber(L,pos) != 0);
 		}
 	};
@@ -288,11 +332,13 @@ namespace Private {
 	{
 		static void push(lua_State *L, double v)
 		{
+			SLB_DEBUG_CALL; 
 			SLB_DEBUG(6, "Push double = %f",v);
 			lua_pushnumber(L,v);
 		}
 		static double get(lua_State *L, int p)
 		{
+			SLB_DEBUG_CALL; 
 			double v = (double) lua_tonumber(L,p);
 			SLB_DEBUG(6,"Get double (pos %d) = %f",p,v);
 			return v;
@@ -300,6 +346,7 @@ namespace Private {
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return (lua_isnumber(L,pos) != 0);
 		}
 	};
@@ -309,16 +356,19 @@ namespace Private {
 	{
 		static void push(lua_State *L, const double &v)
 		{
+			SLB_DEBUG_CALL; 
 			Type<double>::push(L,v);
 		}
 
 		static double get(lua_State *L, int p)
 		{
+			SLB_DEBUG_CALL; 
 			return Type<double>::get(L,p);
 		}
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return Type<double>::check(L,pos);
 		}
 	};
@@ -329,12 +379,14 @@ namespace Private {
 	{
 		static void push(lua_State *L, float v)
 		{
+			SLB_DEBUG_CALL; 
 			SLB_DEBUG(6, "Push float = %f",v);
 			lua_pushnumber(L,v);
 		}
 
 		static float get(lua_State *L, int p)
 		{
+			SLB_DEBUG_CALL; 
 			float v = (float) lua_tonumber(L,p);
 			SLB_DEBUG(6,"Get float (pos %d) = %f",p,v);
 			return v;
@@ -342,6 +394,7 @@ namespace Private {
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return (lua_isnumber(L,pos) != 0);
 		}
 	};
@@ -351,16 +404,19 @@ namespace Private {
 	{
 		static void push(lua_State *L, const float &v)
 		{
+			SLB_DEBUG_CALL; 
 			Type<float>::push(L,v);
 		}
 
 		static float get(lua_State *L, int p)
 		{
+			SLB_DEBUG_CALL; 
 			return Type<float>::get(L,p);
 		}
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return Type<float>::check(L,pos);
 		}
 	};
@@ -370,12 +426,14 @@ namespace Private {
 	{
 		static void push(lua_State *L, unsigned long v)
 		{
+			SLB_DEBUG_CALL; 
 			SLB_DEBUG(6, "Push unsigned long = %lu",v);
 			lua_pushnumber(L,v);
 		}
 
 		static unsigned long get(lua_State *L, int p)
 		{
+			SLB_DEBUG_CALL; 
 			unsigned long v = (unsigned long) lua_tonumber(L,p);
 			SLB_DEBUG(6,"Get unsigned long (pos %d) = %lu",p,v);
 			return v;
@@ -383,6 +441,7 @@ namespace Private {
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return (lua_isnumber(L,pos) != 0);
 		}
 	};
@@ -392,16 +451,19 @@ namespace Private {
 	{
 		static void push(lua_State *L, const unsigned long &v)
 		{
+			SLB_DEBUG_CALL; 
 			Type<unsigned long>::push(L,v);
 		}
 
 		static unsigned long get(lua_State *L, int p)
 		{
+			SLB_DEBUG_CALL; 
 			return Type<unsigned long>::get(L,p);
 		}
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return Type<unsigned long>::check(L,pos);
 		}
 	};
@@ -412,11 +474,13 @@ namespace Private {
 	{
 		static void push(lua_State *L, bool v)
 		{
+			SLB_DEBUG_CALL; 
 			SLB_DEBUG(6, "Push bool = %d",(int)v);
 			lua_pushboolean(L,v);
 		}
 		static bool get(lua_State *L, int p)
 		{
+			SLB_DEBUG_CALL; 
 			bool v = (lua_toboolean(L,p) != 0);
 			SLB_DEBUG(6,"Get bool (pos %d) = %d",p,v);
 			return v;
@@ -424,6 +488,7 @@ namespace Private {
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return lua_isboolean(L,pos);
 		}
 	};
@@ -433,12 +498,14 @@ namespace Private {
 	{
 		static void push(lua_State *L, const std::string &v)
 		{
+			SLB_DEBUG_CALL; 
 			SLB_DEBUG(6, "Push const std::string& = %s",v.c_str());
 			lua_pushstring(L, v.c_str());
 		}
 
 		static std::string get(lua_State *L, int p)
 		{
+			SLB_DEBUG_CALL; 
 			const char* v = (const char*) lua_tostring(L,p);
 			SLB_DEBUG(6,"Get std::string (pos %d) = %s",p,v);
 			return v;
@@ -446,6 +513,7 @@ namespace Private {
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return (lua_isstring(L,pos) != 0);
 		}
 	};
@@ -455,6 +523,7 @@ namespace Private {
 	{
 		static void push(lua_State *L, const std::string &v)
 		{
+			SLB_DEBUG_CALL; 
 			SLB_DEBUG(6, "Push const std::string& = %s",v.c_str());
 			lua_pushstring(L, v.c_str());
 		}
@@ -462,6 +531,7 @@ namespace Private {
 		// let the compiler do the conversion...
 		static const std::string get(lua_State *L, int p)
 		{
+			SLB_DEBUG_CALL; 
 			const char* v = (const char*) lua_tostring(L,p);
 			SLB_DEBUG(6,"Get std::string (pos %d) = %s",p,v);
 			return std::string(v);
@@ -469,6 +539,7 @@ namespace Private {
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return (lua_isstring(L,pos) != 0);
 		}
 	};
@@ -480,12 +551,14 @@ namespace Private {
 	{
 		static void push(lua_State *L, const char* v)
 		{
+			SLB_DEBUG_CALL; 
 			SLB_DEBUG(6, "Push const char* = %s",v);
 			lua_pushstring(L,v);
 		}
 
 		static const char* get(lua_State *L, int p)
 		{
+			SLB_DEBUG_CALL; 
 			const char* v = (const char*) lua_tostring(L,p);
 			SLB_DEBUG(6,"Get const char* (pos %d) = %s",p,v);
 			return v;
@@ -493,6 +566,7 @@ namespace Private {
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return (lua_isstring(L,pos) != 0);
 		}
 	};
@@ -502,12 +576,14 @@ namespace Private {
 	{
 		static void push(lua_State *L, const unsigned char* v)
 		{
+			SLB_DEBUG_CALL; 
 			SLB_DEBUG(6, "Push const unsigned char* = %s",v);
 			lua_pushstring(L,(const char*)v);
 		}
 
 		static const unsigned char* get(lua_State *L, int p)
 		{
+			SLB_DEBUG_CALL; 
 			const unsigned char* v = (const unsigned char*) lua_tostring(L,p);
 			SLB_DEBUG(6,"Get const unsigned char* (pos %d) = %s",p,v);
 			return v;
@@ -515,6 +591,7 @@ namespace Private {
 
 		static bool check(lua_State *L, int pos)
 		{
+			SLB_DEBUG_CALL; 
 			return (lua_isstring(L,pos) != 0);
 		}
 	};

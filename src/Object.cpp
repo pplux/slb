@@ -34,14 +34,17 @@ namespace SLB {
 
 	Object::Object() : _refCounter(0)
 	{
+		SLB_DEBUG_CALL;
 	}
 
 	Object::~Object()
 	{
+		SLB_DEBUG_CALL;
 	}
 	
 	void Object::initialize(lua_State *L) const
 	{
+		SLB_DEBUG_CALL;
 		int top = lua_gettop(L);
 
 		// create a new objects' table
@@ -67,6 +70,7 @@ namespace SLB {
 	
 	void Object::push(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(3, "(L %p) Object::push(%p) [%s]", L, this, typeid(*this).name());
 		int top = lua_gettop(L);
 
@@ -143,6 +147,7 @@ namespace SLB {
 	
 	int Object::GC_callback(lua_State *L)
 	{
+		SLB_DEBUG_CALL;
 		Object *obj = *reinterpret_cast<Object**>(lua_touserdata(L, 1));
 		SLB_DEBUG(2, "(L %p) GC object %p (refcount %d - 1) [%s]", L, obj, obj->referenceCount(), typeid(*obj).name());
 		obj->onGarbageCollection(L);

@@ -7,6 +7,7 @@
 
 int main(int argc, char **argv)
 {
+	SLB_DEBUG_CALL;
 	SLB_DEBUG(0, "Start test...");
 	lua_State *L = luaL_newstate();
 	luaL_openlibs(L);
@@ -39,5 +40,5 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	exit(0);
+	return 0;
 }
