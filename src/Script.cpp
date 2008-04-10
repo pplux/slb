@@ -20,4 +20,38 @@
 	pplux@pplux.com
 */
 
-int __SLB_DEBUG_LEVEL_TAB__ = 0;
+#include<SLB/Script.hpp>
+
+namespace SLB {
+
+	Script::Script(bool default_libs) : L(0)
+	{
+		L = luaL_newstate();
+		assert("Can not create more lua_states" && (L != 0L));
+		if (default_libs) luaL_openlibs(L);
+		SLB::Manager::getInstance().registerSLB(L);
+	}
+
+	Script::~Script()
+	{
+		lua_close(L);
+		L = 0;
+	}
+
+	void Script::doFile(const std::string &filename)
+	{
+		if ( luaL_dofile(L, filename.c_str()) )
+		{
+			throw std::runtime_error( lua_tostring(L,-1) );
+		}
+	}
+
+	void Script::doString(const std::string &code)
+	{
+		if ( luaL_dostring(L, code.c_str()) )
+		{
+			throw std::runtime_error( lua_tostring(L,-1) );
+		}
+	}
+
+} /* SLB */

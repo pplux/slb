@@ -20,4 +20,33 @@
 	pplux@pplux.com
 */
 
-int __SLB_DEBUG_LEVEL_TAB__ = 0;
+#ifndef __SLB_SCRIPT__
+#define __SLB_SCRIPT__
+
+#include "lua.hpp" 
+#include "PushGet.hpp"
+#include "Type.hpp"
+
+namespace SLB {
+	
+	class SLB_EXPORT Script
+	{	
+	public:
+		Script(bool loadDefaultLibs = true);
+		~Script();
+		void doFile(const std::string &filename);
+		void doString(const std::string &codeChunk);
+
+		template<class T>
+		void set(const std::string &name, T value) { SLB::setGlobal<T>(L, value, name.c_str()); }
+
+		template<class T>
+		T get(const std::string&name) { return SLB::getGlobal<T>(L, name); }
+
+	protected:
+		lua_State *L;
+	};
+
+}
+
+#endif

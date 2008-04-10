@@ -9,22 +9,14 @@ int main(int argc, char **argv)
 {
 	SLB_DEBUG_CALL;
 	SLB_DEBUG(0, "Start test...");
-	lua_State *L = luaL_newstate();
-	luaL_openlibs(L);
+	SLB::Script *s = new SLB::Script();
 	SLB_DEBUG(0, "Open SLB...");
-	SLB::Manager::getInstance().registerSLB(L);
 
 	SLB_DEBUG(0, "Loading script...");
-	assert("Stack not clean" && lua_gettop(L) == 0);
-	if( luaL_dofile(L, argv[1]) )
-	{
-		std::cerr << "Error: " << lua_tostring(L,-1) << std::endl;
-		exit(1);
-	}
-	assert("Stack not clean" && lua_gettop(L) == 0);
+	s->doFile(argv[1]);
 
 	SLB_DEBUG(0, "Closing script...");
-	lua_close(L);
+	delete s;
 	SLB_DEBUG(0, "End Test...");
 
 	SLB::Manager::getInstance().reset(); // clear all memory

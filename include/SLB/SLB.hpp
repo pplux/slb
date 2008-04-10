@@ -32,6 +32,7 @@
 #include "Class.hpp"
 #include "Enum.hpp"
 #include "Hybrid.hpp"
+#include "Script.hpp"
 #include "SPP.hpp"
 
 // just for help....
