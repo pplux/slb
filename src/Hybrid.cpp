@@ -159,15 +159,9 @@ namespace SLB {
 	HybridBase::~HybridBase()
 	{
 		SLB_DEBUG_CALL;
-		clearMethodMap();
-		if (_L && _table_globals )
-		{
-			luaL_unref(_L, LUA_REGISTRYINDEX, _table_globals);
-			_L = 0;
-			_table_globals = 0;
-		}
+		unAttach();
 	}
-
+	
 	void HybridBase::attach(lua_State *L)
 	{
 		SLB_DEBUG_CALL;
@@ -198,6 +192,19 @@ namespace SLB {
 			_table_globals = luaL_ref(_L, LUA_REGISTRYINDEX); // [-1]
 		}
 	}
+
+	void HybridBase::unAttach()
+	{
+		SLB_DEBUG_CALL;
+		clearMethodMap();
+		if (_L && _table_globals )
+		{
+			luaL_unref(_L, LUA_REGISTRYINDEX, _table_globals);
+			_L = 0;
+			_table_globals = 0;
+		}
+	}
+
 	
 	void HybridBase::clearMethodMap()
 	{

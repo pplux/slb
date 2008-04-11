@@ -21,6 +21,7 @@
 */
 
 #include<SLB/Script.hpp>
+#include<SLB/Debug.hpp>
 #include<stdexcept>
 #include<sstream>
 
@@ -28,6 +29,8 @@ namespace SLB {
 
 	Script::Script(bool default_libs) : L(0)
 	{
+		SLB_DEBUG_CALL;
+		SLB_DEBUG(10, "Open default libs = %s", default_libs ? " true": " false");
 		L = luaL_newstate();
 		assert("Can not create more lua_states" && (L != 0L));
 		if (default_libs) luaL_openlibs(L);
@@ -36,12 +39,15 @@ namespace SLB {
 
 	Script::~Script()
 	{
+		SLB_DEBUG_CALL;
 		lua_close(L);
 		L = 0;
 	}
 
 	void Script::doFile(const std::string &filename)
 	{
+		SLB_DEBUG_CALL;
+		SLB_DEBUG(10, "filename %s = ", filename.c_str());
 		if ( luaL_dofile(L, filename.c_str()) )
 		{
 			throw std::runtime_error( lua_tostring(L,-1) );
@@ -50,6 +56,8 @@ namespace SLB {
 
 	void Script::doString(const std::string &o_code, const std::string &hint)
 	{
+		SLB_DEBUG_CALL;
+		SLB_DEBUG(10, "code = %10s, hint = %s", o_code.c_str(), hint.c_str()); 
 		std::stringstream code;
 		code << "--" << hint << std::endl << o_code;
 

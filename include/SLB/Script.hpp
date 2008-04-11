@@ -33,7 +33,7 @@ namespace SLB {
 	{	
 	public:
 		Script(bool loadDefaultLibs = true);
-		~Script();
+		virtual ~Script();
 		void doFile(const std::string &filename);
 		void doString(const std::string &codeChunk, const std::string &where_hint ="[SLB]");
 

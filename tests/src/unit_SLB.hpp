@@ -17,6 +17,13 @@ private:
 
 };
 
-} // end of unit 001
+class SFH : public SLB::StatefulHybrid<SFH>
+{
+public:
+	SFH();
+	~SFH();
+};
+
+} // end of unit SLB
 
 #endif
