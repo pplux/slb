@@ -59,6 +59,9 @@ namespace SLB {
 		/** Indicates where this instance will look for its hybrid methods; */
 		void attach(lua_State *);
 		bool isAttached() const { return (_L != 0); }
+		/** use this to release memory allocated by the hybrid object, inside
+		 * the lua_State */
+		void unAttach(); 
 
 		/** Use this function to register this class as hybrid, it will override
 		 * ClassInfo metamethods of class__index, class__newindex and object__index
