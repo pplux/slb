@@ -160,7 +160,7 @@ namespace SLB {
 	{
 		SLB_DEBUG_CALL;
 		clearMethodMap();
-		if (_L)
+		if (_L && _table_globals )
 		{
 			luaL_unref(_L, LUA_REGISTRYINDEX, _table_globals);
 			_L = 0;
