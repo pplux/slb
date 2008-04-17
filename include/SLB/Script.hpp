@@ -38,18 +38,21 @@ namespace SLB {
 		void doString(const std::string &codeChunk, const std::string &where_hint ="[SLB]");
 
 		template<class T>
-		void set(const std::string &name, T value) { SLB::setGlobal<T>(L, value, name.c_str()); }
+		void set(const std::string &name, T value)
+		{ SLB::setGlobal<T>(getState(), value, name.c_str());}
 
 		template<class T>
-		T get(const std::string&name) { return SLB::getGlobal<T>(L, name); }
+		T get(const std::string&name)
+		{ return SLB::getGlobal<T>(getState(), name); }
 
 	protected:
-		lua_State* getState() { return L; }
+		lua_State* getState();
+		void close(); // will close lua_state
 
 	private:
 		Script(const Script &s);
 		Script& operator=(const Script&);
-		lua_State *L;
+		lua_State *_L;
 		bool _loadDefaultLibs;
 	};
 

@@ -27,26 +27,45 @@
 
 namespace SLB {
 
-	Script::Script(bool default_libs) : L(0), _loadDefaultLibs(default_libs)
+	Script::Script(bool default_libs) : _L(0), _loadDefaultLibs(default_libs)
 	{
 		SLB_DEBUG_CALL;
-		SLB_DEBUG(10, "Open default libs = %s", _loadDefaultLibs ? " true": " false");
-		L = luaL_newstate();
-		assert("Can not create more lua_states" && (L != 0L));
-		if (_loadDefaultLibs) luaL_openlibs(L);
-		SLB::Manager::getInstance().registerSLB(L);
 	}
 
 	Script::~Script()
 	{
 		SLB_DEBUG_CALL;
-		lua_close(L);
-		L = 0;
+		close();
+	}
+	
+	lua_State* Script::getState()
+	{
+		SLB_DEBUG_CALL;
+		if (!_L)
+		{
+			SLB_DEBUG(10, "Open default libs = %s", _loadDefaultLibs ? " true": " false");
+			_L = luaL_newstate();
+			assert("Can not create more lua_states" && (_L != 0L));
+			if (_loadDefaultLibs) luaL_openlibs(_L);
+			SLB::Manager::getInstance().registerSLB(_L);
+		}
+		return _L;
+	}
+
+	void Script::close()
+	{
+		SLB_DEBUG_CALL;
+		if (_L)
+		{
+			lua_close(_L);
+			_L = 0;
+		}
 	}
 
 	void Script::doFile(const std::string &filename)
 	{
 		SLB_DEBUG_CALL;
+		lua_State *L = getState();
 		SLB_DEBUG(10, "filename %s = ", filename.c_str());
 		if ( luaL_dofile(L, filename.c_str()) )
 		{
@@ -57,6 +76,7 @@ namespace SLB {
 	void Script::doString(const std::string &o_code, const std::string &hint)
 	{
 		SLB_DEBUG_CALL;
+		lua_State *L = getState();
 		SLB_DEBUG(10, "code = %10s, hint = %s", o_code.c_str(), hint.c_str()); 
 		std::stringstream code;
 		code << "--" << hint << std::endl << o_code;
