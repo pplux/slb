@@ -47,7 +47,10 @@ namespace SLB {
 		lua_State* getState() { return L; }
 
 	private:
+		Script(const Script &s);
+		Script& operator=(const Script&);
 		lua_State *L;
+		bool _loadDefaultLibs;
 	};
 
 }

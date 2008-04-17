@@ -27,13 +27,13 @@
 
 namespace SLB {
 
-	Script::Script(bool default_libs) : L(0)
+	Script::Script(bool default_libs) : L(0), _loadDefaultLibs(default_libs)
 	{
 		SLB_DEBUG_CALL;
-		SLB_DEBUG(10, "Open default libs = %s", default_libs ? " true": " false");
+		SLB_DEBUG(10, "Open default libs = %s", _loadDefaultLibs ? " true": " false");
 		L = luaL_newstate();
 		assert("Can not create more lua_states" && (L != 0L));
-		if (default_libs) luaL_openlibs(L);
+		if (_loadDefaultLibs) luaL_openlibs(L);
 		SLB::Manager::getInstance().registerSLB(L);
 	}
 

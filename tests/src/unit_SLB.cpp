@@ -46,15 +46,6 @@ namespace Unit_SLB {
 		return 0;
 	}
 
-	SFH::SFH()
-	{
-		SLB_DEBUG_CALL;
-	}
-
-	SFH::~SFH()
-	{
-		SLB_DEBUG_CALL;
-	}
 
 	void wrapper()
 	{
@@ -66,11 +57,6 @@ namespace Unit_SLB {
 			.class__index( &Table::class__index )
 			.class__newindex( &Table::class__newindex )
 			.constructor()
-		;
-
-		SLB::Class< SFH >("Unit_SLB::SFH")
-			.constructor()
-			.set("doString", &SFH::doString)
 		;
 
 		SLB_DEBUG(1, "<-- Loading unit_SLB wrapper <--");
