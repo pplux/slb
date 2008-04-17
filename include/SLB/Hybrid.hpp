@@ -59,8 +59,15 @@ namespace SLB {
 		/** Indicates where this instance will look for its hybrid methods; */
 		void attach(lua_State *);
 		bool isAttached() const { return (_L != 0); }
+
 		/** use this to release memory allocated by the hybrid object, inside
-		 * the lua_State */
+		 * the lua_State.
+		 *
+		 * ************************* WARNING *********************************
+		 * Sometimes you need to manually call unAttach, for example
+		 * when push a self-reference using smart-pointers to avoid having a cyclic
+		 * dependency.
+		 * ************************* WARNING *********************************/
 		void unAttach(); 
 
 		/** Use this function to register this class as hybrid, it will override

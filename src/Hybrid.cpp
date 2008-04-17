@@ -191,11 +191,12 @@ namespace SLB {
 	{
 		SLB_DEBUG_CALL;
 		clearMethodMap();
+		_subclassMethods = 0;
 		if (_L && _global_environment )
 		{
 			luaL_unref(_L, LUA_REGISTRYINDEX, _global_environment);
-			_L = 0;
 			_global_environment = 0;
+			_L = 0;
 		}
 	}
 

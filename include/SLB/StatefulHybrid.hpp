@@ -34,8 +34,10 @@ namespace SLB {
 		public Hybrid< T >
 	{	
 	public:
-		StatefulHybrid(){ HybridBase::attach( S::getState() ); }
+		StatefulHybrid(){ reAttach(); }
 		virtual ~StatefulHybrid() { HybridBase::unAttach(); S::close(); }
+	protected:
+		void reAttach() { if (!HybridBase::isAttached()) HybridBase::attach( S::getState() ); }
 	};
 
 }
