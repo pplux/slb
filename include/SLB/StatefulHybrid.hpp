@@ -30,12 +30,12 @@ namespace SLB {
 	
 	template<class T, class S = SLB::Script>
 	class SLB_EXPORT StatefulHybrid :
-		public S, /* Requires to have a method "getState" */
+		public S, /* Requires to have a method "getState" and "close" */
 		public Hybrid< T >
 	{	
 	public:
 		StatefulHybrid(){ HybridBase::attach( S::getState() ); }
-		virtual ~StatefulHybrid() { HybridBase::unAttach(); }
+		virtual ~StatefulHybrid() { S::close(); HybridBase::unAttach(); }
 	};
 
 }

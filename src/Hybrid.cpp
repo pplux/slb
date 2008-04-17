@@ -74,8 +74,8 @@ namespace SLB {
 	}
 	/*--- Invalid Method (exception) ----------------------------------------------*/
 
-	/*--- HybridBase::AutoLock ----------------------------------------------------*/
-	HybridBase::AutoLock::AutoLock(const HybridBase *hconst) 
+	/*--- HybridBase::AutoLockAndClean ----------------------------------------------------*/
+	HybridBase::AutoLockAndClean::AutoLockAndClean(const HybridBase *hconst) 
 	{
 		SLB_DEBUG_CALL;
 		//TODO: Review this! (should be const?)
@@ -85,16 +85,18 @@ namespace SLB {
 		_hybrid->lockBegin( _hybrid->_L );
 	}
 
-	HybridBase::AutoLock::~AutoLock()
+	HybridBase::AutoLockAndClean::~AutoLockAndClean()
 	{
 		SLB_DEBUG_CALL;
 		SLB_DEBUG(6, "Unlock state %p to access hybrid method (%p)",
 			_hybrid->_L, (void*) _hybrid);
+		//clean
+		lua_gc( _hybrid->_L, LUA_GCCOLLECT, 0);
 		_hybrid->lockEnd( _hybrid->_L);
 	}
-	/*--- HybridBase::AutoLock ----------------------------------------------------*/
+	/*--- HybridBase::AutoLockAndClean -------------------------------------*/
 
-	/*--- Internal Hybrid Subclasses ----------------------------------------------*/
+	/*--- Internal Hybrid Subclasses ---------------------------------------*/
 	struct InternalHybridSubclass : public Table
 	{
 		InternalHybridSubclass(ClassInfo *ci) : _CI(ci)
@@ -151,7 +153,7 @@ namespace SLB {
 
 
 	HybridBase::HybridBase() : _L(0),
-		_table_globals(0)
+		_global_environment(0)
 	{
 		SLB_DEBUG_CALL;
 	}
@@ -165,31 +167,23 @@ namespace SLB {
 	void HybridBase::attach(lua_State *L)
 	{
 		SLB_DEBUG_CALL;
-		SLB_DEBUG_CLEAN_STACK(L,0);
 		//TODO allow reattaching...
 		if (_L) throw std::runtime_error("Trying to reattach an Hybrid instance");
 
 		if (L)
 		{
+			SLB_DEBUG_CLEAN_STACK(L,0);
 			_L = L;
 			lua_newtable(_L); // [+1]
-			// use "global" state as __index to access outside values like
-			// normal functions. And always try to reuse it to every instance.
-			lua_getfield(_L, LUA_REGISTRYINDEX, "__SLB_HYBRID_GLOBALS__"); // [+1]
-			if (lua_isnil(_L,-1))
-			{
-				SLB_DEBUG_CLEAN_STACK(L,0);
-				lua_pop(_L,1); // [-1] remove nil
-				lua_newtable(_L); // [+1] meta-table
-				lua_pushvalue(_L, LUA_GLOBALSINDEX); // [+1] globals _G
-				lua_setfield(_L, -2, "__index"); // [-1]
-				lua_pushvalue(_L,-1); // [+1] a copy for registry
-				lua_setfield(_L, LUA_REGISTRYINDEX, "__SLB_HYBRID_GLOBALS__"); // [-1]
-			}
+			//TODO this can be improved a little bit... by storing this metatable
+			//somewhere....
+			lua_newtable(_L); // [+1] metatable 
+			lua_pushvalue(_L, LUA_GLOBALSINDEX); // [+1] globals _G
+			lua_setfield(_L, -2, "__index"); // [-1] metatable.__index = _G
 			lua_setmetatable(L,-2); // [-1]
 			// done
 
-			_table_globals = luaL_ref(_L, LUA_REGISTRYINDEX); // [-1]
+			_global_environment = luaL_ref(_L, LUA_REGISTRYINDEX); // [-1]
 		}
 	}
 
@@ -197,11 +191,11 @@ namespace SLB {
 	{
 		SLB_DEBUG_CALL;
 		clearMethodMap();
-		if (_L && _table_globals )
+		if (_L && _global_environment )
 		{
-			luaL_unref(_L, LUA_REGISTRYINDEX, _table_globals);
+			luaL_unref(_L, LUA_REGISTRYINDEX, _global_environment);
 			_L = 0;
-			_table_globals = 0;
+			_global_environment = 0;
 		}
 	}
 
@@ -360,7 +354,7 @@ namespace SLB {
 		// get the real function to call
 		lua_pushvalue(L, lua_upvalueindex(1));
 		// get the environment (from object) and set it
-		lua_rawgeti(L, LUA_REGISTRYINDEX, hb->_table_globals);
+		lua_rawgeti(L, LUA_REGISTRYINDEX, hb->_global_environment);
 		lua_setfenv(L,-2);
 		lua_insert(L,1); //put the target function at 1
 		SLB_DEBUG_STACK(10, L, "Hybrid(%p)::call_lua_method ...", hb);

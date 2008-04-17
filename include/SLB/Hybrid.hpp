@@ -101,7 +101,7 @@ namespace SLB {
 
 	private:
 		lua_State * _L;
-		int _table_globals;
+		int _global_environment;
 
 		// pops a key,value from tom and sets as our method
 		// [-2,0]
@@ -114,11 +114,13 @@ namespace SLB {
 
 		// This class helps to handle the lockBegin, lockEnd. Using methods
 		// directly will require to split LCall to handle return of void or not.
-		// (this is a little trick)
-		struct AutoLock
+		// (this is a little trick). Also this class issues a garbage collect
+		// operation, that's the only way to keep clean objects like smart
+		// pointers and so on.
+		struct AutoLockAndClean
 		{
-			AutoLock(const HybridBase *hconst);
-			~AutoLock();
+			AutoLockAndClean(const HybridBase *hconst);
+			~AutoLockAndClean();
 			HybridBase* _hybrid;
 		};
 
@@ -154,7 +156,7 @@ namespace SLB {
 	#define SLB_ARG(N) , arg_##N
 	#define SLB_BODY(N) \
 			\
-			AutoLock __dummy__lock(this); \
+			AutoLockAndClean __dummy__lock(this); \
 			LC *method = 0; \
 			SLB_DEBUG(3,"Call Hybrid-method [%s]", name)\
 			lua_State *L = getLuaState(); \
