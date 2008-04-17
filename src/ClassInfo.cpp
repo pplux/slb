@@ -253,7 +253,7 @@ namespace SLB {
 				//suppose that this state will hold the Object..
 				HybridBase *hb = SLB::get<HybridBase*>(L,top);
 				if (!hb) assert("Invalid push of hybrid object" && false);
-				hb->attach(L);
+				if (!hb->isAttached()) hb->attach(L);
 				// check... just in case
 				assert("Invalid lua stack..." && (top == lua_gettop(L)));
 			}
