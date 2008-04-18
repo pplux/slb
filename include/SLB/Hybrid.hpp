@@ -61,13 +61,7 @@ namespace SLB {
 		bool isAttached() const { return (_L != 0); }
 
 		/** use this to release memory allocated by the hybrid object, inside
-		 * the lua_State.
-		 *
-		 * ************************* WARNING *********************************
-		 * Sometimes you need to manually call unAttach, for example
-		 * when push a self-reference using smart-pointers to avoid having a cyclic
-		 * dependency.
-		 * ************************* WARNING *********************************/
+		 * the lua_State.*/
 		void unAttach(); 
 
 		/** Use this function to register this class as hybrid, it will override
@@ -124,10 +118,10 @@ namespace SLB {
 		// (this is a little trick). Also this class issues a garbage collect
 		// operation, that's the only way to keep clean objects like smart
 		// pointers and so on.
-		struct AutoLockAndClean
+		struct AutoLock
 		{
-			AutoLockAndClean(const HybridBase *hconst);
-			~AutoLockAndClean();
+			AutoLock(const HybridBase *hconst);
+			~AutoLock();
 			HybridBase* _hybrid;
 		};
 
@@ -163,7 +157,7 @@ namespace SLB {
 	#define SLB_ARG(N) , arg_##N
 	#define SLB_BODY(N) \
 			\
-			AutoLockAndClean __dummy__lock(this); \
+			AutoLock __dummy__lock(this); \
 			LC *method = 0; \
 			SLB_DEBUG(3,"Call Hybrid-method [%s]", name)\
 			lua_State *L = getLuaState(); \

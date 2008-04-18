@@ -37,6 +37,14 @@ namespace SLB {
 		void doFile(const std::string &filename);
 		void doString(const std::string &codeChunk, const std::string &where_hint ="[SLB]");
 
+		 /* ************************* WARNING *********************************
+		  * Sometines you need to manually call Garbage Collector(GC), to be sure
+		  * that all objects are destroyed. This is mandatory when using smartPointers
+		  * be very carefull. GC operations are really expensive, avoid calling GC
+		  * too frequently.
+		  * ************************* WARNING *********************************/
+		void callGC();
+
 		template<class T>
 		void set(const std::string &name, T value)
 		{ SLB::setGlobal<T>(getState(), value, name.c_str());}
