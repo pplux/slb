@@ -239,19 +239,6 @@ namespace SLB {
 		lua_settop(L,top);
 	}
 	
-	Manager *Manager::getInstancePtr()
-	{
-		//too noisy: SLB_DEBUG_CALL;
-		static bool _atexit = false;
-		if (_atexit == false)
-		{
-			_atexit = true;
-			atexit(Manager::reset);
-		}
-		if (_singleton == 0) _singleton = new Manager();
-		return _singleton;
-	}
-
 	void Manager::reset()
 	{
 		SLB_DEBUG_CALL;
