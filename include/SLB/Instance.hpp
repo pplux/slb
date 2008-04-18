@@ -42,11 +42,16 @@ namespace SLB {
 			I_Const_Pointer   = 0x08,
 		};
 
+		// functions to override:
 		virtual void* get_ptr() = 0;
 		virtual const void* get_const_ptr() = 0;
+		// this functions tells ClassInfo to keep a copy of the object
+		// as cache. Turn it off on smart pointers, and that kind of
+		// classes to avoid cyclic dependencies.
+		virtual bool keepCopyAsCache() const { return true; }
 
+		// constructor:
 		InstanceBase( Type , const std::type_info &);
-		virtual ~InstanceBase();
 
 		ClassInfo *getClass() { return _class.get(); }
 
@@ -54,6 +59,7 @@ namespace SLB {
 		bool isConst() const     { return (_flags & I_Const_Pointer) != 0; }
 		bool isPointer() const   { return (_flags & I_Pointer) || (_flags & I_Const_Pointer); }
 		bool isReference() const { return (_flags & I_Reference) != 0; }
+		virtual ~InstanceBase();
 
 	protected:
 		int _flags;
@@ -213,6 +219,8 @@ namespace SLB {
 
 				void* get_ptr() { return &(*_sm_ptr); }
 				const void* get_const_ptr() { return _const_ptr; }
+				bool keepCopyAsCache() const { return false; }
+
 			protected:
 				T_SmartPtr<T> _sm_ptr;
 				const T *_const_ptr;
@@ -248,6 +256,8 @@ namespace SLB {
 
 				void* get_ptr() { return &(*_sm_ptr); }
 				const void* get_const_ptr() { return _const_ptr; }
+				bool keepCopyAsCache() const { return false; }
+
 			protected:
 				T_SmartPtr<T> _sm_ptr;
 				const T *_const_ptr;

@@ -139,10 +139,13 @@ namespace SLB {
 		lua_setmetatable(L, top+1);
 
 		// keep a copy
-		lua_getfield(L, top+2, "__objects");
-		lua_pushlightuserdata(L, const_cast<void*>(instance->get_const_ptr()) );
-		lua_pushvalue(L,top+1);
-		lua_rawset(L, -3);
+		if (instance->keepCopyAsCache())
+		{
+			lua_getfield(L, top+2, "__objects");
+			lua_pushlightuserdata(L, const_cast<void*>(instance->get_const_ptr()) );
+			lua_pushvalue(L,top+1);
+			lua_rawset(L, -3);
+		}
 
 		lua_settop(L, top+1);
 
