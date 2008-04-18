@@ -62,6 +62,15 @@ namespace SLB {
 		}
 	}
 
+	void Script::callGC()
+	{
+		SLB_DEBUG_CALL;
+		if (_L)
+		{
+			lua_gc(_L, LUA_GCCOLLECT, 0);
+		}
+	}
+
 	void Script::doFile(const std::string &filename)
 	{
 		SLB_DEBUG_CALL;

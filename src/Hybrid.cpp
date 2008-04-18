@@ -74,8 +74,8 @@ namespace SLB {
 	}
 	/*--- Invalid Method (exception) ----------------------------------------------*/
 
-	/*--- HybridBase::AutoLockAndClean ----------------------------------------------------*/
-	HybridBase::AutoLockAndClean::AutoLockAndClean(const HybridBase *hconst) 
+	/*--- HybridBase::AutoLock ----------------------------------------------------*/
+	HybridBase::AutoLock::AutoLock(const HybridBase *hconst) 
 	{
 		SLB_DEBUG_CALL;
 		//TODO: Review this! (should be const?)
@@ -85,16 +85,14 @@ namespace SLB {
 		_hybrid->lockBegin( _hybrid->_L );
 	}
 
-	HybridBase::AutoLockAndClean::~AutoLockAndClean()
+	HybridBase::AutoLock::~AutoLock()
 	{
 		SLB_DEBUG_CALL;
 		SLB_DEBUG(6, "Unlock state %p to access hybrid method (%p)",
 			_hybrid->_L, (void*) _hybrid);
-		//clean
-		lua_gc( _hybrid->_L, LUA_GCCOLLECT, 0);
 		_hybrid->lockEnd( _hybrid->_L);
 	}
-	/*--- HybridBase::AutoLockAndClean -------------------------------------*/
+	/*--- HybridBase::AutoLock -------------------------------------*/
 
 	/*--- Internal Hybrid Subclasses ---------------------------------------*/
 	struct InternalHybridSubclass : public Table
