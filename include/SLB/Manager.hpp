@@ -156,6 +156,17 @@ namespace SLB {
 	{
 		return const_cast<void*>(convert(C1,C2, const_cast<void*>(obj)));
 	}
+	
+	inline Manager *Manager::getInstancePtr()
+	{
+		if (_singleton == 0)
+		{
+			_singleton = new Manager();
+			atexit(Manager::reset);
+		}
+		return _singleton;
+	}
+
 }
 
 #endif
