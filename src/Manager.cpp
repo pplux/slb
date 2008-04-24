@@ -255,6 +255,7 @@ namespace SLB {
 	const ClassInfo *Manager::getClass(const std::type_info &ti) const
 	{
 		SLB_DEBUG_CALL;
+		assert("Invalid type_info" && (&ti) );
 		ClassMap::const_iterator i = _classes.find(&ti);
 		if ( i != _classes.end() ) return i->second.get();
 		return 0;
@@ -298,6 +299,7 @@ namespace SLB {
 	ClassInfo *Manager::getClass(const std::type_info &ti)
 	{
 		SLB_DEBUG_CALL;
+		assert("Invalid type_info" && (&ti) );
 		ClassMap::iterator i = _classes.find(&ti);
 		if ( i != _classes.end() ) return i->second.get();
 		return 0;
@@ -307,6 +309,7 @@ namespace SLB {
 	ClassInfo *Manager::getOrCreateClass(const std::type_info &ti)
 	{
 		SLB_DEBUG_CALL;
+		assert("Invalid type_info" && (&ti) );
 		ClassInfo *c = 0;
 		ClassMap::iterator i = _classes.find(&ti);
 		if ( i != _classes.end() )
