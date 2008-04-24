@@ -49,6 +49,7 @@ namespace SLB {
 	{
 		SLB_DEBUG_CALL;
 		FuncCall *fc = (FuncCall*) lua_touserdata(L,lua_upvalueindex(1));
+		assert("Invalid FuncCall" && fc);
 		return fc->call(L);
 	}
 	
