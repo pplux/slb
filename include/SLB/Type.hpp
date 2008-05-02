@@ -452,6 +452,8 @@ namespace Private {
 		}
 	};
 
+#ifndef __APPLE__	
+	/* unsigned long == size_t */
 	template<>
 	struct Type<unsigned long>
 	{
@@ -498,6 +500,8 @@ namespace Private {
 			return Type<unsigned long>::check(L,pos);
 		}
 	};
+
+#endif
 	
 	// Type specialization for <bool>
 	template<>
