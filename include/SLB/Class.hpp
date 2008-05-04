@@ -202,13 +202,13 @@ namespace SLB {
 		__Self &__mult()
 		{ SLB_DEBUG_CALL; SLB_DEBUG(0, "NOT IMPLEMENTED!"); return *this; }
 
-		template<typename T_Iterator>
-		__Self &iterator(const char *name, T_Iterator (T::*first)(), T_Iterator (T::*end)() )
-		{ return rawSet(name, new Iterator( new StdIterator< StdIteratorTraits<T, T_Iterator> >(first, end ) ) ); }
+		template<typename C, typename T_Iterator>
+		__Self &iterator(const char *name, T_Iterator (C::*first)(), T_Iterator (C::*end)() )
+		{ return rawSet(name, new Iterator( new StdIterator< StdIteratorTraits<C, T_Iterator> >(first, end ) ) ); }
 
-		template<typename T_Iterator>
-		__Self &const_iterator(const char *name, T_Iterator (T::*first)() const, T_Iterator (T::*end)() const )
-		{ return rawSet(name, new Iterator( new StdIterator< StdConstIteratorTraits<T, T_Iterator> >(first, end ) ) ); }
+		template<typename C, typename T_Iterator>
+		__Self &const_iterator(const char *name, T_Iterator (C::*first)() const, T_Iterator (C::*end)() const )
+		{ return rawSet(name, new Iterator( new StdIterator< StdConstIteratorTraits<C, T_Iterator> >(first, end ) ) ); }
 
 		// Metada
 		__Self &comment(const std::string&);

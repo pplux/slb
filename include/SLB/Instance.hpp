@@ -263,6 +263,39 @@ namespace SLB {
 				const T *_const_ptr;
 			};
 		};
+
+		struct Enum
+		{
+			template<class T>
+			class Implementation : public virtual InstanceBase
+			{
+			public:
+				Implementation( T* ptr, bool fromConstructor = false ) : InstanceBase( I_Pointer, typeid(T) ), _value(*ptr)
+				{
+				}
+				// constructor from const pointer
+				Implementation( const T *ptr ) : InstanceBase( I_Const_Pointer, typeid(T)), _value(*ptr)
+				{
+				}
+
+				// constructor from reference
+				Implementation( T &ref ) : InstanceBase( I_Reference, typeid(T) ), _value(ref)
+				{
+				}
+
+				// copy constructor,  
+				Implementation( const T &ref) : InstanceBase( I_Invalid, typeid(T) ), _value(ref)
+				{
+				}
+
+				virtual ~Implementation() {}
+
+				void* get_ptr() { return &_value; }
+				const void* get_const_ptr() { return &_value; }
+			protected:
+				int _value;
+			};
+		};
 	
 	} // end of Instance namespace
 
