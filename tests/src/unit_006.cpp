@@ -22,12 +22,9 @@ namespace Unit_006 {
 			.set("set", &Test::set)
 			.set("get", &Test::get)
 			.set("equal", &Test::equal)
-		;
-
-		SLB::Class< Test::Enum >("Unit_006::Test::Enum")
-			.set("A", Test::A)
-			.set("B", Test::B)
-			.set("C", Test::C)
+			.enumValue("Enum::A", Test::A)
+			.enumValue("Enum::B", Test::B)
+			.enumValue("Enum::C", Test::C)
 		;
 
 		SLB_DEBUG(1, "<-- Loading unit_006 wrapper <--");

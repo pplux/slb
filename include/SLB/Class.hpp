@@ -61,7 +61,7 @@ namespace SLB {
 		{ return rawSet(name, (Object*) Value::copy(obj)); }
 
 		template<typename TValue>
-		__Self &set_ref(const char *name, TValue obj)
+		__Self &set_ref(const char *name, TValue& obj)
 		{ return rawSet(name, Value::ref(obj)); }
 
 		template<typename TValue>
@@ -70,6 +70,9 @@ namespace SLB {
 
 		__Self &set(const char *name, lua_CFunction func)
 		{ return rawSet(name, FuncCall::create(func)); }
+
+		template<typename TEnum>
+		__Self &enumValue(const char *name, TEnum obj);
 
 		__Self &constructor();
 
@@ -87,6 +90,7 @@ namespace SLB {
 		template<typename TBase>
 		__Self &inherits()
 		{ _class->inheritsFrom<T,TBase>(); return *this;}
+
 
 		/* Class__index for (non-const)methods */
 		template<class C, class R, class P>
@@ -285,6 +289,23 @@ namespace SLB {
 	{
 		_class->setConstructor( FuncCall::classConstructor<T>() );
 		return *this;
+	}
+
+	template<typename T, typename W>
+	template<typename TEnum>
+	inline Class<T,W> &Class<T,W>::enumValue(const char *name, TEnum obj)
+	{
+		// "fake" Declaration of TEnum...
+		ClassInfo *c = Manager::getInstance().getOrCreateClass( typeid(TEnum) );
+		if (!c->initialized())
+		{
+			// if it is not initialized then add a simple adapter for 
+			// references.
+			c->setInstanceFactory( new InstanceFactoryAdapter< TEnum,
+				SLB::Instance::Default::Implementation<TEnum> >() );
+		}
+		// push a reference
+		return rawSet(name, Value::copy(obj));
 	}
 
 	template<typename T,  typename W>

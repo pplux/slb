@@ -57,7 +57,9 @@ namespace Private {
 		{
 			SLB_DEBUG_CALL; 
 			SLB_DEBUG(8,"Get<T=%s>(L=%p, pos = %i)", typeid(T).name(), L, pos);
-			return *( reinterpret_cast<T*>( getClass(L)->get_ptr(L, pos) ));
+			T* obj = reinterpret_cast<T*>( getClass(L)->get_ptr(L, pos) );	
+			SLB_DEBUG(9,"obj = %p", obj);
+			return *obj;
 		}
 
 		static bool check(lua_State *L, int pos)
