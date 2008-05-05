@@ -9,6 +9,9 @@ namespace Unit_006 {
 	void Test::set(Test::Enum v) { _value = v; }
 	Test::Enum Test::get() const { return _value; }
 	bool Test::equal(Test::Enum v) const { return v == _value; }
+	bool Test::isA() const { return _value == A; }
+	bool Test::isB() const { return _value == B; }
+	bool Test::isC() const { return _value == C; }
 
 
 
@@ -22,6 +25,9 @@ namespace Unit_006 {
 			.set("set", &Test::set)
 			.set("get", &Test::get)
 			.set("equal", &Test::equal)
+			.set("isA", &Test::isA)
+			.set("isB", &Test::isB)
+			.set("isC", &Test::isC)
 			.enumValue("Enum::A", Test::A)
 			.enumValue("Enum::B", Test::B)
 			.enumValue("Enum::C", Test::C)

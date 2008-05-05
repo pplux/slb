@@ -19,6 +19,9 @@ namespace Unit_006 {
 		void set(Enum e);
 		Enum get() const;
 		bool equal(Enum e) const;
+		bool isA() const;
+		bool isB() const;
+		bool isC() const;
 	private:
 		Enum _value;
 	};
