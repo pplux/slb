@@ -30,7 +30,6 @@
 #include "Table.hpp"
 #include "Value.hpp"
 #include "Class.hpp"
-#include "Enum.hpp"
 #include "Hybrid.hpp"
 #include "StatefulHybrid.hpp"
 #include "Script.hpp"
