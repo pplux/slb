@@ -206,13 +206,32 @@ namespace SLB {
 		__Self &__mult()
 		{ SLB_DEBUG_CALL; SLB_DEBUG(0, "NOT IMPLEMENTED!"); return *this; }
 
-		template<typename C, typename T_Iterator>
-		__Self &iterator(const char *name, T_Iterator (C::*first)(), T_Iterator (C::*end)() )
-		{ return rawSet(name, new Iterator( new StdIterator< StdIteratorTraits<C, T_Iterator> >(first, end ) ) ); }
+		template<class IT> /* IT == Iterator Traits */
+		__Self &customIterator(	const char *name,
+			typename IT::GetIteratorMember first,
+			typename IT::GetIteratorMember end )
+		{
+			return rawSet(name,
+				new Iterator( new StdIterator< IT >(first, end ) ) );
+		}
 
 		template<typename C, typename T_Iterator>
-		__Self &const_iterator(const char *name, T_Iterator (C::*first)() const, T_Iterator (C::*end)() const )
-		{ return rawSet(name, new Iterator( new StdIterator< StdConstIteratorTraits<C, T_Iterator> >(first, end ) ) ); }
+		__Self &iterator(const char *name,
+				T_Iterator (C::*first)(),
+				T_Iterator (C::*end)() )
+		{
+			return customIterator< StdIteratorTraits<C, T_Iterator> >
+				(name,first, end ) ;
+		}
+
+		template<typename C, typename T_Iterator>
+		__Self &const_iterator(const char *name,
+				T_Iterator (C::*first)() const,
+				T_Iterator (C::*end)() const )
+		{
+			return customIterator< StdConstIteratorTraits<C, T_Iterator> >
+				(name,first, end ) ;
+		}
 
 		// Metada
 		__Self &comment(const std::string&);
