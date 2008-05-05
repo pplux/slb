@@ -62,6 +62,8 @@ namespace SLB
 		typedef T Container;
 		typedef T_iterator Iterator;
 		typedef Iterator (Container::*GetIteratorMember)();
+		//How unref iterators:
+		static typename Iterator::value_type unref(Iterator& i) { return *i; }
 	};
 
 	template<class T, class T_iterator>
@@ -70,6 +72,9 @@ namespace SLB
 		typedef T Container;
 		typedef T_iterator Iterator;
 		typedef Iterator (Container::*GetIteratorMember)() const;
+
+		//How unref iterators:
+		static const typename Iterator::value_type unref(const Iterator& i) { return *i; }
 	};
 
 	template<typename Traits>
@@ -104,6 +109,7 @@ namespace SLB
 	template<class T>
 	inline int StdIterator<T>::push(lua_State *L)
 	{
+		SLB_DEBUG_CALL
 		Container* container = SLB::get<Container*>(L,1);
 		lua_pushcclosure(L, StdIterator<T>::next, 0);
 		Iterator *d = reinterpret_cast<Iterator*>(lua_newuserdata(L, sizeof(Iterator)*2));
@@ -115,11 +121,12 @@ namespace SLB
 	template<class T>
 	inline int StdIterator<T>::next(lua_State *L)
 	{
+		SLB_DEBUG_CALL
 		Iterator *d = reinterpret_cast<Iterator*>(lua_touserdata(L,1));
 		
 		if ( d[0] != d[1] )
 		{
-			SLB::push(L, *(d[0]) );
+			SLB::push(L, T::unref(d[0]) );
 			d[0]++; // inc iterator
 		}
 		else
