@@ -91,6 +91,10 @@ namespace SLB {
 		__Self &inherits()
 		{ _class->inheritsFrom<T,TBase>(); return *this;}
 
+		template<typename TBase>
+		__Self &static_inherits()
+		{ _class->staticInheritsFrom<T,TBase>(); return *this;}
+
 
 		/* Class__index for (non-const)methods */
 		template<class C, class R, class P>
@@ -374,11 +378,13 @@ namespace SLB {
 		template<typename T, typename W>\
 		template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 		inline Class<T,W> &Class<T,W>::set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) ){ \
+			if (typeid(T) != typeid(C)) static_inherits<C>();\
 			return rawSet(name, FuncCall::create(func)); \
 		} \
 		template<typename T, typename W>\
 		template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 		inline Class<T,W> &Class<T,W>::nonconst_set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) ){ \
+			if (typeid(T) != typeid(C)) static_inherits<C>();\
 			return rawSet(name, FuncCall::create(func)); \
 		} \
 	\
@@ -386,11 +392,13 @@ namespace SLB {
 		template<typename T, typename W>\
 		template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 		inline Class<T,W> &Class<T,W>::set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) const ){ \
+			if (typeid(T) != typeid(C)) static_inherits<C>();\
 			return rawSet(name, FuncCall::create(func)); \
 		} \
 		template<typename T, typename W>\
 		template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 		inline Class<T,W> &Class<T,W>::const_set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) const ){ \
+			if (typeid(T) != typeid(C)) static_inherits<C>();\
 			return rawSet(name, FuncCall::create(func)); \
 		} \
 	\

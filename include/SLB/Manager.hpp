@@ -76,6 +76,8 @@ namespace SLB {
 		void addClass( ClassInfo *c );
 		template<class Derived, class Base>
 		void addConversor();
+		template<class Derived, class Base>
+		void addStaticConversor();
 
 		/** Returns the classMap with all defined classes */
 		ClassMap& getClasses() { return _classes; }
@@ -110,12 +112,21 @@ namespace SLB {
 			B* base = derived;
 			return (void*) base;
 		}
+		
 		static void* convertToDerived(void *raw_b)
 		{
 			B* base = reinterpret_cast<B*>(raw_b);
 			D* derived = dynamic_cast<D*>(base);
 			return (void*) derived;
 		}
+
+		static void* staticConvertToDerived(void *raw_b)
+		{
+			B* base = reinterpret_cast<B*>(raw_b);
+			D* derived = static_cast<D*>(base);
+			return (void*) derived;
+		}
+		
 	};
 	
 	inline Manager &Manager::getInstance()
@@ -128,6 +139,13 @@ namespace SLB {
 	{
 		_conversions[ ConversionsMap::key_type(&typeid(D), &typeid(B)) ] = &ClassConversor<D,B>::convertToBase;
 		_conversions[ ConversionsMap::key_type(&typeid(B), &typeid(D)) ] = &ClassConversor<D,B>::convertToDerived;
+	}
+
+	template<class D, class B>
+	inline void Manager::addStaticConversor()
+	{
+		_conversions[ ConversionsMap::key_type(&typeid(D), &typeid(B)) ] = &ClassConversor<D,B>::convertToBase;
+		_conversions[ ConversionsMap::key_type(&typeid(B), &typeid(D)) ] = &ClassConversor<D,B>::staticConvertToDerived;
 	}
 
 	inline void* Manager::convert( const std::type_info *C1, const std::type_info *C2, void *obj)
