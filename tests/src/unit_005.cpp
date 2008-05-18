@@ -18,6 +18,7 @@ namespace Unit_005 {
 		SLB_DEBUG(1, "--> Loading unit_005 wrapper -->");
 		
 		SLB::Class< SFH, SLB::Instance::NoCopy >("Unit_005::SFH")
+			.inherits<SLB::Script>()
 			.constructor()
 			.set("doString", &SFH::doString)
 			.set("calc", &SFH::calc)
