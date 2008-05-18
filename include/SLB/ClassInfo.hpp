@@ -63,8 +63,14 @@ namespace SLB {
 		void* get_ptr(lua_State*, int pos) const;
 		const void* get_const_ptr(lua_State*, int pos) const;
 
+		// Uses dynamic_cast to convert from Base to Derived
 		template<class This, class Base>
 		void inheritsFrom();
+
+		// This version uses static cast instead of dynamic_cast
+		template<class This, class Base>
+		void staticInheritsFrom();
+
 
 		void setConstructor( FuncCall *constructor );
 		void setInstanceFactory( InstanceFactory *);
@@ -142,6 +148,13 @@ namespace SLB {
 	inline void ClassInfo::inheritsFrom()
 	{
 		Manager::getInstance().template addConversor<D,B>();
+		_baseClasses[ &typeid(B) ] = Manager::getInstance().getOrCreateClass(typeid(B));
+	}
+
+	template<class D, class B>
+	inline void ClassInfo::staticInheritsFrom()
+	{
+		Manager::getInstance().template addStaticConversor<D,B>();
 		_baseClasses[ &typeid(B) ] = Manager::getInstance().getOrCreateClass(typeid(B));
 	}
 
