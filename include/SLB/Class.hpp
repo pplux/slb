@@ -253,7 +253,7 @@ namespace SLB {
 			template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 			__Self &set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) const ); \
 			template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-			__Self &const_set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) const ); \
+			__Self &const_set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) const); \
 		\
 			/* C-functions  */ \
 			template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \

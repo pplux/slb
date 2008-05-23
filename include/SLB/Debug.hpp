@@ -43,12 +43,15 @@
 	
 #if SLB_DEBUG_LEVEL != 0
 	#include<SLB/SPP.hpp>
-	extern int __SLB_DEBUG_LEVEL_TAB__;
+	#include<SLB/Export.hpp>
+
+	extern SLB_EXPORT int SLB_DEBUG_LEVEL_TAB;
+
 	inline void __SLB_ADJUST__(bool terminator = true)
 	{
-		if (__SLB_DEBUG_LEVEL_TAB__)
+		if (SLB_DEBUG_LEVEL_TAB)
 		{
-			for(int i = 0; i < __SLB_DEBUG_LEVEL_TAB__-1; ++i) SLB_DEBUG_FUNC("| ");
+			for(int i = 0; i < SLB_DEBUG_LEVEL_TAB-1; ++i) SLB_DEBUG_FUNC("| ");
 			if (terminator) SLB_DEBUG_FUNC("|_");
 		}
 	}
@@ -86,8 +89,8 @@
 
 		#include<sstream>
 		#include<stdexcept>
-		struct lua_State;
-		extern "C" int lua_gettop(struct lua_State*);
+		#include "lua.hpp"
+	
 		struct __SLB__cleanstack
 		{
 			__SLB__cleanstack(struct lua_State *L, int delta, const char *where, int line)
@@ -126,7 +129,7 @@
 				file = file + offset;
 				__SLB_ADJUST__();
 				SLB_DEBUG_FUNC("SLB >>> [%12s:%-4d] %s\n", file, line, name);
-				__SLB_DEBUG_LEVEL_TAB__++;
+				SLB_DEBUG_LEVEL_TAB++;
 			}
 
 			~__SLB__debugcall()
@@ -135,7 +138,7 @@
 				SLB_DEBUG_FUNC("SLB <<< [%12s:%-4d] %s\n", file, line, name);
 				__SLB_ADJUST__(false);
 				SLB_DEBUG_FUNC("\n");
-				__SLB_DEBUG_LEVEL_TAB__--;
+				SLB_DEBUG_LEVEL_TAB--;
 			}
 
 			void operator()(void) const {}

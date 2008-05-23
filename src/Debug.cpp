@@ -20,4 +20,6 @@
 	pplux@pplux.com
 */
 
-int __SLB_DEBUG_LEVEL_TAB__ = 0;
+#include <SLB/Debug.hpp>
+
+int SLB_DEBUG_LEVEL_TAB = 0;
