@@ -33,10 +33,11 @@ namespace Unit_001 {
 			.constructor()
 			.set("push_back", &Vector::push_back)
 #ifdef WIN32
-			.set("get", (Vector::const_reference (Vector::*)(Vector::size_type))  &Vector::operator[] )
-			.const_set("get_const",  (Vector::const_reference (Vector::*)(Vector::size_type) const) &Vector::operator[] )
-			.iterator<Vector::iterator>("iterator", &Vector::begin, &Vector::end )
-			.const_iterator<Vector::const_iterator>("const_iterator", &Vector::begin, &Vector::end )
+			.set("get", &Vector::operator[] )
+// Windows 2008 needs complete specification... :(
+//			.const_set("get_const",   &Vector::operator[] )
+//			.iterator<Vector::iterator>("iterator", &Vector::begin, &Vector::end )
+//			.const_iterator<Vector::const_iterator>("const_iterator", &Vector::begin, &Vector::end )
 		;
 #else
 			.nonconst_set("get",  &Vector::operator[] )

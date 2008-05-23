@@ -96,8 +96,8 @@ namespace SLB {
 		mutable MethodMap _methods;
 		mutable ref_ptr<Table> _subclassMethods;
 
-		friend class InternalHybridSubclass;
-		friend class InvalidMethod;
+		friend struct InternalHybridSubclass;
+		friend struct InvalidMethod;
 		//-- Private data -----------------------------------------------------
 
 	private:
@@ -113,12 +113,13 @@ namespace SLB {
 		static int class__index(lua_State *);
 		static int object__index(lua_State *);
 
+	public:
 		// This class helps to handle the lockBegin, lockEnd. Using methods
 		// directly will require to split LCall to handle return of void or not.
 		// (this is a little trick). Also this class issues a garbage collect
 		// operation, that's the only way to keep clean objects like smart
 		// pointers and so on.
-		struct AutoLock
+		struct SLB_EXPORT AutoLock
 		{
 			AutoLock(const HybridBase *hconst);
 			~AutoLock();
