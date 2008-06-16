@@ -28,6 +28,7 @@ namespace Unit_001 {
 		;
 		
 		typedef std::vector<Element> Vector;
+		typedef std::vector<int> iVector;
 
 		SLB::Class< Vector >("Unit_001::Vector")
 			.constructor()
@@ -44,6 +45,24 @@ namespace Unit_001 {
 			.const_set("get_const",  &Vector::operator[] )
 			.iterator("iterator", &Vector::begin, &Vector::end )
 			.const_iterator("const_iterator", &Vector::begin, &Vector::end )
+		;
+#endif
+
+		SLB::Class< iVector >("Unit_001::iVector")
+			.constructor()
+			.set("push_back", &iVector::push_back)
+#ifdef WIN32
+			.set("get", &iVector::operator[] )
+// Windows 2008 needs complete specification... :(
+//			.const_set("get_const",   &iVector::operator[] )
+//			.iterator<iVector::iterator>("iterator", &iVector::begin, &iVector::end )
+//			.const_iterator<iVector::const_iterator>("const_iterator", &iVector::begin, &iVector::end )
+		;
+#else
+			.nonconst_set("get",  &iVector::operator[] )
+			.const_set("get_const",  &iVector::operator[] )
+			.iterator("iterator", &iVector::begin, &iVector::end )
+			.const_iterator("const_iterator", &iVector::begin, &iVector::end )
 		;
 #endif
 
