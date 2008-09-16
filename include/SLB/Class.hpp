@@ -44,9 +44,15 @@
 struct lua_State;
 
 namespace SLB {
+	
+	struct ClassBase
+	{
+		ClassBase() {}
+		virtual ~ClassBase() {}
+	};
 
 	template< typename T, typename W = Instance::Default >
-	class Class {
+	class Class : public ClassBase {
 	public:
 		typedef Class<T,W> __Self;
 
