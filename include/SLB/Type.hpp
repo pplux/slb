@@ -359,6 +359,28 @@ namespace Private {
 		}
 	};
 
+	template<>
+	struct Type<const int&>
+	{
+		static void push(lua_State *L, const int &v)
+		{
+			SLB_DEBUG_CALL; 
+			Type<int>::push(L,v);
+		}
+
+		static int get(lua_State *L, int p)
+		{
+			SLB_DEBUG_CALL; 
+			return Type<int>::get(L,p);
+		}
+
+		static bool check(lua_State *L, int pos)
+		{
+			SLB_DEBUG_CALL; 
+			return Type<int>::check(L,pos);
+		}
+	};
+
 	// Type specialization for <double>
 	template<>
 	struct Type<double>

@@ -1,6 +1,9 @@
 
 file(GLOB SOURCES_TEST "${SLB_SOURCE_DIR}/tests/src/*.cpp")
 add_executable(SLB_test ${SOURCES_TEST})
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	set_target_properties( SLB_test PROPERTIES LINK_FLAGS "-Wl,-E")
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 target_link_libraries(SLB_test SLB)
 
 if(SLB_USE_VALGRIND)

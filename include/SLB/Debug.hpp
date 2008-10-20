@@ -31,6 +31,7 @@
 // printf-like interface.
 #ifndef SLB_DEBUG_FUNC
 	#include <cstdio>
+	#include <cstring>
 	#define SLB_DEBUG_FUNC(...) fprintf(SLB_DEBUG_OUTPUT, __VA_ARGS__);
 #endif
 
@@ -58,7 +59,7 @@
 
 	#define SLB_DEBUG(level,...) if (level <= SLB_DEBUG_LEVEL)\
 		{\
-			__dummy__SLB__debugcall(); /* to check a previous SLB_DEBUG_CALL */ \
+			__dummy__SLB__debugcall.check(); /* to check a previous SLB_DEBUG_CALL */ \
 			int __s = strlen(__FILE__); \
 			int __offset = (__s > 18)? __s - 18: 0; \
 			__SLB_ADJUST__();\
@@ -124,7 +125,7 @@
 			__SLB__debugcall(const char *f, int l, const char *n)
 				: file(f), line(l), name(n)
 			{
-				int s = strlen(__FILE__);
+				int s = ::strlen(__FILE__);
 				int offset = (s > 18)? s - 18: 0;
 				file = file + offset;
 				__SLB_ADJUST__();
@@ -141,7 +142,7 @@
 				SLB_DEBUG_LEVEL_TAB--;
 			}
 
-			void operator()(void) const {}
+			void check() const {}
 
 
 			const char *file;
