@@ -1,6 +1,6 @@
 /*
     SLB - Simple Lua Binder
-    Copyright (C) 2007 Jose L. Hidalgo Valiño (PpluX)
+    Copyright (C) 2008 Jose L. Hidalgo Valiño (PpluX)
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public

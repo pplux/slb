@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 2.4)
 project( SLB )
 set(EXECUTABLE_OUTPUT_PATH ${SLB_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${SLB_BINARY_DIR}/lib)

@@ -59,7 +59,9 @@ namespace Unit_001 {
 //			.const_iterator<iVector::const_iterator>("const_iterator", &iVector::begin, &iVector::end )
 		;
 #else
-			.nonconst_set("get",  &iVector::operator[] )
+		// for basic types we do not support returning a reference yet
+		// so it is not allowed to return so. 
+			.const_set("get",  &iVector::operator[] )
 			.const_set("get_const",  &iVector::operator[] )
 			.iterator("iterator", &iVector::begin, &iVector::end )
 			.const_iterator("const_iterator", &iVector::begin, &iVector::end )

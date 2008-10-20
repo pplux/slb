@@ -29,6 +29,7 @@
 #include "Debug.hpp"
 #include <typeinfo>
 #include <map>
+#include <cstdlib>
 
 namespace SLB {
 

@@ -27,6 +27,17 @@
 
 namespace SLB {
 
+#if SLB_DEBUG_LEVEL != 0
+	/* Debugging function, see TODO on Script::getState */
+	void ScriptHook(lua_State *L, lua_Debug *ar)
+	{
+		lua_getinfo(L, "Sl",ar);
+		__SLB_ADJUST__();
+		SLB_DEBUG_FUNC("SLB-X[%p] %s:%d",L,ar->short_src,ar->currentline );
+		SLB_DEBUG_FUNC("\n");\
+	}
+#endif
+
 	Script::Script(bool default_libs) : _L(0), _loadDefaultLibs(default_libs)
 	{
 		SLB_DEBUG_CALL;
@@ -48,6 +59,15 @@ namespace SLB {
 			assert("Can not create more lua_states" && (_L != 0L));
 			if (_loadDefaultLibs) luaL_openlibs(_L);
 			SLB::Manager::getInstance().registerSLB(_L);
+		
+			//TODO: Promote that functionality to a higher interface to allow proper
+			//      debugging
+			//
+			/* if debug_level > 0 ........ */
+			#if SLB_DEBUG_LEVEL != 0
+			lua_sethook(_L, ScriptHook, LUA_MASKLINE, 0);
+			#endif
+			/* end debug */
 		}
 		return _L;
 	}
