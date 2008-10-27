@@ -287,53 +287,6 @@ namespace Private {
 		}
 	};
 
-	// Type specialization for <unsigned int>
-	template<>
-	struct Type<size_t>
-	{
-		static void push(lua_State *L, size_t v)
-		{
-			SLB_DEBUG_CALL; 
-			SLB_DEBUG(6, "Push unsigned integer = %d",v);
-			lua_pushinteger(L,v);
-		}
-		static size_t get(lua_State *L, int p)
-		{
-			SLB_DEBUG_CALL; 
-			size_t v = static_cast<size_t>(lua_tointeger(L,p));
-			SLB_DEBUG(6,"Get unsigned integer (pos %d) = %d",p,v);
-			return v;
-		}
-
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return (lua_isnumber(L,pos) != 0);
-		}
-	};
-
-	template<>
-	struct Type<const size_t&>
-	{
-		static void push(lua_State *L, const size_t &v)
-		{
-			SLB_DEBUG_CALL; 
-			Type<size_t>::push(L,v);
-		}
-
-		static size_t get(lua_State *L, int p)
-		{
-			SLB_DEBUG_CALL; 
-			return Type<size_t>::get(L,p);
-		}
-
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return Type<size_t>::check(L,pos);
-		}
-	};
-
 	// Type specialization for <int>
 	template<>
 	struct Type<int>
@@ -380,6 +333,130 @@ namespace Private {
 			return Type<int>::check(L,pos);
 		}
 	};
+
+	// Type specialization for <unsigned int>
+	template<>
+	struct Type<unsigned int>
+	{
+		static void push(lua_State *L, unsigned int v)
+		{
+			SLB_DEBUG_CALL; 
+			SLB_DEBUG(6, "Push unsigned integer = %d",v);
+			lua_pushinteger(L,v);
+		}
+		static unsigned int get(lua_State *L, int p)
+		{
+			SLB_DEBUG_CALL; 
+			unsigned int v = static_cast<unsigned int>(lua_tointeger(L,p));
+			SLB_DEBUG(6,"Get unsigned integer (pos %d) = %d",p,v);
+			return v;
+		}
+
+		static bool check(lua_State *L, int pos)
+		{
+			SLB_DEBUG_CALL; 
+			return (lua_isnumber(L,pos) != 0);
+		}
+	};
+
+	template<>
+	struct Type<const unsigned int&>
+	{
+		static void push(lua_State *L, const unsigned int &v)
+		{
+			SLB_DEBUG_CALL; 
+			Type<unsigned int>::push(L,v);
+		}
+
+		static unsigned int get(lua_State *L, int p)
+		{
+			SLB_DEBUG_CALL; 
+			return Type<unsigned int>::get(L,p);
+		}
+
+		static bool check(lua_State *L, int pos)
+		{
+			SLB_DEBUG_CALL; 
+			return Type<unsigned int>::check(L,pos);
+		}
+	};
+
+#ifndef __APPLE__	
+
+	template<>
+	struct Type<long>
+	{
+		static void push(lua_State *L, long v)
+		{
+			SLB_DEBUG_CALL; 
+			SLB_DEBUG(6, "Push long = %ld",v);
+			lua_pushinteger(L,v);
+		}
+		static long get(lua_State *L, int p)
+		{
+			SLB_DEBUG_CALL; 
+			long v = (long) lua_tointeger(L,p);
+			SLB_DEBUG(6,"Get long (pos %d) = %ld",p,v);
+			return v;
+		}
+
+		static bool check(lua_State *L, int pos)
+		{
+			SLB_DEBUG_CALL; 
+			return (lua_isnumber(L,pos) != 0);
+		}
+	};
+
+
+	/* unsigned long == unsigned int */
+	template<>
+	struct Type<unsigned long>
+	{
+		static void push(lua_State *L, unsigned long v)
+		{
+			SLB_DEBUG_CALL; 
+			SLB_DEBUG(6, "Push unsigned long = %lu",v);
+			lua_pushnumber(L,v);
+		}
+
+		static unsigned long get(lua_State *L, int p)
+		{
+			SLB_DEBUG_CALL; 
+			unsigned long v = (unsigned long) lua_tonumber(L,p);
+			SLB_DEBUG(6,"Get unsigned long (pos %d) = %lu",p,v);
+			return v;
+		}
+
+		static bool check(lua_State *L, int pos)
+		{
+			SLB_DEBUG_CALL; 
+			return (lua_isnumber(L,pos) != 0);
+		}
+	};
+
+	template<>
+	struct Type<const unsigned long&>
+	{
+		static void push(lua_State *L, const unsigned long &v)
+		{
+			SLB_DEBUG_CALL; 
+			Type<unsigned long>::push(L,v);
+		}
+
+		static unsigned long get(lua_State *L, int p)
+		{
+			SLB_DEBUG_CALL; 
+			return Type<unsigned long>::get(L,p);
+		}
+
+		static bool check(lua_State *L, int pos)
+		{
+			SLB_DEBUG_CALL; 
+			return Type<unsigned long>::check(L,pos);
+		}
+	};
+
+#endif
 
 	// Type specialization for <double>
 	template<>
@@ -476,56 +553,6 @@ namespace Private {
 		}
 	};
 
-#ifndef __APPLE__	
-	/* unsigned long == size_t */
-	template<>
-	struct Type<unsigned long>
-	{
-		static void push(lua_State *L, unsigned long v)
-		{
-			SLB_DEBUG_CALL; 
-			SLB_DEBUG(6, "Push unsigned long = %lu",v);
-			lua_pushnumber(L,v);
-		}
-
-		static unsigned long get(lua_State *L, int p)
-		{
-			SLB_DEBUG_CALL; 
-			unsigned long v = (unsigned long) lua_tonumber(L,p);
-			SLB_DEBUG(6,"Get unsigned long (pos %d) = %lu",p,v);
-			return v;
-		}
-
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return (lua_isnumber(L,pos) != 0);
-		}
-	};
-
-	template<>
-	struct Type<const unsigned long&>
-	{
-		static void push(lua_State *L, const unsigned long &v)
-		{
-			SLB_DEBUG_CALL; 
-			Type<unsigned long>::push(L,v);
-		}
-
-		static unsigned long get(lua_State *L, int p)
-		{
-			SLB_DEBUG_CALL; 
-			return Type<unsigned long>::get(L,p);
-		}
-
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return Type<unsigned long>::check(L,pos);
-		}
-	};
-
-#endif
 	
 	// Type specialization for <bool>
 	template<>
