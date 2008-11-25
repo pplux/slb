@@ -210,9 +210,10 @@ namespace SLB {
 				}
 
 				// copy constructor,  
-				Implementation( const T &ref) : InstanceBase( I_Copy, typeid(T) ), _sm_ptr( 0L ), _const_ptr(&ref)
+				Implementation( const T &ref) : InstanceBase( I_Copy, typeid(T) ), _sm_ptr( 0L ), _const_ptr(0)
 				{
 					_sm_ptr = new T( ref );
+					_const_ptr = &(*_sm_ptr);
 				}
 
 				virtual ~Implementation() {}
@@ -241,6 +242,7 @@ namespace SLB {
 				Implementation( const T *ptr ) : InstanceBase( I_Const_Pointer, typeid(T)), _const_ptr(ptr)
 				{
 				}
+
 				// What should we do with references and smart pointers?
 				Implementation( T &ref ) : InstanceBase( I_Reference, typeid(T) ), _sm_ptr( &ref )
 				{
@@ -248,8 +250,47 @@ namespace SLB {
 				}
 
 				// copy constructor,  
-				Implementation( const T &ref) : InstanceBase( I_Invalid, typeid(T) ), _sm_ptr( 0L ), _const_ptr(0L)
+				Implementation( const T &ref) : InstanceBase( I_Invalid, typeid(T) ), _sm_ptr( 0L ), _const_ptr(&ref)
 				{
+				}
+
+				virtual ~Implementation() {}
+
+				void* get_ptr() { return &(*_sm_ptr); }
+				const void* get_const_ptr() { return _const_ptr; }
+				bool keepCopyAsCache() const { return false; }
+
+			protected:
+				T_SmartPtr<T> _sm_ptr;
+				const T *_const_ptr;
+			};
+		};
+
+		template<template <class> class T_SmartPtr>
+		struct SmartPtrSharedCopy
+		{
+			template<class T>
+			class Implementation : public virtual InstanceBase
+			{
+			public:
+				Implementation( T* ptr, bool) : InstanceBase( I_Pointer, typeid(T) ), _sm_ptr(ptr)
+				{
+					_const_ptr = &(*_sm_ptr);
+				}
+				Implementation( const T *ptr ) : InstanceBase( I_Const_Pointer, typeid(T)), _const_ptr(ptr)
+				{
+				}
+
+				Implementation( T &ref ) : InstanceBase( I_Reference, typeid(T) ), _sm_ptr( &ref )
+				{
+					_const_ptr = &(*_sm_ptr);
+				}
+
+				// copy constructor,  
+				Implementation( const T &ref) : InstanceBase( I_Invalid, typeid(T) ), _sm_ptr( 0L ), _const_ptr(&ref)
+				{
+					T *obj = const_cast<T*>(&ref);
+					_sm_ptr = obj;
 				}
 
 				virtual ~Implementation() {}

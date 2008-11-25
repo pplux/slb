@@ -36,6 +36,9 @@ namespace SLB {
 	class ClassInfo;
 	class Namespace;
 
+	// copy values and objects from one lua_State to another
+	bool copy(lua_State *from, int pos, lua_State *to);
+
 	class SLB_EXPORT Manager
 	{
 	public:
@@ -54,6 +57,16 @@ namespace SLB {
 		ClassInfo *getClass(const std::type_info&);
 		ClassInfo *getClass(const std::string&);
 		ClassInfo *getOrCreateClass(const std::type_info &);
+
+		/** Copy from one lua_State to another:
+		  - for basic types it will make a basic copy
+		  - returns true if copy was made, otherwise returns false. 
+		  - doesn't touch the original element
+
+		  ** WARNING **
+		  copy of tables is not yet implemented...
+		*/
+		bool copy(lua_State *from, int pos, lua_State *to);
 
 		// set a global value ( will be registered authomatically on every lua_State )
 		void set(const std::string &, Object *obj);
@@ -184,6 +197,11 @@ namespace SLB {
 			atexit(Manager::reset);
 		}
 		return _singleton;
+	}
+
+	inline bool copy(lua_State *from, int pos, lua_State *to)
+	{
+		return Manager::getInstance().copy(from,pos,to);
 	}
 
 }
