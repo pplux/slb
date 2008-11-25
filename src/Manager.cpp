@@ -305,6 +305,63 @@ namespace SLB {
 		return 0;
 	}
 		
+	bool Manager::copy(lua_State *from, int pos, lua_State *to)
+	{
+		SLB_DEBUG_CALL;
+		SLB_DEBUG_CLEAN_STACK(from,0);
+		
+		if (from == to)
+		{
+			lua_pushvalue(from, pos);
+			return true;
+		}
+
+		switch(lua_type(from, pos))
+		{
+			case LUA_TNIL:
+				SLB_DEBUG(20, "copy from %p(%d)->%p [nil]", from,pos,to);
+				lua_pushnil(to);
+				return true;
+			case LUA_TNUMBER:
+				SLB_DEBUG(20, "copy from %p(%d)->%p [number]", from,pos,to);
+				lua_Number n = lua_tonumber(from,pos);
+				lua_pushnumber(to, n);
+				return true;
+			case LUA_TBOOLEAN:
+				SLB_DEBUG(20, "copy from %p(%d)->%p [boolean]", from,pos,to);
+				int b = lua_toboolean(from,pos);
+				lua_pushboolean(to,b);
+				return true;
+			case LUA_TSTRING:
+				SLB_DEBUG(20, "copy from %p(%d)->%p [string]", from,pos,to);
+				const char *s = lua_tostring(from,pos);
+				lua_pushstring(to,s);
+				return true;
+			case LUA_TTABLE:
+				SLB_DEBUG(0, "*WARNING* copy of tables Not yet Implemented!!!");
+				return false;
+			case LUA_TUSERDATA:
+				SLB_DEBUG(20, "copy from %p(%d)->%p [Object]", from,pos,to);
+				ClassInfo *ci = getClass(from, pos);
+				if (ci != 0L)
+				{
+					const void* ptr = ci->get_const_ptr(from, pos);
+					SLB_DEBUG(25, "making a copy of the object %p", ptr);
+					// now copy it
+					ci->push_copy(to,ptr);
+					return true;
+				}
+				else
+				{
+					SLB_DEBUG(25, "Could not recognize the object");
+					return false;
+				}
+		}
+		SLB_DEBUG(10,
+			"Invalid copy from %p(%d)->%p %s",
+			from,pos,to, lua_typename(from, lua_type(from,pos)));
+		return false;
+	}
 
 	ClassInfo *Manager::getOrCreateClass(const std::type_info &ti)
 	{

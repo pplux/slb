@@ -26,7 +26,7 @@
 #include "lua.hpp"
 #include "Debug.hpp"
 
-// Fixed Apple problems
+// Fix Apple problems
 #ifdef check
     #undef check
 #endif

@@ -381,7 +381,6 @@ namespace Private {
 		}
 	};
 
-#ifndef __APPLE__	
 
 	template<>
 	struct Type<long>
@@ -456,7 +455,52 @@ namespace Private {
 		}
 	};
 
-#endif
+	template<>
+	struct Type<unsigned long long>
+	{
+		static void push(lua_State *L, unsigned long long v)
+		{
+			SLB_DEBUG_CALL; 
+			SLB_DEBUG(6, "Push unsigned long long = %llu",v);
+			lua_pushnumber(L,v);
+		}
+
+		static unsigned long long get(lua_State *L, int p)
+		{
+			SLB_DEBUG_CALL; 
+			unsigned long long v = (unsigned long long) lua_tonumber(L,p);
+			SLB_DEBUG(6,"Get unsigned long long (pos %d) = %llu",p,v);
+			return v;
+		}
+
+		static bool check(lua_State *L, int pos)
+		{
+			SLB_DEBUG_CALL; 
+			return (lua_isnumber(L,pos) != 0);
+		}
+	};
+
+	template<>
+	struct Type<const unsigned long long&>
+	{
+		static void push(lua_State *L, const unsigned long long &v)
+		{
+			SLB_DEBUG_CALL; 
+			Type<unsigned long long>::push(L,v);
+		}
+
+		static unsigned long long get(lua_State *L, int p)
+		{
+			SLB_DEBUG_CALL; 
+			return Type<unsigned long long>::get(L,p);
+		}
+
+		static bool check(lua_State *L, int pos)
+		{
+			SLB_DEBUG_CALL; 
+			return Type<unsigned long long>::check(L,pos);
+		}
+	};
 
 	// Type specialization for <double>
 	template<>
