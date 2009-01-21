@@ -51,7 +51,7 @@ namespace SLB {
 
 		template<class T>
 		T get(const std::string&name)
-		{ return SLB::getGlobal<T>(getState(), name); }
+		{ return SLB::getGlobal<T>(getState(), name.c_str()); }
 
 	protected:
 		lua_State* getState();

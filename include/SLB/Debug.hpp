@@ -59,7 +59,7 @@
 
 	#define SLB_DEBUG(level,...) if (level <= SLB_DEBUG_LEVEL)\
 		{\
-			__dummy__SLB__debugcall.check(); /* to check a previous SLB_DEBUG_CALL */ \
+			__dummy__SLB__debugcall.check_SLB_DEBUG_CALL(); /* to check a previous SLB_DEBUG_CALL */ \
 			int __s = strlen(__FILE__); \
 			int __offset = (__s > 18)? __s - 18: 0; \
 			__SLB_ADJUST__();\
@@ -142,7 +142,7 @@
 				SLB_DEBUG_LEVEL_TAB--;
 			}
 
-			void check() const {}
+			void check_SLB_DEBUG_CALL() const {}
 
 
 			const char *file;
