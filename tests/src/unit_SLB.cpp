@@ -46,6 +46,11 @@ namespace Unit_SLB {
 		return 0;
 	}
 
+	bool Checks::checkHybridBase()
+	{
+		SLB::ClassInfo *ci = SLB::Manager::getInstance().getClass(typeid(SLB::HybridBase));
+		return (ci != 0L);
+	}
 
 	void wrapper()
 	{
@@ -56,6 +61,11 @@ namespace Unit_SLB {
 		SLB::Class< Table, SLB::Instance::NoCopy >("Unit_SLB::Table")
 			.class__index( &Table::class__index )
 			.class__newindex( &Table::class__newindex )
+			.constructor()
+		;
+
+		SLB::Class<Checks>("Unit_SLB::Checks")
+			.set("checkHybridBase", &Checks::checkHybridBase)
 			.constructor()
 		;
 

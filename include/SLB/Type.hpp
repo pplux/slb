@@ -462,7 +462,7 @@ namespace Private {
 		{
 			SLB_DEBUG_CALL; 
 			SLB_DEBUG(6, "Push unsigned long long = %llu",v);
-			lua_pushnumber(L,v);
+			lua_pushnumber(L,(lua_Number) v);
 		}
 
 		static unsigned long long get(lua_State *L, int p)

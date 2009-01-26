@@ -17,6 +17,12 @@ private:
 
 };
 
+class Checks
+{
+public:
+	bool checkHybridBase();
+};
+
 } // end of unit SLB
 
 #endif

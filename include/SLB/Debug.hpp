@@ -60,12 +60,10 @@
 	#define SLB_DEBUG(level,...) if (level <= SLB_DEBUG_LEVEL)\
 		{\
 			__dummy__SLB__debugcall.check_SLB_DEBUG_CALL(); /* to check a previous SLB_DEBUG_CALL */ \
-			int __s = strlen(__FILE__); \
-			int __offset = (__s > 18)? __s - 18: 0; \
 			__SLB_ADJUST__();\
-			SLB_DEBUG_FUNC("SLB-%-2d [%12s:%-4d] ", level, __FILE__+__offset, __LINE__);\
+			SLB_DEBUG_FUNC("SLB-%-2d ", level);\
 			SLB_DEBUG_FUNC(__VA_ARGS__);\
-			SLB_DEBUG_FUNC("\n");\
+			SLB_DEBUG_FUNC(" [%s:%d]\n",__FILE__, __LINE__);\
 		}
 
 	#define SLB_DEBUG_STACK(level, L,  ... ) \
@@ -125,18 +123,15 @@
 			__SLB__debugcall(const char *f, int l, const char *n)
 				: file(f), line(l), name(n)
 			{
-				int s = ::strlen(__FILE__);
-				int offset = (s > 18)? s - 18: 0;
-				file = file + offset;
 				__SLB_ADJUST__();
-				SLB_DEBUG_FUNC("SLB >>> [%12s:%-4d] %s\n", file, line, name);
+				SLB_DEBUG_FUNC("SLB >>> %s [%s:%d]\n", name.c_str(), file.c_str(), line);
 				SLB_DEBUG_LEVEL_TAB++;
 			}
 
 			~__SLB__debugcall()
 			{
 				__SLB_ADJUST__();
-				SLB_DEBUG_FUNC("SLB <<< [%12s:%-4d] %s\n", file, line, name);
+				SLB_DEBUG_FUNC("SLB <<< %s [%s:%d]\n", name.c_str(), file.c_str(), line);
 				__SLB_ADJUST__(false);
 				SLB_DEBUG_FUNC("\n");
 				SLB_DEBUG_LEVEL_TAB--;
@@ -145,9 +140,9 @@
 			void check_SLB_DEBUG_CALL() const {}
 
 
-			const char *file;
+			std::string file;
 			int line;
-			const char *name;
+			std::string name;
 
 		};
 	#define SLB_DEBUG_CALL \
