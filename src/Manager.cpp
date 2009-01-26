@@ -317,7 +317,7 @@ namespace SLB {
 		ClassMap::iterator i = _classes.find(&ti);
 		if ( i != _classes.end() ) result = i->second.get();
 #endif		
-		SLB_DEBUG(6, "ClassInfo = %x", (void*) result);
+		SLB_DEBUG(6, "ClassInfo = %p", (void*) result);
 		return result;
 	}
 		
