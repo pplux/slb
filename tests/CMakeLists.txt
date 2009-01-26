@@ -1,5 +1,5 @@
 
-file(GLOB SOURCES_TEST "${SLB_SOURCE_DIR}/tests/src/*.cpp")
+file(GLOB SOURCES_TEST "${SLB_SOURCE_DIR}/tests/src/*.cpp" "${SLB_SOURCE_DIR}/tests/src/*.hpp")
 add_executable(SLB_test ${SOURCES_TEST})
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	set_target_properties( SLB_test PROPERTIES LINK_FLAGS "-Wl,-E")

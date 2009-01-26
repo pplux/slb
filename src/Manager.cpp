@@ -25,6 +25,7 @@
 #include <SLB/lua.hpp>
 #include <SLB/Debug.hpp>
 #include <SLB/util.hpp>
+#include <SLB/Hybrid.hpp>
 
 #include <iostream>
 
@@ -256,8 +257,15 @@ namespace SLB {
 	{
 		SLB_DEBUG_CALL;
 		assert("Invalid type_info" && (&ti) );
+#ifdef WIN32
+		for(ClassMap::const_iterator i = _classes.begin(); i != _classes.end(); ++i)
+		{
+			if ( *(i->first) == ti ) return i->second.get();
+		}
+#else
 		ClassMap::const_iterator i = _classes.find(&ti);
 		if ( i != _classes.end() ) return i->second.get();
+#endif
 		return 0;
 	}
 
@@ -299,10 +307,18 @@ namespace SLB {
 	ClassInfo *Manager::getClass(const std::type_info &ti)
 	{
 		SLB_DEBUG_CALL;
-		assert("Invalid type_info" && (&ti) );
+		ClassInfo *result = 0;
+#ifdef WIN32
+		for(ClassMap::iterator i = _classes.begin(); result == 0 && i != _classes.end(); ++i)
+		{
+			if ( *(i->first) == ti) result = i->second.get(); 
+		}
+#else
 		ClassMap::iterator i = _classes.find(&ti);
-		if ( i != _classes.end() ) return i->second.get();
-		return 0;
+		if ( i != _classes.end() ) result = i->second.get();
+#endif		
+		SLB_DEBUG(6, "ClassInfo = %x", (void*) result);
+		return result;
 	}
 		
 	bool Manager::copy(lua_State *from, int pos, lua_State *to)
@@ -319,42 +335,54 @@ namespace SLB {
 		switch(lua_type(from, pos))
 		{
 			case LUA_TNIL:
-				SLB_DEBUG(20, "copy from %p(%d)->%p [nil]", from,pos,to);
-				lua_pushnil(to);
-				return true;
-			case LUA_TNUMBER:
-				SLB_DEBUG(20, "copy from %p(%d)->%p [number]", from,pos,to);
-				lua_Number n = lua_tonumber(from,pos);
-				lua_pushnumber(to, n);
-				return true;
-			case LUA_TBOOLEAN:
-				SLB_DEBUG(20, "copy from %p(%d)->%p [boolean]", from,pos,to);
-				int b = lua_toboolean(from,pos);
-				lua_pushboolean(to,b);
-				return true;
-			case LUA_TSTRING:
-				SLB_DEBUG(20, "copy from %p(%d)->%p [string]", from,pos,to);
-				const char *s = lua_tostring(from,pos);
-				lua_pushstring(to,s);
-				return true;
-			case LUA_TTABLE:
-				SLB_DEBUG(0, "*WARNING* copy of tables Not yet Implemented!!!");
-				return false;
-			case LUA_TUSERDATA:
-				SLB_DEBUG(20, "copy from %p(%d)->%p [Object]", from,pos,to);
-				ClassInfo *ci = getClass(from, pos);
-				if (ci != 0L)
 				{
-					const void* ptr = ci->get_const_ptr(from, pos);
-					SLB_DEBUG(25, "making a copy of the object %p", ptr);
-					// now copy it
-					ci->push_copy(to,ptr);
+					SLB_DEBUG(20, "copy from %p(%d)->%p [nil]", from,pos,to);
+					lua_pushnil(to);
 					return true;
 				}
-				else
+			case LUA_TNUMBER:
 				{
-					SLB_DEBUG(25, "Could not recognize the object");
+					SLB_DEBUG(20, "copy from %p(%d)->%p [number]", from,pos,to);
+					lua_Number n = lua_tonumber(from,pos);
+					lua_pushnumber(to, n);
+					return true;
+				}
+			case LUA_TBOOLEAN:
+				{
+					SLB_DEBUG(20, "copy from %p(%d)->%p [boolean]", from,pos,to);
+					int b = lua_toboolean(from,pos);
+					lua_pushboolean(to,b);
+					return true;
+				}
+			case LUA_TSTRING:
+				{
+					SLB_DEBUG(20, "copy from %p(%d)->%p [string]", from,pos,to);
+					const char *s = lua_tostring(from,pos);
+					lua_pushstring(to,s);
+					return true;
+				}
+			case LUA_TTABLE:
+				{
+					SLB_DEBUG(0, "*WARNING* copy of tables Not yet Implemented!!!");
 					return false;
+				}
+			case LUA_TUSERDATA:
+				{
+					SLB_DEBUG(20, "copy from %p(%d)->%p [Object]", from,pos,to);
+					ClassInfo *ci = getClass(from, pos);
+					if (ci != 0L)
+					{
+						const void* ptr = ci->get_const_ptr(from, pos);
+						SLB_DEBUG(25, "making a copy of the object %p", ptr);
+						// now copy it
+						ci->push_copy(to,ptr);
+						return true;
+					}
+					else
+					{
+						SLB_DEBUG(25, "Could not recognize the object");
+						return false;
+					}
 				}
 		}
 		SLB_DEBUG(10,
@@ -368,7 +396,15 @@ namespace SLB {
 		SLB_DEBUG_CALL;
 		assert("Invalid type_info" && (&ti) );
 		ClassInfo *c = 0;
+#ifdef WIN32
+		ClassMap::iterator i = _classes.begin();
+		for(; i != _classes.end(); ++i)
+		{
+			if ( *(i->first) == ti ) break;
+		}
+#else
 		ClassMap::iterator i = _classes.find(&ti);
+#endif
 		if ( i != _classes.end() )
 		{
 			c = i->second.get();
