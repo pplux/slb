@@ -54,11 +54,13 @@ namespace SLB {
 
 		/** Returns the lua_State, this function will be valid if the object is
 		 * attached, otherwise will return 0 */
-		lua_State* getLuaState() const { return _L; }
+		virtual lua_State* getLuaState() const { return _L; }
 
-		/** Indicates where this instance will look for its hybrid methods; */
-		void attach(lua_State *);
-		bool isAttached() const { return (_L != 0); }
+		/** Indicates where this instance will look for its hybrid methods; If you reimplement
+		 this method remember to call the parent (HybridBase) to set _L properly and register
+		 itself there.*/
+		virtual void attach(lua_State *);
+		virtual bool isAttached() const { return (_L != 0); }
 
 		/** use this to release memory allocated by the hybrid object, inside
 		 * the lua_State.*/
