@@ -166,7 +166,7 @@ namespace SLB {
 	{
 		SLB_DEBUG_CALL;
 		//TODO allow reattaching...
-		if (_L) throw std::runtime_error("Trying to reattach an Hybrid instance");
+		if (_L != 0 && _L != L) throw std::runtime_error("Trying to reattach an Hybrid instance");
 
 		if (L)
 		{

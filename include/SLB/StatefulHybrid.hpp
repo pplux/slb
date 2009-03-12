@@ -31,17 +31,31 @@ namespace SLB {
 	/* S -> Requires to have a method "getState" and "close" */
 	template<class T, class S = SLB::Script>
 	class StatefulHybrid :
-		public Hybrid< T >, public S
+		public S, public Hybrid< T >
 	{	
 	public:
 		StatefulHybrid(){}
-		virtual ~StatefulHybrid() {}
+		virtual ~StatefulHybrid() { S::close(); }
+
+		virtual bool isAttached() const;
+		virtual lua_State *getLuaState() { return S::getState(); }
 
 	protected:
 		virtual void onNewState(lua_State *L) { HybridBase::attach( L ); S::onNewState(L); }
 		virtual void onCloseState(lua_State *L) { HybridBase::unAttach(); S::onCloseState(L); }
 
 	};
+	
+	template<class T, class S >
+	inline bool StatefulHybrid<T,S>::isAttached() const
+	{
+		//StatefulHybrids are always attached (but as we use a lazy attachment, here
+		// we have to simulate and do the attachment, that means throw away constness)
+		
+		StatefulHybrid<T,S> *me = const_cast< StatefulHybrid<T,S>* >(this);
+		me->getState(); // That's enought to ensure the attachment
+		return true;
+	}
 
 }
 
