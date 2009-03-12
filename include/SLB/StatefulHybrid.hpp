@@ -28,16 +28,19 @@
 
 namespace SLB {
 	
+	/* S -> Requires to have a method "getState" and "close" */
 	template<class T, class S = SLB::Script>
 	class StatefulHybrid :
-		public S, /* Requires to have a method "getState" and "close" */
-		public Hybrid< T >
+		public Hybrid< T >, public S
 	{	
 	public:
-		StatefulHybrid(){ reAttach(); }
-		virtual ~StatefulHybrid() { HybridBase::unAttach(); S::close(); }
+		StatefulHybrid(){}
+		virtual ~StatefulHybrid() {}
+
 	protected:
-		void reAttach() { if (!HybridBase::isAttached()) HybridBase::attach( S::getState() ); }
+		virtual void onNewState(lua_State *L) { HybridBase::attach( L ); S::onNewState(L); }
+		virtual void onCloseState(lua_State *L) { HybridBase::unAttach(); S::onCloseState(L); }
+
 	};
 
 }
