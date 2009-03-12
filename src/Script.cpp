@@ -68,6 +68,8 @@ namespace SLB {
 			lua_sethook(_L, ScriptHook, LUA_MASKLINE, 0);
 			#endif
 			/* end debug */
+
+			onNewState(_L);
 		}
 		return _L;
 	}
@@ -77,6 +79,7 @@ namespace SLB {
 		SLB_DEBUG_CALL;
 		if (_L)
 		{
+			onCloseState(_L);
 			lua_close(_L);
 			_L = 0;
 		}
@@ -87,6 +90,7 @@ namespace SLB {
 		SLB_DEBUG_CALL;
 		if (_L)
 		{
+			onGC(_L);
 			lua_gc(_L, LUA_GCCOLLECT, 0);
 		}
 	}

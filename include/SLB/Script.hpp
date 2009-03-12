@@ -54,6 +54,10 @@ namespace SLB {
 		{ return SLB::getGlobal<T>(getState(), name.c_str()); }
 
 	protected:
+		virtual void onNewState(lua_State *L) {}
+		virtual void onCloseState(lua_State *L) {}
+		virtual void onGC(lua_State *L) {}
+
 		lua_State* getState();
 		void close(); // will close lua_state
 
