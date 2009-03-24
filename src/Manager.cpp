@@ -250,14 +250,15 @@ namespace SLB {
 	void Manager::addClass( ClassInfo *c )
 	{
 		SLB_DEBUG_CALL;
-		_classes[ _TIW(*c->getTypeid()) ] = c;
+		_classes[ c->getTypeid() ] = c;
 	}
 
-	const ClassInfo *Manager::getClass(const std::type_info &ti) const
+	const ClassInfo *Manager::getClass(const TypeInfoWrapper &ti) const
 	{
 		SLB_DEBUG_CALL;
+		//TODO: change this assert with a ti.valid()
 		assert("Invalid type_info" && (&ti) );
-		ClassMap::const_iterator i = _classes.find(_TIW(ti));
+		ClassMap::const_iterator i = _classes.find(ti);
 		if ( i != _classes.end() ) return i->second.get();
 		return 0;
 	}
@@ -298,11 +299,11 @@ namespace SLB {
 		return 0;
 	}
 
-	ClassInfo *Manager::getClass(const std::type_info &ti)
+	ClassInfo *Manager::getClass(const TypeInfoWrapper &ti)
 	{
 		SLB_DEBUG_CALL;
 		ClassInfo *result = 0;
-		ClassMap::iterator i = _classes.find(_TIW(ti));
+		ClassMap::iterator i = _classes.find(ti);
 		if ( i != _classes.end() ) result = i->second.get();
 		SLB_DEBUG(6, "ClassInfo = %p", (void*) result);
 		return result;
@@ -378,12 +379,13 @@ namespace SLB {
 		return false;
 	}
 
-	ClassInfo *Manager::getOrCreateClass(const std::type_info &ti)
+	ClassInfo *Manager::getOrCreateClass(const TypeInfoWrapper &ti)
 	{
 		SLB_DEBUG_CALL;
+		//TODO: change this assert with a ti.valid()
 		assert("Invalid type_info" && (&ti) );
 		ClassInfo *c = 0;
-		ClassMap::iterator i = _classes.find(_TIW(ti));
+		ClassMap::iterator i = _classes.find(ti);
 		if ( i != _classes.end() )
 		{
 			c = i->second.get();
@@ -414,7 +416,7 @@ namespace SLB {
 		}
 
 		_global->set(new_name, ci);
-		_names[ new_name ] = _TIW(*ci->getTypeid());
+		_names[ new_name ] = ci->getTypeid();
 
 	}
 }

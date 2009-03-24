@@ -50,13 +50,13 @@ namespace SLB {
 		static Manager &getInstance();
 		static Manager *getInstancePtr();
 
-		const ClassInfo *getClass(const std::type_info&) const;
+		const ClassInfo *getClass(const TypeInfoWrapper&) const;
 		const ClassInfo *getClass(const std::string&) const;
 		/// Returns the classInfo of an object, or null if it is a basic lua-type
 		ClassInfo *getClass(lua_State *L, int pos) const ;
-		ClassInfo *getClass(const std::type_info&);
+		ClassInfo *getClass(const TypeInfoWrapper&);
 		ClassInfo *getClass(const std::string&);
-		ClassInfo *getOrCreateClass(const std::type_info &);
+		ClassInfo *getOrCreateClass(const TypeInfoWrapper&);
 
 		/** Copy from one lua_State to another:
 		  - for basic types it will make a basic copy
@@ -68,15 +68,15 @@ namespace SLB {
 		*/
 		bool copy(lua_State *from, int pos, lua_State *to);
 
-		// set a global value ( will be registered authomatically on every lua_State )
+		// set a global value ( will be registered automatically on every lua_State )
 		void set(const std::string &, Object *obj);
 
 		// This will add a SLB table to the current global state
 		void registerSLB(lua_State *L);
 
 		// convert from C1 -> C2
-		void* convert( const std::type_info *C1, const std::type_info *C2, void *obj);
-		const void* convert( const std::type_info *C1, const std::type_info *C2, const void *obj);
+		void* convert( const TypeInfoWrapper &C1, const TypeInfoWrapper &C2, void *obj);
+		const void* convert( const TypeInfoWrapper &C1, const TypeInfoWrapper &C2, const void *obj);
 
 		Namespace* getGlobals() { return _global.get(); }
 
@@ -151,22 +151,22 @@ namespace SLB {
 	template<class D, class B>
 	inline void Manager::addConversor()
 	{
-		_conversions[ ConversionsMap::key_type(_TIW(typeid(D)), _TIW(typeid(B))) ] = &ClassConversor<D,B>::convertToBase;
-		_conversions[ ConversionsMap::key_type(_TIW(typeid(B)), _TIW(typeid(D))) ] = &ClassConversor<D,B>::convertToDerived;
+		_conversions[ ConversionsMap::key_type(_TIW(D), _TIW(B)) ] = &ClassConversor<D,B>::convertToBase;
+		_conversions[ ConversionsMap::key_type(_TIW(B), _TIW(D)) ] = &ClassConversor<D,B>::convertToDerived;
 	}
 
 	template<class D, class B>
 	inline void Manager::addStaticConversor()
 	{
-		_conversions[ ConversionsMap::key_type(_TIW(typeid(D)), _TIW(typeid(B))) ] = &ClassConversor<D,B>::convertToBase;
-		_conversions[ ConversionsMap::key_type(_TIW(typeid(B)), _TIW(typeid(D))) ] = &ClassConversor<D,B>::staticConvertToDerived;
+		_conversions[ ConversionsMap::key_type(_TIW(D), _TIW(B)) ] = &ClassConversor<D,B>::convertToBase;
+		_conversions[ ConversionsMap::key_type(_TIW(B), _TIW(D)) ] = &ClassConversor<D,B>::staticConvertToDerived;
 	}
 
-	inline void* Manager::convert( const std::type_info *C1, const std::type_info *C2, void *obj)
+	inline void* Manager::convert( const TypeInfoWrapper &C1, const TypeInfoWrapper &C2, void *obj)
 	{
 		SLB_DEBUG_CALL;
-		SLB_DEBUG(10, "C1 = %s", C1->name());
-		SLB_DEBUG(10, "C2 = %s", C2->name());
+		SLB_DEBUG(10, "C1 = %s", C1.name());
+		SLB_DEBUG(10, "C2 = %s", C2.name());
 		SLB_DEBUG(10, "obj = %p", obj);
 		if (C1 == C2)
 		{
@@ -174,7 +174,7 @@ namespace SLB {
 			return obj; 
 		}
 
-		ConversionsMap::iterator i = _conversions.find( ConversionsMap::key_type(_TIW(*C1),_TIW(*C2)) );
+		ConversionsMap::iterator i = _conversions.find( ConversionsMap::key_type(C1,C2) );
 		if (i != _conversions.end())
 		{
 			SLB_DEBUG(11, "convertible");
@@ -184,7 +184,7 @@ namespace SLB {
 		return 0;
 	}
 
-	inline const void* Manager::convert( const std::type_info *C1, const std::type_info *C2, const void *obj)
+	inline const void* Manager::convert( const TypeInfoWrapper &C1, const TypeInfoWrapper &C2, const void *obj)
 	{
 		return const_cast<void*>(convert(C1,C2, const_cast<void*>(obj)));
 	}

@@ -41,7 +41,7 @@ namespace Private {
 		{
 			SLB_DEBUG_CALL; 
 			SLB_DEBUG(10,"getClass '%s'", typeid(T).name());
-			ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(T));
+			ClassInfo *c = SLB::Manager::getInstance().getClass(_TIW(T));
 			if (c == 0) luaL_error(L, "Unknown class %s", typeid(T).name());
 			return c;
 		}
@@ -78,7 +78,7 @@ namespace Private {
 		{
 			SLB_DEBUG_CALL; 
 			SLB_DEBUG(10,"getClass '%s'", typeid(T).name());
-			ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(T));
+			ClassInfo *c = SLB::Manager::getInstance().getClass(_TIW(T));
 			if (c == 0) luaL_error(L, "Unknown class %s", typeid(T).name());
 			return c;
 		}
@@ -97,6 +97,7 @@ namespace Private {
 				return;
 			}
 
+			//TODO Change this for TypeInfoWrapper?
 			const std::type_info &t_T = typeid(T);
 			const std::type_info &t_obj = typeid(*obj);
 			
@@ -105,15 +106,18 @@ namespace Private {
 
 			if (t_obj != t_T)
 			{
+				//Create TIW
+				TypeInfoWrapper wt_T = _TIW(T);
+				TypeInfoWrapper wt_obj = _TIW(*obj);
 				// check if the internal class exists...
-				ClassInfo *c = SLB::Manager::getInstance().getClass(t_obj);
+				ClassInfo *c = SLB::Manager::getInstance().getClass(wt_obj);
 				if ( c ) 
 				{
 					SLB_DEBUG(8,"Push<T*=%s> with conversion from "
 						"T(%p)->T(%p) (L=%p, obj =%p)",
 						c->getName().c_str(), t_obj.name(), t_T.name(),L, obj);
 					// covert the object to the internal class...
-					void *real_obj = SLB::Manager::getInstance().convert( &t_T, &t_obj, obj );
+					void *real_obj = SLB::Manager::getInstance().convert( wt_T, wt_obj, obj );
 					c->push_ptr(L, real_obj, fromConstructor);
 					return;
 				}
@@ -146,7 +150,7 @@ namespace Private {
 		{
 			SLB_DEBUG_CALL; 
 			SLB_DEBUG(10,"getClass '%s'", typeid(T).name());
-			ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(T));
+			ClassInfo *c = SLB::Manager::getInstance().getClass(_TIW(T));
 			if (c == 0) luaL_error(L, "Unknown class %s", typeid(T).name());
 			return c;
 		}
@@ -162,15 +166,18 @@ namespace Private {
 			}
 			if (typeid(*obj) != typeid(T))
 			{
+				//Create TIW
+				TypeInfoWrapper wt_T = _TIW(T);
+				TypeInfoWrapper wt_obj = _TIW(*obj);
 				// check if the internal class exists...
-				ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(*obj));
+				ClassInfo *c = SLB::Manager::getInstance().getClass(wt_obj);
 				if ( c ) 
 				{
 					SLB_DEBUG(8,"Push<const T*=%s> with conversion from "
 						"T(%p)->T(%p) (L=%p, obj =%p)",
 						c->getName().c_str(), typeid(*obj).name(), typeid(T).name(),L, obj);
 					// covert the object to the internal class...
-					const void *real_obj = SLB::Manager::getInstance().convert( &typeid(T), &typeid(*obj), obj );
+					const void *real_obj = SLB::Manager::getInstance().convert( wt_T, wt_obj, obj );
 					c->push_const_ptr(L, real_obj);
 					return;
 				}
@@ -228,7 +235,7 @@ namespace Private {
 		{
 			SLB_DEBUG_CALL; 
 			SLB_DEBUG(10,"getClass '%s'", typeid(T).name());
-			ClassInfo *c = SLB::Manager::getInstance().getClass(typeid(T));
+			ClassInfo *c = SLB::Manager::getInstance().getClass(_TIW(T));
 			if (c == 0) luaL_error(L, "Unknown class %s", typeid(T).name());
 			return c;
 		}
