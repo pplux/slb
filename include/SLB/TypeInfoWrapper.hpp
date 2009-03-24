@@ -39,6 +39,7 @@ namespace SLB {
 		TypeInfoWrapper(const std::type_info &t) :
 			_ID(0), _type(&t)
 		{
+			// a hash function based on type's name
 			for (const char *__s = name() ; *__s; ++__s)
 				_ID = 5 * _ID + *__s;
 		}
@@ -49,7 +50,7 @@ namespace SLB {
 
 		bool operator<(const TypeInfoWrapper &o) const
 		{
-		#if 0
+		#ifndef __GNUC__
 			// very probable:
 			if (_ID != o._ID) return _ID < o._ID;
 			if (*_type == *o._type) return false;

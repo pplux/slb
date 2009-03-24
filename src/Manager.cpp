@@ -257,15 +257,8 @@ namespace SLB {
 	{
 		SLB_DEBUG_CALL;
 		assert("Invalid type_info" && (&ti) );
-#ifdef WIN32
-		for(ClassMap::const_iterator i = _classes.begin(); i != _classes.end(); ++i)
-		{
-			if ( *(i->first) == ti ) return i->second.get();
-		}
-#else
 		ClassMap::const_iterator i = _classes.find(_TIW(ti));
 		if ( i != _classes.end() ) return i->second.get();
-#endif
 		return 0;
 	}
 
@@ -309,15 +302,8 @@ namespace SLB {
 	{
 		SLB_DEBUG_CALL;
 		ClassInfo *result = 0;
-#ifdef WIN32
-		for(ClassMap::iterator i = _classes.begin(); result == 0 && i != _classes.end(); ++i)
-		{
-			if ( *(i->first) == ti) result = i->second.get(); 
-		}
-#else
 		ClassMap::iterator i = _classes.find(_TIW(ti));
 		if ( i != _classes.end() ) result = i->second.get();
-#endif		
 		SLB_DEBUG(6, "ClassInfo = %p", (void*) result);
 		return result;
 	}
@@ -397,15 +383,7 @@ namespace SLB {
 		SLB_DEBUG_CALL;
 		assert("Invalid type_info" && (&ti) );
 		ClassInfo *c = 0;
-#ifdef WIN32
-		ClassMap::iterator i = _classes.begin();
-		for(; i != _classes.end(); ++i)
-		{
-			if ( *(i->first) == ti ) break;
-		}
-#else
 		ClassMap::iterator i = _classes.find(_TIW(ti));
-#endif
 		if ( i != _classes.end() )
 		{
 			c = i->second.get();
