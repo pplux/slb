@@ -52,7 +52,7 @@ namespace SLB {
 	public:
 		typedef std::map<TypeInfoWrapper, ref_ptr<ClassInfo> > BaseClassMap;
 
-		const std::type_info *getTypeid() const { return &_typeid.type(); }
+		const TypeInfoWrapper &getTypeid() const { return _typeid; }
 		const std::string &getName() const      { return _name; }
 		void setName(const std::string&);
 
@@ -113,7 +113,7 @@ namespace SLB {
 		FuncCall* getConstructor() { return _constructor.get(); }
 
 	protected:
-		ClassInfo(const std::type_info&);
+		ClassInfo(const TypeInfoWrapper &);
 		virtual ~ClassInfo();
 		void pushImplementation(lua_State *);
 		virtual int __index(lua_State*);
@@ -148,14 +148,14 @@ namespace SLB {
 	inline void ClassInfo::inheritsFrom()
 	{
 		Manager::getInstance().template addConversor<D,B>();
-		_baseClasses[ _TIW(typeid(B)) ] = Manager::getInstance().getOrCreateClass(typeid(B));
+		_baseClasses[ _TIW(B) ] = Manager::getInstance().getOrCreateClass(_TIW(B));
 	}
 
 	template<class D, class B>
 	inline void ClassInfo::staticInheritsFrom()
 	{
 		Manager::getInstance().template addStaticConversor<D,B>();
-		_baseClasses[ _TIW(typeid(B)) ] = Manager::getInstance().getOrCreateClass(typeid(B));
+		_baseClasses[ _TIW(B) ] = Manager::getInstance().getOrCreateClass(_TIW(B));
 	}
 
 }

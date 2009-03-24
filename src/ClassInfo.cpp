@@ -28,7 +28,7 @@
 
 namespace SLB {
 
-	ClassInfo::ClassInfo(const std::type_info &ti) :
+	ClassInfo::ClassInfo(const TypeInfoWrapper &ti) :
 		Namespace(true),
 		_typeid(ti), 
 		_name(""), 

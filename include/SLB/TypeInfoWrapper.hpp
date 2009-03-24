@@ -39,9 +39,13 @@ namespace SLB {
 		TypeInfoWrapper(const std::type_info &t) :
 			_ID(0), _type(&t)
 		{
+		#ifndef __GNUC__
 			// a hash function based on type's name
 			for (const char *__s = name() ; *__s; ++__s)
 				_ID = 5 * _ID + *__s;
+		#else
+			_ID = (unsigned long) _type;
+		#endif
 		}
 
 		const std::type_info& type() const { return *_type; }
@@ -60,13 +64,18 @@ namespace SLB {
 			return _type < o._type;
 		#endif
 		}
+
+		bool operator==(const TypeInfoWrapper &o) const
+		{
+			return *_type == *o._type;
+		}
 		
 	private:
 		unsigned long _ID;
 		const std::type_info *_type;
 	};
 
-#define _TIW(x) TypeInfoWrapper(x)
+#define _TIW(x) TypeInfoWrapper(typeid(x))
 
 } // end of SLB Namespace
 
