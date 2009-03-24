@@ -250,7 +250,7 @@ namespace SLB {
 	void Manager::addClass( ClassInfo *c )
 	{
 		SLB_DEBUG_CALL;
-		_classes[ c->getTypeid() ] = c;
+		_classes[ _TIW(*c->getTypeid()) ] = c;
 	}
 
 	const ClassInfo *Manager::getClass(const std::type_info &ti) const
@@ -263,7 +263,7 @@ namespace SLB {
 			if ( *(i->first) == ti ) return i->second.get();
 		}
 #else
-		ClassMap::const_iterator i = _classes.find(&ti);
+		ClassMap::const_iterator i = _classes.find(_TIW(ti));
 		if ( i != _classes.end() ) return i->second.get();
 #endif
 		return 0;
@@ -273,7 +273,8 @@ namespace SLB {
 	{
 		SLB_DEBUG_CALL;
 		NameMap::const_iterator i = _names.find(name);
-		if ( i != _names.end() ) return getClass( *i->second );
+		if ( i != _names.end() )
+			return getClass( i->second.type() );
 		return 0;
 	}
 
@@ -300,7 +301,7 @@ namespace SLB {
 	{
 		SLB_DEBUG_CALL;
 		NameMap::iterator i = _names.find(name);
-		if ( i != _names.end() ) return getClass( *i->second );
+		if ( i != _names.end() ) return getClass( i->second.type() );
 		return 0;
 	}
 
@@ -314,7 +315,7 @@ namespace SLB {
 			if ( *(i->first) == ti) result = i->second.get(); 
 		}
 #else
-		ClassMap::iterator i = _classes.find(&ti);
+		ClassMap::iterator i = _classes.find(_TIW(ti));
 		if ( i != _classes.end() ) result = i->second.get();
 #endif		
 		SLB_DEBUG(6, "ClassInfo = %p", (void*) result);
@@ -403,7 +404,7 @@ namespace SLB {
 			if ( *(i->first) == ti ) break;
 		}
 #else
-		ClassMap::iterator i = _classes.find(&ti);
+		ClassMap::iterator i = _classes.find(_TIW(ti));
 #endif
 		if ( i != _classes.end() )
 		{
@@ -435,7 +436,7 @@ namespace SLB {
 		}
 
 		_global->set(new_name, ci);
-		_names[ new_name ] = ci->getTypeid();
+		_names[ new_name ] = _TIW(*ci->getTypeid());
 
 	}
 }
