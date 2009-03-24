@@ -27,7 +27,7 @@
 #include "ref_ptr.hpp"
 #include "Export.hpp"
 #include "Debug.hpp"
-#include <typeinfo>
+#include "TypeInfoWrapper.hpp"
 #include <map>
 #include <cstdlib>
 
@@ -42,10 +42,10 @@ namespace SLB {
 	class SLB_EXPORT Manager
 	{
 	public:
-		typedef std::map< const std::type_info*, ref_ptr<ClassInfo> > ClassMap;
-		typedef std::map< const std::string, const std::type_info *> NameMap;
 		typedef void* (*Conversor)(void *);
-		typedef std::map< std::pair<const std::type_info*, const std::type_info*>, Conversor > ConversionsMap;
+		typedef std::map< TypeInfoWrapper, ref_ptr<ClassInfo> > ClassMap;
+		typedef std::map< const std::string, TypeInfoWrapper > NameMap;
+		typedef std::map< std::pair<TypeInfoWrapper, TypeInfoWrapper >, Conversor > ConversionsMap;
 
 		static Manager &getInstance();
 		static Manager *getInstancePtr();
@@ -151,15 +151,15 @@ namespace SLB {
 	template<class D, class B>
 	inline void Manager::addConversor()
 	{
-		_conversions[ ConversionsMap::key_type(&typeid(D), &typeid(B)) ] = &ClassConversor<D,B>::convertToBase;
-		_conversions[ ConversionsMap::key_type(&typeid(B), &typeid(D)) ] = &ClassConversor<D,B>::convertToDerived;
+		_conversions[ ConversionsMap::key_type(_TIW(typeid(D)), _TIW(typeid(B))) ] = &ClassConversor<D,B>::convertToBase;
+		_conversions[ ConversionsMap::key_type(_TIW(typeid(B)), _TIW(typeid(D))) ] = &ClassConversor<D,B>::convertToDerived;
 	}
 
 	template<class D, class B>
 	inline void Manager::addStaticConversor()
 	{
-		_conversions[ ConversionsMap::key_type(&typeid(D), &typeid(B)) ] = &ClassConversor<D,B>::convertToBase;
-		_conversions[ ConversionsMap::key_type(&typeid(B), &typeid(D)) ] = &ClassConversor<D,B>::staticConvertToDerived;
+		_conversions[ ConversionsMap::key_type(_TIW(typeid(D)), _TIW(typeid(B))) ] = &ClassConversor<D,B>::convertToBase;
+		_conversions[ ConversionsMap::key_type(_TIW(typeid(B)), _TIW(typeid(D))) ] = &ClassConversor<D,B>::staticConvertToDerived;
 	}
 
 	inline void* Manager::convert( const std::type_info *C1, const std::type_info *C2, void *obj)
@@ -174,7 +174,7 @@ namespace SLB {
 			return obj; 
 		}
 
-		ConversionsMap::iterator i = _conversions.find( ConversionsMap::key_type(C1,C2) );
+		ConversionsMap::iterator i = _conversions.find( ConversionsMap::key_type(_TIW(*C1),_TIW(*C2)) );
 		if (i != _conversions.end())
 		{
 			SLB_DEBUG(11, "convertible");

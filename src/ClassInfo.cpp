@@ -30,15 +30,14 @@ namespace SLB {
 
 	ClassInfo::ClassInfo(const std::type_info &ti) :
 		Namespace(true),
-		_typeid(0), 
+		_typeid(ti), 
 		_name(""), 
 		_instanceFactory(0),
 		_isHybrid(false)
 	{
 		SLB_DEBUG_CALL;
-		_typeid = &ti;
 		Manager::getInstance().addClass(this);
-		_name = _typeid->name();
+		_name = _typeid.name();
 	}
 
 	ClassInfo::~ClassInfo()
@@ -452,7 +451,7 @@ namespace SLB {
 	{
 		SLB_DEBUG_CALL;
 		if (base == this) return true;
-		BaseClassMap::iterator i = _baseClasses.find( base->getTypeid() );
+		BaseClassMap::iterator i = _baseClasses.find( base->_typeid );
 		return (i != _baseClasses.end());
 	}
 

@@ -50,9 +50,9 @@ namespace SLB {
 	class SLB_EXPORT ClassInfo : public Namespace
 	{
 	public:
-		typedef std::map<const std::type_info*, ref_ptr<ClassInfo> > BaseClassMap;
+		typedef std::map<TypeInfoWrapper, ref_ptr<ClassInfo> > BaseClassMap;
 
-		const std::type_info *getTypeid() const { return _typeid; }
+		const std::type_info *getTypeid() const { return &_typeid.type(); }
 		const std::string &getName() const      { return _name; }
 		void setName(const std::string&);
 
@@ -122,7 +122,7 @@ namespace SLB {
 		virtual int __garbageCollector(lua_State*);
 		virtual int __tostring(lua_State*);
 
-		const std::type_info *_typeid;
+		TypeInfoWrapper   _typeid;
 		std::string       _name;
 		InstanceFactory  *_instanceFactory;
 		BaseClassMap      _baseClasses;
@@ -148,14 +148,14 @@ namespace SLB {
 	inline void ClassInfo::inheritsFrom()
 	{
 		Manager::getInstance().template addConversor<D,B>();
-		_baseClasses[ &typeid(B) ] = Manager::getInstance().getOrCreateClass(typeid(B));
+		_baseClasses[ _TIW(typeid(B)) ] = Manager::getInstance().getOrCreateClass(typeid(B));
 	}
 
 	template<class D, class B>
 	inline void ClassInfo::staticInheritsFrom()
 	{
 		Manager::getInstance().template addStaticConversor<D,B>();
-		_baseClasses[ &typeid(B) ] = Manager::getInstance().getOrCreateClass(typeid(B));
+		_baseClasses[ _TIW(typeid(B)) ] = Manager::getInstance().getOrCreateClass(typeid(B));
 	}
 
 }
