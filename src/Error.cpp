@@ -23,6 +23,7 @@
 #include <SLB/Debug.hpp>
 #include <SLB/Error.hpp>
 #include <sstream>
+#include <cassert>
 
 namespace SLB {
 

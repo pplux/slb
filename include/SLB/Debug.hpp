@@ -124,14 +124,14 @@
 				: file(f), line(l), name(n)
 			{
 				__SLB_ADJUST__();
-				SLB_DEBUG_FUNC("SLB >>> %s [%s:%d]\n", name.c_str(), file.c_str(), line);
+				SLB_DEBUG_FUNC("SLB >>> %s [%s:%d]\n", name, file, line);
 				SLB_DEBUG_LEVEL_TAB++;
 			}
 
 			~__SLB__debugcall()
 			{
 				__SLB_ADJUST__();
-				SLB_DEBUG_FUNC("SLB <<< %s [%s:%d]\n", name.c_str(), file.c_str(), line);
+				SLB_DEBUG_FUNC("SLB <<< %s [%s:%d]\n", name, file, line);
 				__SLB_ADJUST__(false);
 				SLB_DEBUG_FUNC("\n");
 				SLB_DEBUG_LEVEL_TAB--;
@@ -140,9 +140,9 @@
 			void check_SLB_DEBUG_CALL() const {}
 
 
-			std::string file;
+			const char* file;
 			int line;
-			std::string name;
+			const char* name;
 
 		};
 	#define SLB_DEBUG_CALL \
