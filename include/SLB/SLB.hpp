@@ -42,5 +42,6 @@
 #define SLB_abs_index(L, i)     ((i) > 0 || (i) <= LUA_REGISTRYINDEX ? (i) : \
 		                    lua_gettop(L) + (i) + 1)
 
+#define __SLB_TODO__ 0
 
 #endif

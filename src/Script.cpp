@@ -22,7 +22,6 @@
 
 #include<SLB/Script.hpp>
 #include<SLB/Debug.hpp>
-#include<stdexcept>
 #include<sstream>
 
 namespace SLB {
@@ -94,8 +93,20 @@ namespace SLB {
 			lua_gc(_L, LUA_GCCOLLECT, 0);
 		}
 	}
+	
+	size_t Script::memUsage()
+	{
+		SLB_DEBUG_CALL;
+		size_t result  = 0;
+		if (_L)
+		{
+			int r = lua_gc(_L, LUA_GCCOUNT, 0);
+			result = r;
+		}
+		return result;
+	}
 
-	void Script::doFile(const std::string &filename)
+	void Script::doFile(const std::string &filename) throw (std::exception)
 	{
 		SLB_DEBUG_CALL;
 		lua_State *L = getState();
@@ -106,7 +117,7 @@ namespace SLB {
 		}
 	}
 
-	void Script::doString(const std::string &o_code, const std::string &hint)
+	void Script::doString(const std::string &o_code, const std::string &hint) throw (std::exception)
 	{
 		SLB_DEBUG_CALL;
 		lua_State *L = getState();

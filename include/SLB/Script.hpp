@@ -26,6 +26,7 @@
 #include "lua.hpp" 
 #include "PushGet.hpp"
 #include "Type.hpp"
+#include<stdexcept>
 
 namespace SLB {
 	
@@ -34,8 +35,8 @@ namespace SLB {
 	public:
 		Script(bool loadDefaultLibs = true);
 		virtual ~Script();
-		void doFile(const std::string &filename);
-		void doString(const std::string &codeChunk, const std::string &where_hint ="[SLB]");
+		void doFile(const std::string &filename) throw (std::exception);
+		void doString(const std::string &codeChunk, const std::string &where_hint ="[SLB]") throw (std::exception);
 
 		 /* ************************* WARNING *********************************
 		  * Sometines you need to manually call Garbage Collector(GC), to be sure
@@ -44,6 +45,9 @@ namespace SLB {
 		  * too frequently.
 		  * ************************* WARNING *********************************/
 		void callGC();
+
+		/// Returns the number of Kb of memory used by the script
+		size_t memUsage();
 
 		template<class T>
 		void set(const std::string &name, T value)
