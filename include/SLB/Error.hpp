@@ -102,6 +102,15 @@ namespace SLB {
 	};
 
 
+	class SLB_EXPORT DefaultErrorHandler : public ErrorHandler
+	{
+	public:
+		virtual void begin(const char *error);
+		virtual const char* end();
+		virtual void stackElement(int level);
+	private:
+		std::ostringstream _out;
+	};
 
 
 #ifdef __SLB_TODO__
