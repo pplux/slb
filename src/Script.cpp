@@ -38,14 +38,16 @@ namespace SLB {
 	}
 #endif
 
-	Script::Script(bool default_libs) : _L(0), _loadDefaultLibs(default_libs)
+	Script::Script(bool default_libs) : _L(0), _errorHandler(0), _loadDefaultLibs(default_libs)
 	{
 		SLB_DEBUG_CALL;
+		_errorHandler = new DefaultErrorHandler();
 	}
 
 	Script::~Script()
 	{
 		SLB_DEBUG_CALL;
+		delete _errorHandler;
 		close();
 	}
 	
@@ -110,12 +112,11 @@ namespace SLB {
 	void Script::doFile(const std::string &filename) throw (std::exception)
 	{
 		SLB_DEBUG_CALL;
-		DefaultErrorHandler handler;
 		lua_State *L = getState();
 		int top = lua_gettop(L);
 		SLB_DEBUG(10, "filename %s = ", filename.c_str());
 
-		if(luaL_loadfile(L,filename.c_str()) || handler.lua_pcall(_L, 0, 0))
+		if(luaL_loadfile(L,filename.c_str()) || _errorHandler->lua_pcall(_L, 0, 0))
 		{
 			throw std::runtime_error( lua_tostring(_L, -1) );
 		}
@@ -126,19 +127,24 @@ namespace SLB {
 	void Script::doString(const std::string &o_code, const std::string &hint) throw (std::exception)
 	{
 		SLB_DEBUG_CALL;
-		DefaultErrorHandler handler;
 		lua_State *L = getState();
 		int top = lua_gettop(L);
 		SLB_DEBUG(10, "code = %10s, hint = %s", o_code.c_str(), hint.c_str()); 
 		std::stringstream code;
 		code << "--" << hint << std::endl << o_code;
 
-		if(luaL_loadstring(L,code.str().c_str()) || handler.lua_pcall(_L, 0, 0))
+		if(luaL_loadstring(L,code.str().c_str()) || _errorHandler->lua_pcall(_L, 0, 0))
 		{
 			throw std::runtime_error( lua_tostring(L,-1) );
 		}
 
 		lua_settop(L,top);
+	}
+
+	void Script::setErrorHandler( ErrorHandler *e )
+	{
+		delete _errorHandler;
+		_errorHandler = e;
 	}
 
 } /* SLB */
