@@ -35,7 +35,6 @@ namespace SLB {
 
 	class ClassInfo;
 	class Namespace;
-	class ErrorHandler;
 
 	// copy values and objects from one lua_State to another
 	bool copy(lua_State *from, int pos, lua_State *to);

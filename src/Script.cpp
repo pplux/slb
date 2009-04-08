@@ -22,6 +22,7 @@
 
 #include<SLB/Script.hpp>
 #include<SLB/Debug.hpp>
+#include<SLB/Error.hpp>
 #include<sstream>
 
 namespace SLB {
@@ -109,26 +110,35 @@ namespace SLB {
 	void Script::doFile(const std::string &filename) throw (std::exception)
 	{
 		SLB_DEBUG_CALL;
+		DefaultErrorHandler handler;
 		lua_State *L = getState();
+		int top = lua_gettop(L);
 		SLB_DEBUG(10, "filename %s = ", filename.c_str());
-		if ( luaL_dofile(L, filename.c_str()) )
+
+		if(luaL_loadfile(L,filename.c_str()) || handler.lua_pcall(_L, 0, 0))
 		{
-			throw std::runtime_error( lua_tostring(L,-1) );
+			throw std::runtime_error( lua_tostring(_L, -1) );
 		}
+
+		lua_settop(L,top);
 	}
 
 	void Script::doString(const std::string &o_code, const std::string &hint) throw (std::exception)
 	{
 		SLB_DEBUG_CALL;
+		DefaultErrorHandler handler;
 		lua_State *L = getState();
+		int top = lua_gettop(L);
 		SLB_DEBUG(10, "code = %10s, hint = %s", o_code.c_str(), hint.c_str()); 
 		std::stringstream code;
 		code << "--" << hint << std::endl << o_code;
 
-		if ( luaL_dostring(L, code.str().c_str()) )
+		if(luaL_loadstring(L,code.str().c_str()) || handler.lua_pcall(_L, 0, 0))
 		{
 			throw std::runtime_error( lua_tostring(L,-1) );
 		}
+
+		lua_settop(L,top);
 	}
 
 } /* SLB */
