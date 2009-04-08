@@ -26,6 +26,10 @@
 
 namespace SLB {
 
+////////////////////////////////////////////////////////////////////////////////
+// Abstract Error Handler
+////////////////////////////////////////////////////////////////////////////////
+
 int ErrorHandler::lua_pcall(lua_State *L, int nargs, int nresults)
 {
 	SLB_DEBUG_CALL;
@@ -130,62 +134,41 @@ void ErrorHandler::process(lua_State *L)
 	_L = 0;
 }
 
-/*
-	int LuaCallBase::errorHandler(lua_State *L)
-	{
-		SLB_DEBUG_CALL;
-		std::ostringstream out; // Use lua pushfstring and so on...
-		lua_Debug debug;
+////////////////////////////////////////////////////////////////////////////////
+// Default Error Handler
+////////////////////////////////////////////////////////////////////////////////
 
-		out << "SLB Exception: "
-			<< std::endl << "-------------------------------------------------------"
-			<< std::endl;
-		out << "Lua Error:" << std::endl << "\t" 
-			<<  lua_tostring(L, -1) << std::endl
-			<< "Traceback:" << std::endl;
-		for ( int level = 0; lua_getstack(L, level, &debug ); level++)
-		{
-			if (lua_getinfo(L, "Sln", &debug) )
-			{
-				//TODO use debug.name and debug.namewhat
-				//make this more friendly
-				out << "\t [ " << level << " (" << debug.what << ") ] ";
-				if (debug.currentline > 0 )
-				{
-					out << debug.short_src << ":" << debug.currentline; 
-				}
-				if (debug.name)
-				{
-					out << " @ " << debug.name;
-				   if (debug.namewhat) out << "(" << debug.namewhat << ")";
-				}
-				out << std::endl;
-			}
-			else
-			{
-				out << "[ERROR using Lua DEBUG INTERFACE]" << std::endl;
-			}
-		}
-
-		lua_pushstring(L, out.str().c_str()) ;
-		return 1;
-	}
-
-	void LuaCallBase::execute(int numArgs, int numOutput, int top)
-	{
-		SLB_DEBUG_CALL;
-		int base = lua_gettop(_L) - numArgs;
-		lua_pushcfunction(_L, LuaCallBase::errorHandler);
-		lua_insert(_L, base);
-
-		if(lua_pcall(_L, numArgs, numOutput, base)) 
-		{
-			std::runtime_error exception( lua_tostring(_L, -1) );
-			lua_remove(_L, base);
-			lua_settop(_L,top); // TODO: Remove this.
-			throw exception;
-		}
-		lua_remove(_L, base);
-	}
-*/
+void DefaultErrorHandler::begin(const char *error)
+{
+	_out.clear();
+	_out << "SLB Exception: "
+		<< std::endl << "-------------------------------------------------------"
+		<< std::endl;
+	_out << "Lua Error:" << std::endl << "\t" 
+		<<  error << std::endl
+		<< "Traceback:" << std::endl;
 }
+
+const char* DefaultErrorHandler::end()
+{
+	return _out.str().c_str();
+}
+
+void DefaultErrorHandler::stackElement(int level)
+{
+	_out << "\t [ " << level << " (" << SE_what() << ") ] ";
+	int currentline = SE_currentLine();
+	if (currentline > 0 )
+	{
+		_out << SE_shortSource() << ":" << currentline; 
+	}
+	const char *name = SE_name();
+	if (name)
+	{
+		_out << " @ " << name;
+	   if (SE_nameWhat()) _out << "(" << SE_nameWhat() << ")";
+	}
+	_out << std::endl;
+}
+
+} /* SLB */
