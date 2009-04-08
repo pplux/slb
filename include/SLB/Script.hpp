@@ -29,14 +29,20 @@
 #include<stdexcept>
 
 namespace SLB {
+
+	class ErrorHandler; // #include <SLB/Error.hpp>
 	
 	class SLB_EXPORT Script
 	{	
 	public:
 		Script(bool loadDefaultLibs = true);
 		virtual ~Script();
+
 		void doFile(const std::string &filename) throw (std::exception);
-		void doString(const std::string &codeChunk, const std::string &where_hint ="[SLB]") throw (std::exception);
+
+		void doString(
+			const std::string &codeChunk,
+			const std::string &where_hint ="[SLB]") throw (std::exception);
 
 		 /* ************************* WARNING *********************************
 		  * Sometines you need to manually call Garbage Collector(GC), to be sure
@@ -48,6 +54,10 @@ namespace SLB {
 
 		/// Returns the number of Kb of memory used by the script
 		size_t memUsage();
+
+		/// Pass a new ErrorHandler, the error handler will be part of the object
+		/// and it will be destroyed when the object is destroyed. 
+		void setErrorHandler(ErrorHandler *h);
 
 		template<class T>
 		void set(const std::string &name, T value)
@@ -69,6 +79,7 @@ namespace SLB {
 		Script(const Script &s);
 		Script& operator=(const Script&);
 		lua_State *_L;
+		ErrorHandler *_errorHandler;
 		bool _loadDefaultLibs;
 	};
 
