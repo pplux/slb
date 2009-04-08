@@ -50,7 +50,15 @@ namespace SLB {
 		SLB_DEBUG_CALL;
 		FuncCall *fc = (FuncCall*) lua_touserdata(L,lua_upvalueindex(1));
 		assert("Invalid FuncCall" && fc);
-		return fc->call(L);
+		try
+		{
+			return fc->call(L);
+		}
+		catch ( std::exception &e )
+		{
+			luaL_error(L, e.what());
+			return 0;
+		}
 	}
 	
 	void FuncCall::setArgComment(size_t p, const std::string& c)

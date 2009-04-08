@@ -22,6 +22,7 @@
 
 #include <SLB/LuaCall.hpp>
 #include <SLB/Debug.hpp>
+#include <SLB/Error.hpp>
 #include <sstream>
 
 namespace SLB {
@@ -72,8 +73,11 @@ namespace SLB {
 				if (debug.currentline > 0 )
 				{
 					out << debug.short_src << ":" << debug.currentline; 
-					if (debug.name)
-						out << " @ " << debug.name << "(" << debug.namewhat << ")";
+				}
+				if (debug.name)
+				{
+					out << " @ " << debug.name;
+				   if (debug.namewhat) out << "(" << debug.namewhat << ")";
 				}
 				out << std::endl;
 			}
@@ -90,18 +94,13 @@ namespace SLB {
 	void LuaCallBase::execute(int numArgs, int numOutput, int top)
 	{
 		SLB_DEBUG_CALL;
-		int base = lua_gettop(_L) - numArgs;
-		lua_pushcfunction(_L, LuaCallBase::errorHandler);
-		lua_insert(_L, base);
+		DefaultErrorHandler handler;
 
-		if(lua_pcall(_L, numArgs, numOutput, base)) 
+		if(handler.lua_pcall(_L, numArgs, numOutput))
 		{
-			std::runtime_error exception( lua_tostring(_L, -1) );
-			lua_remove(_L, base);
-			lua_settop(_L,top); // TODO: Remove this.
-			throw exception;
+			throw std::runtime_error( lua_tostring(_L, -1) );
 		}
-		lua_remove(_L, base);
+
 	}
 
 }

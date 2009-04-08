@@ -32,43 +32,11 @@ namespace SLB {
  	InvalidMethod::InvalidMethod(const HybridBase *obj, const char *c)
 	{
 		SLB_DEBUG_CALL;
-		lua_State  *L = obj->getLuaState();
 		const ClassInfo  *CI = obj->getClassInfo();
 		std::ostringstream out;
-		lua_Debug debug;
 
 		out << "Invalid Method '" << CI->getName() << "::" <<
 			c << "' NOT FOUND!" << std::endl;
-		out << "TraceBack:" << std::endl;
-		for ( int level = 0; lua_getstack(L, level, &debug ); level++)
-		{
-			if (lua_getinfo(L, "Sln", &debug) )
-			{
-				//TODO use debug.name and debug.namewhat
-				//make this more friendly
-				out << "\t [ " << level << " (" << debug.what << ") ] ";
-				if (debug.currentline > 0 )
-				{
-					out << debug.short_src << ":" << debug.currentline; 
-					if (debug.name)
-						out << " @ " << debug.name << "(" << debug.namewhat << ")";
-				}
-				out << std::endl;
-			}
-			else
-			{
-				out << "[ERROR using Lua DEBUG INTERFACE]" << std::endl;
-			}
-		}
-		out << "Current Stack:" << std::endl;
-		for(int i = 1; i < lua_gettop(L); ++i)
-		{
-			out << "\t ["<<i<<"] " << lua_typename(L, lua_type(L,i))
-				<< " : "<< lua_tostring(L,i) ;
-			ClassInfo *ci = Manager::getInstance().getClass(L,i);
-			if (ci) out << "->" << ci->getName();
-			out << std::endl;
-		}
 		
 		_what = out.str();
 	}
