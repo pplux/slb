@@ -30,6 +30,7 @@
 #include "Value.hpp"
 #include "ClassInfo.hpp"
 #include "Instance.hpp"
+#include "Mutex.hpp"
 #include <typeinfo>
 #include <map>
 #include <vector>
@@ -78,16 +79,6 @@ namespace SLB {
 		HybridBase();
 		virtual ~HybridBase();
 
-		/** This method allows to lock the lua_State when the state is not owned
-		 * by the instance (when the link was done using linkFromLuaTable). Here
-		 * you can add lock mechanism to avoid two instances accessing the same
-		 * lua_State */
-		virtual void lockBegin(lua_State *) {}
-
-		/** This method is called at the end of the call, see lockBegin */
-		virtual void lockEnd(lua_State *) {}
-
-
 		//-- Private data -----------------------------------------------------
 		// [-1, (0|+1)]
 		bool getMethod(const char *name) const;
@@ -104,6 +95,7 @@ namespace SLB {
 
 	private:
 		lua_State * _L;
+		Mutex _mutex;
 		int _global_environment;
 
 		// pops a key,value from tom and sets as our method
@@ -116,18 +108,6 @@ namespace SLB {
 		static int object__index(lua_State *);
 
 	public:
-		// This class helps to handle the lockBegin, lockEnd. Using methods
-		// directly will require to split LCall to handle return of void or not.
-		// (this is a little trick). Also this class issues a garbage collect
-		// operation, that's the only way to keep clean objects like smart
-		// pointers and so on.
-		struct SLB_EXPORT AutoLock
-		{
-			AutoLock(const HybridBase *hconst);
-			~AutoLock();
-			HybridBase* _hybrid;
-		};
-
 	};
 
 	template<class BaseClass>
@@ -160,7 +140,7 @@ namespace SLB {
 	#define SLB_ARG(N) , arg_##N
 	#define SLB_BODY(N) \
 			\
-			AutoLock __dummy__lock(this); \
+			ActiveWaitCriticalSection __dummy__lock(_mutex); \
 			LC *method = 0; \
 			SLB_DEBUG(3,"Call Hybrid-method [%s]", name)\
 			lua_State *L = getLuaState(); \

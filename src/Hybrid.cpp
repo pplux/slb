@@ -42,26 +42,6 @@ namespace SLB {
 	}
 	/*--- Invalid Method (exception) ----------------------------------------------*/
 
-	/*--- HybridBase::AutoLock ----------------------------------------------------*/
-	HybridBase::AutoLock::AutoLock(const HybridBase *hconst) 
-	{
-		SLB_DEBUG_CALL;
-		//TODO: Review this! (should be const?)
-		_hybrid = const_cast<HybridBase*>(hconst);
-		SLB_DEBUG(6, "Lock state %p to access hybrid method (%p)",
-			_hybrid->_L, (void*) _hybrid);
-		_hybrid->lockBegin( _hybrid->_L );
-	}
-
-	HybridBase::AutoLock::~AutoLock()
-	{
-		SLB_DEBUG_CALL;
-		SLB_DEBUG(6, "Unlock state %p to access hybrid method (%p)",
-			_hybrid->_L, (void*) _hybrid);
-		_hybrid->lockEnd( _hybrid->_L);
-	}
-	/*--- HybridBase::AutoLock -------------------------------------*/
-
 	/*--- Internal Hybrid Subclasses ---------------------------------------*/
 	struct InternalHybridSubclass : public Table
 	{
