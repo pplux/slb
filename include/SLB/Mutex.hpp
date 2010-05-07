@@ -26,9 +26,12 @@
 #ifdef SLB_NO_THREAD_SAFE
 	namespace SLB { struct MutexData {}; }
 #else // SLB_NO_THREAD_SAFE
+	// Win32 Mutex:
 	#ifdef WIN32
-
-	#else
+		#include <windows.h>
+		namespace SLB { typedef LPCRITICAL_SECTION MutexData; }
+	#else // WIN32
+	// Posix Mutex:
 		#include <pthread.h>	
 		namespace SLB { typedef pthread_mutex_t MutexData; }
 	#endif
@@ -88,6 +91,27 @@ namespace SLB
 	inline void Mutex::unlock() {}
 #else // SLB_NO_THREAD_SAFE
 #ifdef WIN32
+	// Windows implementation...
+	inline Mutex::Mutex()
+	{
+		InitializeCriticalSection(_m);
+	}
+	inline Mutex::~Mutex()
+	{
+		DeleteCriticalSection(_m);
+	}
+	inline void Mutex::lock()
+	{
+		EnterCriticalSection(_m);
+	}
+	inline void Mutex::unlock()
+	{
+		LeaveCriticalSection(_m);
+	}
+	inline bool Mutex::trylock()
+	{
+		return( TryEnterCriticalSection(_m) != 0) ;
+	}
 #else
 	// PTHREADS implementation...
 	inline Mutex::Mutex()
