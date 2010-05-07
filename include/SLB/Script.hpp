@@ -38,11 +38,11 @@ namespace SLB {
 		Script(bool loadDefaultLibs = true);
 		virtual ~Script();
 
-		void doFile(const std::string &filename) throw (...);
+		void doFile(const std::string &filename) throw (std::exception);
 
 		void doString(
 			const std::string &codeChunk,
-			const std::string &where_hint ="[SLB]") throw (...);
+			const std::string &where_hint ="[SLB]") throw (std::exception);
 
 		 /* ************************* WARNING *********************************
 		  * Sometines you need to manually call Garbage Collector(GC), to be sure
