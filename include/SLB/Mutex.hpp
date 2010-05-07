@@ -40,7 +40,7 @@
 namespace SLB
 {
 
-	/// Multiplatform Mutex abstraction, needed to ensure thread safe of
+	/// Multiplatform Mutex abstraction, needed to ensure thread safety of
 	/// some algorithms. You can turn off Mutexes by compileing SLB with
 	/// SLB_NO_THREAD_SAFE
 
