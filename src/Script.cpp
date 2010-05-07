@@ -109,7 +109,7 @@ namespace SLB {
 		return result;
 	}
 
-	void Script::doFile(const std::string &filename) throw (...)
+	void Script::doFile(const std::string &filename) throw (std::exception)
 	{
 		SLB_DEBUG_CALL;
 		lua_State *L = getState();
@@ -124,7 +124,7 @@ namespace SLB {
 		lua_settop(L,top);
 	}
 
-	void Script::doString(const std::string &o_code, const std::string &hint) throw (...)
+	void Script::doString(const std::string &o_code, const std::string &hint) throw (std::exception)
 	{
 		SLB_DEBUG_CALL;
 		lua_State *L = getState();
