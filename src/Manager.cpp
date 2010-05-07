@@ -26,10 +26,13 @@
 #include <SLB/Debug.hpp>
 #include <SLB/util.hpp>
 #include <SLB/Hybrid.hpp>
+#include <SLB/Mutex.hpp>
 
 #include <iostream>
 
 namespace SLB {
+
+	Mutex managerMutex;
 
 	/* Global functions */
 	int SLB_type(lua_State *L)
@@ -250,12 +253,14 @@ namespace SLB {
 	void Manager::addClass( ClassInfo *c )
 	{
 		SLB_DEBUG_CALL;
+		CriticalSection lock(&managerMutex);
 		_classes[ c->getTypeid() ] = c;
 	}
 
 	const ClassInfo *Manager::getClass(const TypeInfoWrapper &ti) const
 	{
 		SLB_DEBUG_CALL;
+		ActiveWaitCriticalSection lock(&managerMutex);
 		//TODO: change this assert with a ti.valid()
 		assert("Invalid type_info" && (&ti) );
 		ClassMap::const_iterator i = _classes.find(ti);
@@ -302,6 +307,7 @@ namespace SLB {
 	ClassInfo *Manager::getClass(const TypeInfoWrapper &ti)
 	{
 		SLB_DEBUG_CALL;
+		ActiveWaitCriticalSection lock(&managerMutex);
 		ClassInfo *result = 0;
 		ClassMap::iterator i = _classes.find(ti);
 		if ( i != _classes.end() ) result = i->second.get();
@@ -385,27 +391,29 @@ namespace SLB {
 		//TODO: change this assert with a ti.valid()
 		assert("Invalid type_info" && (&ti) );
 		ClassInfo *c = 0;
-		ClassMap::iterator i = _classes.find(ti);
-		if ( i != _classes.end() )
 		{
-			c = i->second.get();
+			CriticalSection lock(&managerMutex);
+			ClassMap::iterator i = _classes.find(ti);
+			if ( i != _classes.end() )
+			{
+				c = i->second.get();
+			}
 		}
-		else
-		{
-			c = new ClassInfo(ti);
-		}
+		if (c == 0) c = new ClassInfo(ti);
 		return c;
 	}
 	
 	void Manager::set(const std::string &name, Object *obj)
 	{
 		SLB_DEBUG_CALL;
+		ActiveWaitCriticalSection lock(&managerMutex);
 		_global->set(name, obj);
 	}
 	
 	void Manager::rename(ClassInfo *ci, const std::string &new_name)
 	{
 		SLB_DEBUG_CALL;
+		CriticalSection lock(&managerMutex);
 		const std::string old_name = ci->getName();
 
 		NameMap::iterator i = _names.find(old_name);
