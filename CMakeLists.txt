@@ -4,9 +4,10 @@ set(EXECUTABLE_OUTPUT_PATH ${SLB_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${SLB_BINARY_DIR}/lib)
 
 OPTION(SLB_BUILD_TESTS "Enable building Tests" OFF)
+OPTION(SLB_BUILD_EXAMPLES "Enable examples" ON)
 OPTION(SLB_USE_EMBEDDED_LUA "Use Lua embedded" ON)
 OPTION(SLB_USE_VALGRIND "Use valgrind to check memory leaks" OFF)
-SET(SLB_DEBUG_LEVEL 100)
+SET(SLB_DEBUG_LEVEL 0)
 
 link_directories( ${LIBRARY_OUTPUT_PATH} )
 
@@ -67,3 +68,10 @@ if(SLB_BUILD_TESTS)
 	enable_testing()
 	add_subdirectory(tests)
 endif(SLB_BUILD_TESTS)
+
+if(SLB_BUILD_EXAMPLES)
+	file(GLOB ALL_EXAMPLES "${SLB_SOURCE_DIR}/examples/*")
+	foreach(example ${ALL_EXAMPLES})
+		add_subdirectory(${example})
+	endforeach(example)
+endif(SLB_BUILD_EXAMPLES)
