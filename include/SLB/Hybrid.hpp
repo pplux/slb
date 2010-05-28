@@ -95,7 +95,6 @@ namespace SLB {
 
 	private:
 		lua_State * _L;
-		Mutex _mutex;
 		int _global_environment;
 
 		// pops a key,value from tom and sets as our method
@@ -107,7 +106,8 @@ namespace SLB {
 		static int class__index(lua_State *);
 		static int object__index(lua_State *);
 
-	public:
+	protected:
+		mutable Mutex _mutex;
 	};
 
 	template<class BaseClass>
@@ -140,7 +140,7 @@ namespace SLB {
 	#define SLB_ARG(N) , arg_##N
 	#define SLB_BODY(N) \
 			\
-			ActiveWaitCriticalSection __dummy__lock(_mutex); \
+			ActiveWaitCriticalSection __dummy__lock(&_mutex); \
 			LC *method = 0; \
 			SLB_DEBUG(3,"Call Hybrid-method [%s]", name)\
 			lua_State *L = getLuaState(); \
