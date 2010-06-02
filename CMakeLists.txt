@@ -53,6 +53,7 @@ else(WIN32)
 
 	if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 		set_target_properties( SLB PROPERTIES LINK_FLAGS "-Wl,-E")
+		target_link_libraries( SLB pthread)
 	endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 	if (NOT SLB_USE_EMBEDDED_LUA)
