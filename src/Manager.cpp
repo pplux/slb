@@ -78,7 +78,7 @@ namespace SLB {
 			{
 				ClassInfo* ci = reinterpret_cast<ClassInfo*>( lua_touserdata(L,-1) );
 				lua_settop(L, top);
-				ci->push_copy(L, lua_touserdata(L,1));
+				ci->push_copy(L, ci->get_const_ptr(L,1));
 				return 1;
 			}
 		}
