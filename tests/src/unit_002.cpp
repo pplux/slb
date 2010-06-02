@@ -3,10 +3,11 @@
 
 namespace Unit_002 
 {
-	HClass::HClass() :
-		_lockBeginCalled(false),
-		_lockEndCalled(false),
-		_total(0)
+	bool HybridLock::lockCalled = false;
+	bool HybridLock::unlockCalled = false;
+	int HybridLock::total = 0;
+
+	HClass::HClass()
 	{
 		SLB_DEBUG_CALL;
 	}
@@ -15,25 +16,9 @@ namespace Unit_002
 	bool HClass::checkSharedState()
 	{
 		SLB_DEBUG_CALL;
-		return (_lockBeginCalled && _lockEndCalled && _total == 0);
+		return (HybridLock::lockCalled && HybridLock::unlockCalled && HybridLock::total == 0);
 	}
 
-	void HClass::lockBegin(lua_State *L)
-	{
-		SLB_DEBUG_CALL;
-		std::cout << "Called LOCK BEGIN" << std::endl;
-		_lockBeginCalled = true;
-		_total++;
-	}
-
-	void HClass::lockEnd(lua_State *L)
-	{
-		SLB_DEBUG_CALL;
-		std::cout << "Called LOCK END" << std::endl;
-		_lockEndCalled = true;
-		_total--;
-	}
-	
 	void wrapper()
 	{
 		SLB_DEBUG_CALL;
