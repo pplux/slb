@@ -110,7 +110,7 @@ namespace SLB {
 		mutable Mutex _mutex;
 	};
 
-	template<class BaseClass>
+	template<class BaseClass, class T_CriticalSection = ActiveWaitCriticalSection >
 	class Hybrid : public virtual HybridBase {
 	public:
 		Hybrid()
@@ -140,7 +140,7 @@ namespace SLB {
 	#define SLB_ARG(N) , arg_##N
 	#define SLB_BODY(N) \
 			\
-			ActiveWaitCriticalSection __dummy__lock(&_mutex); \
+			T_CriticalSection __dummy__lock(&_mutex); \
 			LC *method = 0; \
 			SLB_DEBUG(3,"Call Hybrid-method [%s]", name)\
 			lua_State *L = getLuaState(); \

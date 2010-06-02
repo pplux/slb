@@ -5,8 +5,17 @@
 
 namespace Unit_002 {
 
+	struct HybridLock : public SLB::ActiveWaitCriticalSection
+	{
+		HybridLock(SLB::Mutex *m) : SLB::ActiveWaitCriticalSection(m) { lockCalled = true; total++;  }
+		~HybridLock() { unlockCalled = true; total--;}
 
-	class HClass : public SLB::Hybrid<HClass>
+		static bool lockCalled;
+		static bool unlockCalled;
+		static int total;
+	};
+
+	class HClass : public SLB::Hybrid<HClass, HybridLock>
 	{
 	public:
 		HClass();
@@ -21,13 +30,7 @@ namespace Unit_002 {
 
 		bool checkSharedState(); //< should be true when linking from a lua_table
 
-	protected:
-		void lockBegin(lua_State *L);
-		void lockEnd(lua_State *L);
-
 	private:
-		bool _lockBeginCalled;
-		bool _lockEndCalled;
 		int _total;
 	};
 
