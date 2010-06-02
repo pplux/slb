@@ -1,5 +1,6 @@
 #define luaall_c
 
+#include "lua/lobject.c"
 #include "lua/lapi.c"
 #include "lua/lcode.c"
 #include "lua/ldebug.c"
@@ -9,7 +10,6 @@
 #include "lua/lgc.c"
 #include "lua/llex.c"
 #include "lua/lmem.c"
-#include "lua/lobject.c"
 #include "lua/lopcodes.c"
 #include "lua/lparser.c"
 #include "lua/lstate.c"
