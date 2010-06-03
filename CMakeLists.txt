@@ -38,6 +38,13 @@ add_library(SLB
 	${SOURCES}
 )
 
+add_library(SLB_static
+	STATIC
+	${HEADERS}
+	${SOURCES}
+)
+
+
 if(WIN32)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	add_definitions(-DSLB_LIBRARY)
