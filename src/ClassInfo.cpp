@@ -100,10 +100,12 @@ namespace SLB {
 		Table::pushImplementation(L);
 		lua_getmetatable(L, -1);
 		
+		/*
 		lua_pushstring(L, "__objects");
 		lua_newtable(L);
 		lua_rawset(L, -3);
-		
+		*/
+
 		lua_pushstring(L, "__class_ptr");
 		lua_pushlightuserdata(L, (void*)this);
 		lua_rawset(L, -3);
@@ -137,7 +139,7 @@ namespace SLB {
 		lua_pushvalue(L,-1);
 		lua_setmetatable(L, top+1);
 
-		// keep a copy
+		/* // keep a copy
 		if (instance->keepCopyAsCache())
 		{
 			lua_getfield(L, top+2, "__objects");
@@ -145,6 +147,7 @@ namespace SLB {
 			lua_pushvalue(L,top+1);
 			lua_rawset(L, -3);
 		}
+		*/
 
 		lua_settop(L, top+1);
 
