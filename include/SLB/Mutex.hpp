@@ -29,7 +29,7 @@
 	// Win32 Mutex:
 	#ifdef WIN32
 		#include <windows.h>
-		namespace SLB { typedef LPCRITICAL_SECTION MutexData; }
+		namespace SLB { typedef CRITICAL_SECTION MutexData; }
 	#else // WIN32
 	// Posix Mutex:
 		#include <pthread.h>	
@@ -94,23 +94,23 @@ namespace SLB
 	// Windows implementation...
 	inline Mutex::Mutex()
 	{
-		InitializeCriticalSection(_m);
+		InitializeCriticalSection(&_m);
 	}
 	inline Mutex::~Mutex()
 	{
-		DeleteCriticalSection(_m);
+		DeleteCriticalSection(&_m);
 	}
 	inline void Mutex::lock()
 	{
-		EnterCriticalSection(_m);
+		EnterCriticalSection(&_m);
 	}
 	inline void Mutex::unlock()
 	{
-		LeaveCriticalSection(_m);
+		LeaveCriticalSection(&_m);
 	}
 	inline bool Mutex::trylock()
 	{
-		return( TryEnterCriticalSection(_m) != 0) ;
+		return( TryEnterCriticalSection(&_m) != 0) ;
 	}
 #else
 	// PTHREADS implementation...

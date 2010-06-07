@@ -12,8 +12,11 @@ int main(int argc, char **argv)
 	SLB::Script *s = new SLB::Script();
 	SLB_DEBUG(0, "Open SLB...");
 
-	SLB_DEBUG(0, "Loading script...");
-	s->doFile(argv[1]);
+	if (argc == 2)
+	{
+		SLB_DEBUG(0, "Loading script...");
+		s->doFile(argv[1]);
+	}
 
 	SLB_DEBUG(0, "Closing script...");
 	delete s;
