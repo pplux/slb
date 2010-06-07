@@ -1,0 +1,7 @@
+KNOWN BUGS
+----------
+
+On windows the standard iterator API to register methods from standar stl containers, can not
+be wrapped directly. To wrapp those methods the full specification of the method it's needed.
+To illustrate this see tests/unit_001.cpp
+
