@@ -34,22 +34,31 @@
 
 int main(int argc, char **argv)
 {
+	int result = 0;
 	SLB_DEBUG_CALL;
 	SLB_DEBUG(0, "Start test...");
 	SLB::Script *s = new SLB::Script();
 	SLB_DEBUG(0, "Open SLB...");
 
-	if (argc == 2)
+	try
 	{
-		SLB_DEBUG(0, "Loading script...");
-		s->doFile(argv[1]);
+		if (argc == 2)
+		{
+			SLB_DEBUG(0, "Loading script...");
+			s->doFile(argv[1]);
+		}
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << "EXCEPTION: " << e.what() << std::endl;
+		result = 1;
 	}
 
 	SLB_DEBUG(0, "Closing script...");
 	delete s;
 	SLB_DEBUG(0, "End Test...");
-
 	SLB::Manager::getInstance().reset(); // clear all memory
+
 
 #ifdef USE_VALGRIND
 //Thanks to:  http://thread.gmane.org/gmane.comp.debugging.valgrind/6504/focus=6505
@@ -62,5 +71,5 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	return 0;
+	return result;
 }

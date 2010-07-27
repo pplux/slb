@@ -122,7 +122,11 @@ namespace SLB {
 		int top = lua_gettop(L);
 		SLB_DEBUG(10, "filename %s = ", filename.c_str());
 
-		if(luaL_loadfile(L,filename.c_str()) || _errorHandler->lua_pcall(_L, 0, 0))
+		if(luaL_loadfile(L,filename.c_str()))
+		{
+			throw std::runtime_error("can not open file");
+		}
+		if( _errorHandler->lua_pcall(_L, 0, 0))
 		{
 			throw std::runtime_error( lua_tostring(_L, -1) );
 		}
