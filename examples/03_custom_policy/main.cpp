@@ -8,8 +8,8 @@
 //    - adjust the _flags properly:
 //			I_Invalid   = Invalid object, the default state. Also is equal to 0x00
 //			I_Copy      = The Current object comes from a "copy" of a given object. It can also indicate
-//		                  that the object is attached to the lua_state, so when deleted the memory should be
-//                        freed.
+//		                  that the object is attached to the lua_state, so when the lua collects the object
+//                        the memory should be freed.
 //			I_Reference = The object passed was a reference.
 //			I_Pointer   = The object passed was a pointer. 
 //			I_Const_Pointer = The object passed was a const-pointer (or const-reference)
