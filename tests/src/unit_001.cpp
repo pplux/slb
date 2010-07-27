@@ -62,10 +62,11 @@ namespace Unit_001 {
 			.set("push_back", &Vector::push_back)
 #ifdef WIN32
 			.set("get", &Vector::operator[] )
-// Windows 2008 needs complete specification... :(
-//			.const_set("get_const",   &Vector::operator[] )
-//			.iterator<Vector::iterator>("iterator", &Vector::begin, &Vector::end )
-//			.const_iterator<Vector::const_iterator>("const_iterator", &Vector::begin, &Vector::end )
+			// Windows 2008 needs complete specification... :(
+			.const_set<Vector, Vector::const_reference, Vector::size_type>("get_const", &Vector::operator[])
+				.iterator<Vector, Vector::iterator>("iterator",&Vector::begin, &Vector::end )
+				.const_iterator<Vector, Vector::const_iterator>("const_iterator", &Vector::begin,&Vector::end )
+			
 		;
 #else
 			.nonconst_set("get",  &Vector::operator[] )
@@ -81,9 +82,9 @@ namespace Unit_001 {
 #ifdef WIN32
 			.set("get", &iVector::operator[] )
 // Windows 2008 needs complete specification... :(
-//			.const_set("get_const",   &iVector::operator[] )
-//			.iterator<iVector::iterator>("iterator", &iVector::begin, &iVector::end )
-//			.const_iterator<iVector::const_iterator>("const_iterator", &iVector::begin, &iVector::end )
+			.const_set<iVector, iVector::const_reference, iVector::size_type>("get_const", &iVector::operator[])
+			.iterator<iVector, iVector::iterator>("iterator",&iVector::begin, &iVector::end )
+			.const_iterator<iVector, iVector::const_iterator>("const_iterator", &iVector::begin,&iVector::end )
 		;
 #else
 		// for basic types we do not support returning a reference yet
