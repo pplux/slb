@@ -16,6 +16,11 @@ private:
 	static int _int;
 };
 
+float c_function(float a, float b)
+{
+	return a+b;
+}
+
 std::string StaticClass::_string;
 int StaticClass::_int;
 
@@ -31,6 +36,9 @@ void doWrappers()
 		.set("getInt", StaticClass::getInt)
 		.set("setInt", StaticClass::setInt)
 	;
+
+	//Manually register a value/function...
+	SLB::Manager::getInstance().set( "c_function", SLB::FuncCall::create(c_function));
 };
 
 int main(int, char**)
@@ -42,6 +50,7 @@ int main(int, char**)
 		"StaticClass.setInt(5)\n"
 		"print('s',StaticClass.getString())\n"
 		"print('i',StaticClass.getInt())\n"
+		"print('func',SLB.c_function(5,6))\n"
 		;
 
 	doWrappers();
