@@ -130,7 +130,7 @@ namespace SLB {
 			//TODO this can be improved a little bit... by storing this metatable
 			//somewhere....
 			lua_newtable(_L); // [+1] metatable 
-			lua_pushvalue(_L, LUA_GLOBALSINDEX); // [+1] globals _G
+			lua_pushvalue(_L, LUA_RIDX_GLOBALS); // [+1] globals _G
 			lua_setfield(_L, -2, "__index"); // [-1] metatable.__index = _G
 			lua_setmetatable(L,-2); // [-1]
 			// done
@@ -308,7 +308,8 @@ namespace SLB {
 		lua_pushvalue(L, lua_upvalueindex(1));
 		// get the environment (from object) and set it
 		lua_rawgeti(L, LUA_REGISTRYINDEX, hb->_global_environment);
-		lua_setfenv(L,-2);
+		// change the environment (_ENV) of the function (first upvalue)
+		lua_setupvalue(L,-2, 1);
 		lua_insert(L,1); //put the target function at 1
 		SLB_DEBUG_STACK(10, L, "Hybrid(%p)::call_lua_method ...", hb);
 		lua_call(L, lua_gettop(L) - 1, LUA_MULTRET);

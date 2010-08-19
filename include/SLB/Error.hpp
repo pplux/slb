@@ -44,7 +44,7 @@ namespace SLB {
 		virtual ~ErrorHandler() {}
 
 		// performs the lua_pcall using this errorHandler
-		int lua_pcall(lua_State *L, int nargs, int nresults);
+		int call(lua_State *L, int nargs, int nresults);
 
 		/// first function to be called with the main error
 		virtual void begin(const char *error) {}
