@@ -112,7 +112,7 @@ namespace SLB {
 	int SLB_using(lua_State *L)
 	{
 		SLB_DEBUG_CALL;
-		int top = lua_gettop(L);
+		const int top = lua_gettop(L);
 		luaL_checktype(L, 1, LUA_TTABLE);
 
 		lua_getfield(L, LUA_REGISTRYINDEX, "SLB_using");
@@ -122,17 +122,19 @@ namespace SLB {
 			lua_pop(L,1);
 
 			// get or create _G's metatable 
-			if(!lua_getmetatable(L, LUA_RIDX_GLOBALS))
+			lua_rawgeti(L,LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
+			const int globals = lua_gettop(L);
+			if(!lua_getmetatable(L, -1))
 			{
 				lua_newtable(L);
-				// set as metatable of _B 
+				// set as metatable of _G
 				lua_pushvalue(L,-1);
-				lua_setmetatable(L, LUA_RIDX_GLOBALS);
+				lua_setmetatable(L, globals);
 			}
 			else
 			{
 				luaL_error(L, "Can not use SLB.using,"
-					" _G already has a metatable");
+					" _ENV already has a metatable");
 			}
 
 			lua_newtable(L); // create the "SLB_using" table
