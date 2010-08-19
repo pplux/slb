@@ -1,5 +1,5 @@
 /*
-** $Id: print.c,v 1.55a 2006/05/31 13:30:05 lhf Exp $
+** $Id: print.c,v 1.61 2010/07/31 11:34:07 lhf Exp $
 ** print bytecodes
 ** See Copyright Notice in lua.h
 */
@@ -30,7 +30,7 @@ static void PrintString(const TString* ts)
   int c=s[i];
   switch (c)
   {
-   case '"': printf("\\\""); break;
+   case '"':  printf("\\\""); break;
    case '\\': printf("\\\\"); break;
    case '\a': printf("\\a"); break;
    case '\b': printf("\\b"); break;
@@ -71,6 +71,8 @@ static void PrintConstant(const Proto* f, int i)
  }
 }
 
+#define UPVALNAME(x) ((f->upvalues[x].name) ? getstr(f->upvalues[x].name) : "-")
+
 static void PrintCode(const Proto* f)
 {
  const Instruction* code=f->code;
@@ -82,9 +84,13 @@ static void PrintCode(const Proto* f)
   int a=GETARG_A(i);
   int b=GETARG_B(i);
   int c=GETARG_C(i);
+  int ax=GETARG_Ax(i);
   int bx=GETARG_Bx(i);
   int sbx=GETARG_sBx(i);
-  int line=getline(f,pc);
+  int line=getfuncline(f,pc);
+#ifdef LUAC_DUMP_INSTRUCTIONS
+  printf("%0*X",2*sizeof(i),i);
+#endif
   printf("\t%d\t",pc+1);
   if (line>0) printf("[%d]\t",line); else printf("[-]\t");
   printf("%-9s\t",luaP_opnames[o]);
@@ -96,24 +102,32 @@ static void PrintCode(const Proto* f)
     if (getCMode(o)!=OpArgN) printf(" %d",ISK(c) ? (-1-INDEXK(c)) : c);
     break;
    case iABx:
-    if (getBMode(o)==OpArgK) printf("%d %d",a,-1-bx); else printf("%d %d",a,bx);
+    if (getBMode(o)==OpArgK) printf("%d %d",a,-bx); else printf("%d %d",a,bx);
     break;
    case iAsBx:
     if (o==OP_JMP) printf("%d",sbx); else printf("%d %d",a,sbx);
+    break;
+   case iAx:
+    printf("%d",ax);
     break;
   }
   switch (o)
   {
    case OP_LOADK:
-    printf("\t; "); PrintConstant(f,bx);
+    printf("\t; "); PrintConstant(f,bx-1);
     break;
    case OP_GETUPVAL:
    case OP_SETUPVAL:
-    printf("\t; %s", (f->sizeupvalues>0) ? getstr(f->upvalues[b]) : "-");
+    printf("\t; %s", UPVALNAME(b));
     break;
-   case OP_GETGLOBAL:
-   case OP_SETGLOBAL:
-    printf("\t; %s",svalue(&f->k[bx]));
+   case OP_GETTABUP:
+    printf("\t; %s", UPVALNAME(b));
+    if (ISK(c)) { printf(" "); PrintConstant(f,INDEXK(c)); }
+    break;
+   case OP_SETTABUP:
+    printf("\t; %s", UPVALNAME(a));
+    if (ISK(b)) { printf(" "); PrintConstant(f,INDEXK(b)); }
+    if (ISK(c)) { printf(" "); PrintConstant(f,INDEXK(c)); }
     break;
    case OP_GETTABLE:
    case OP_SELF:
@@ -155,7 +169,7 @@ static void PrintCode(const Proto* f)
  }
 }
 
-#define SS(x)	(x==1)?"":"s"
+#define SS(x)	((x==1)?"":"s")
 #define S(x)	x,SS(x)
 
 static void PrintHeader(const Proto* f)
@@ -173,14 +187,15 @@ static void PrintHeader(const Proto* f)
 	S(f->sizecode),f->sizecode*Sizeof(Instruction),VOID(f));
  printf("%d%s param%s, %d slot%s, %d upvalue%s, ",
 	f->numparams,f->is_vararg?"+":"",SS(f->numparams),
-	S(f->maxstacksize),S(f->nups));
+	S(f->maxstacksize),S(f->sizeupvalues));
  printf("%d local%s, %d constant%s, %d function%s\n",
 	S(f->sizelocvars),S(f->sizek),S(f->sizep));
 }
 
-static void PrintConstants(const Proto* f)
+static void PrintDebug(const Proto* f)
 {
- int i,n=f->sizek;
+ int i,n;
+ n=f->sizek;
  printf("constants (%d) for %p:\n",n,VOID(f));
  for (i=0; i<n; i++)
  {
@@ -188,27 +203,19 @@ static void PrintConstants(const Proto* f)
   PrintConstant(f,i);
   printf("\n");
  }
-}
-
-static void PrintLocals(const Proto* f)
-{
- int i,n=f->sizelocvars;
+ n=f->sizelocvars;
  printf("locals (%d) for %p:\n",n,VOID(f));
  for (i=0; i<n; i++)
  {
   printf("\t%d\t%s\t%d\t%d\n",
   i,getstr(f->locvars[i].varname),f->locvars[i].startpc+1,f->locvars[i].endpc+1);
  }
-}
-
-static void PrintUpvalues(const Proto* f)
-{
- int i,n=f->sizeupvalues;
+ n=f->sizeupvalues;
  printf("upvalues (%d) for %p:\n",n,VOID(f));
  if (f->upvalues==NULL) return;
  for (i=0; i<n; i++)
  {
-  printf("\t%d\t%s\n",i,getstr(f->upvalues[i]));
+  printf("\t%d\t%s\n",i,getstr(f->upvalues[i].name));
  }
 }
 
@@ -217,11 +224,6 @@ void PrintFunction(const Proto* f, int full)
  int i,n=f->sizep;
  PrintHeader(f);
  PrintCode(f);
- if (full)
- {
-  PrintConstants(f);
-  PrintLocals(f);
-  PrintUpvalues(f);
- }
+ if (full) PrintDebug(f);
  for (i=0; i<n; i++) PrintFunction(f->p[i],full);
 }
