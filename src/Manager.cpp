@@ -122,12 +122,12 @@ namespace SLB {
 			lua_pop(L,1);
 
 			// get or create _G's metatable 
-			if(!lua_getmetatable(L, LUA_GLOBALSINDEX))
+			if(!lua_getmetatable(L, LUA_RIDX_GLOBALS))
 			{
 				lua_newtable(L);
 				// set as metatable of _B 
 				lua_pushvalue(L,-1);
-				lua_setmetatable(L, LUA_GLOBALSINDEX);
+				lua_setmetatable(L, LUA_RIDX_GLOBALS);
 			}
 			else
 			{
@@ -238,13 +238,18 @@ namespace SLB {
 		int top = lua_gettop(L);
 
 		// Register global functions
-		luaL_register(L, "SLB", SLB_funcs);
+		lua_newtable(L); // "SLB" table
+		luaL_setfuncs(L, SLB_funcs,0);
+
 		// metatable of "SLB"
 		lua_newtable(L);
 		lua_pushstring(L,"__index");
 		_global->push(L);
 		lua_rawset(L,-3);
 		lua_setmetatable(L,-2); // SLB table
+
+		// name SLB as SLB in the global environment
+		lua_setglobal(L,"SLB");
 
 		lua_settop(L,top);
 	}

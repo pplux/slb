@@ -37,7 +37,7 @@ namespace SLB {
 // Abstract Error Handler
 ////////////////////////////////////////////////////////////////////////////////
 
-int ErrorHandler::lua_pcall(lua_State *L, int nargs, int nresults)
+int ErrorHandler::call(lua_State *L, int nargs, int nresults)
 {
 	SLB_DEBUG_CALL;
 

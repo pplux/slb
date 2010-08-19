@@ -126,7 +126,7 @@ namespace SLB {
 		{
 			throw std::runtime_error("can not open file");
 		}
-		if( _errorHandler->lua_pcall(_L, 0, 0))
+		if( _errorHandler->call(_L, 0, 0))
 		{
 			throw std::runtime_error( lua_tostring(_L, -1) );
 		}
@@ -143,7 +143,7 @@ namespace SLB {
 		std::stringstream code;
 		code << "--" << hint << std::endl << o_code;
 
-		if(luaL_loadstring(L,code.str().c_str()) || _errorHandler->lua_pcall(_L, 0, 0))
+		if(luaL_loadstring(L,code.str().c_str()) || _errorHandler->call(_L, 0, 0))
 		{
 			throw std::runtime_error( lua_tostring(L,-1) );
 		}
