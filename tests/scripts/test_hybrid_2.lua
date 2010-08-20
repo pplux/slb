@@ -2,7 +2,7 @@ SLB.using(SLB.Unit_002)
 
 -- previous to any instance
 function HClass:calc(a,b)
-	this.result = a+b
+	_self.result = a+b
 end
 
 -- create one instance
@@ -10,7 +10,7 @@ v = HClass()
 
 -- another function:
 function HClass:get()
-	return this.result 
+	return _self.result 
 end
 
 v:calc(6,7)

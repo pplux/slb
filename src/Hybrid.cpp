@@ -309,11 +309,11 @@ namespace SLB {
 
 		// get the environment (from object) and set it as the global environment
 		//   -1st save the current this object and store a reference
-		lua_getglobal(L, "this");
+		lua_getglobal(L, "_self");
 		int _ENV = luaL_ref(L, LUA_REGISTRYINDEX);
 		//   -2nd get the objects's environment and set it as the global environment
 		lua_rawgeti(L, LUA_REGISTRYINDEX, hb->_global_environment);
-		lua_setglobal(L,"this");
+		lua_setglobal(L,"_self");
 
 		lua_insert(L,1); //put the target function at 1
 		SLB_DEBUG_STACK(10, L, "Hybrid(%p)::call_lua_method ...", hb);
@@ -321,7 +321,7 @@ namespace SLB {
 
 		// restore the environment
 		lua_rawgeti(L, LUA_REGISTRYINDEX, _ENV);
-		lua_setglobal(L,"this");
+		lua_setglobal(L,"_self");
 		luaL_unref(L, LUA_REGISTRYINDEX, _ENV); //> release the reference
 
 		return lua_gettop(L);

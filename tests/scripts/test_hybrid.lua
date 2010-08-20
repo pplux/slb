@@ -5,11 +5,11 @@ chunk = assert(loadstring[[
 print("Loading hybrid members...")
 
 function HClass:calc(a, b)
-	this.result = a + b
+	_self.result = a + b
 end
 
 function HClass:get()
-	return this.result
+	return _self.result
 end
 
 ]])()
