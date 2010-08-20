@@ -17,7 +17,7 @@ print("----------------- map[6] = txt1 ---------------")
 map[6] = "txt2"
 
 print("-----------------------------------------------")
-printTable(debug.getmetatable(map))
+--printTable(debug.getmetatable(map))
 
 print("----------------- map[5] = ? ---------------")
 if map[5] ~= "txt1" then error("Invalid key 5 -> "..tostring(map[5])) end

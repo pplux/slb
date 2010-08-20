@@ -5,11 +5,11 @@ chunk = assert(loadstring[[
 print("Loading hybrid members...")
 
 function HClass:calc(a, b)
-	result = a + b
+	this.result = a + b
 end
 
 function HClass:get()
-	return result
+	return this.result
 end
 
 ]])()
@@ -30,7 +30,7 @@ end
 
 print("Cheking global state")
 if result ~= nil then
-	print("Result == ", result,"<-")
+	print("result == ", result,"<-")
 	error("Hybrid class has interfered global state.")
 end
 

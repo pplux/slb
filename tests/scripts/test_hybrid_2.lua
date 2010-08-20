@@ -2,7 +2,7 @@ SLB.using(SLB.Unit_002)
 
 -- previous to any instance
 function HClass:calc(a,b)
-	result = a+b
+	this.result = a+b
 end
 
 -- create one instance
@@ -10,7 +10,7 @@ v = HClass()
 
 -- another function:
 function HClass:get()
-	return result 
+	return this.result 
 end
 
 v:calc(6,7)
@@ -26,6 +26,6 @@ end
 
 print("Cheking global state")
 if result ~= nil then
-	print("Result == ", result,"<-")
+	print("result == ", result,"<-")
 	error("Hybrid class has interfered global state.")
 end

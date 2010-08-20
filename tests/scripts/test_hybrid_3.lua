@@ -15,7 +15,7 @@ end
 print("declare: HClass:get")
 function HClass:get()
 	print("Calling virtual method HClass:get")
-	return result
+	return this.result
 end
 
 -- this is an extra function of HClass (not in C++)
@@ -27,7 +27,7 @@ function HClass:perform_calc(a, b)
 	-- here inner is a global value that must exists once this method
 	-- is called.
 	print("Trying to call inner --> implemented in subclasses")
-	result = self:inner(a,b) + extra
+	this.result = self:inner(a,b) + this.extra
 end
 
 -- this is an extra function
@@ -36,7 +36,7 @@ function HClass:setExtra(v)
 	if SLB.type(self) ~= "Unit_002::HClass" then
 		error("Invalid instance @ extra : "..type(self))
 	end
-	extra = v
+	this.extra = v
 end
 
 -- this is an extra function, and should be overriden
@@ -54,7 +54,7 @@ end
 
 print("declare: HClass.Type1:other")
 function HClass.Type1:other(a)
-	extra = extra + 1
+	this.extra = this.extra + 1
 	return a*2
 end
 
@@ -63,7 +63,7 @@ print("declare: HClass.Type1:get")
 -- This implements a C++-virtual function, overriding parent
 -- implementation.
 function HClass.Type1:get(a)
-	return result*2
+	return this.result*2
 end
 
 print("---Now Type2... easier class -------------------------------------")
