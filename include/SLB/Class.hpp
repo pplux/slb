@@ -61,7 +61,7 @@ namespace SLB {
 	public:
 		typedef Class<T,W> __Self;
 
-		Class(const char *name);
+		Class(Manager *m, const char *name);
 		Class(const Class&);
 		Class& operator=(const Class&);
 
@@ -286,13 +286,13 @@ namespace SLB {
 	};
 	
 	template<typename T, typename W>
-	inline Class<T,W>::Class(const char *name)
+	inline Class<T,W>::Class(Manager *m, const char *name)
 		: _class(0), _lastObj(0), _param(0)
 	{
 		SLB_DEBUG_CALL;
 		// we expect to have a template "Implementation" inside W
 		typedef typename W::template Implementation<T> Adapter;
-		_class = Manager::getInstance().getOrCreateClass( typeid(T) );
+		_class = m->getOrCreateClass( typeid(T) );
 		_class->setName( name );
 		_class->setInstanceFactory(new InstanceFactoryAdapter< T, Adapter >() );
 		SLB_DEBUG(1, "Class declaration for %s[%s]", name, typeid(T).name());

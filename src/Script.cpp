@@ -44,7 +44,7 @@ namespace SLB {
 	}
 #endif
 
-	Script::Script(bool default_libs) : _L(0), _errorHandler(0), _loadDefaultLibs(default_libs)
+	Script::Script(Manager *m, bool default_libs) : _manager(m), _L(0), _errorHandler(0), _loadDefaultLibs(default_libs)
 	{
 		SLB_DEBUG_CALL;
 		_errorHandler = new DefaultErrorHandler();
@@ -66,7 +66,7 @@ namespace SLB {
 			_L = luaL_newstate();
 			assert("Can not create more lua_states" && (_L != 0L));
 			if (_loadDefaultLibs) luaL_openlibs(_L);
-			SLB::Manager::getInstance().registerSLB(_L);
+			_manager->registerSLB(_L);
 		
 			//TODO: Promote that functionality to a higher interface to allow proper
 			//      debugging

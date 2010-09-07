@@ -8,7 +8,8 @@ int main(int, char**)
 		"print('---------------')\n";
 
 	// Custom SLB::SCript, a simplification to use SLB
-	SLB::Script s;
+	SLB::Manager m;
+	SLB::Script s(&m);
 	s.doString(lua_code);
 
 	/* but you can include SLB features on any lua_State */
@@ -19,7 +20,7 @@ int main(int, char**)
 	luaL_openlibs(L);
 	// Register SLB inside the lua_State, calling the SLB::Manager
 	// that handles bindings, default functions, default values...
-	SLB::Manager::getInstance().registerSLB(L);
+	m.registerSLB(L);
 	// No call lua API to execute the same code as above
 	luaL_dostring(L, lua_code); // execute code
 

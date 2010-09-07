@@ -277,7 +277,7 @@ namespace SLB {
 			{
 				void *dir = lua_touserdata(L,pos);
 				// try to get the class info:
-				ClassInfo *ci = Manager::getInstance().getClass(L,pos);
+				ClassInfo *ci = Manager::getInstance(L).getClass(L,pos);
 				if (ci == 0)
 				{
 					luaL_error(L, "Invalid Hybrid object (index=%d) "
@@ -320,7 +320,7 @@ namespace SLB {
 		SLB_DEBUG_CALL;
 		SLB_DEBUG_CLEAN_STACK(L,-2);
 		// 1 - obj (table with classInfo)
-		ClassInfo *ci = Manager::getInstance().getClass(L,1);
+		ClassInfo *ci = Manager::getInstance(L).getClass(L,1);
 		if (ci == 0) luaL_error(L, "Invalid Class at #1");
 
 		// 2 - key (string)
@@ -371,7 +371,7 @@ namespace SLB {
 		SLB_DEBUG_CLEAN_STACK(L,+1);
 		SLB_DEBUG_STACK(6, L, "Call class__index");
 		// trying to traverse the class... create a new InternalHybridSubclass
-		ClassInfo *ci = Manager::getInstance().getClass(L,1);
+		ClassInfo *ci = Manager::getInstance(L).getClass(L,1);
 		if (ci == 0) luaL_error(L, "Expected a valid class.");
 		luaL_checkstring(L,2); // only valid with strings
 		if (!ci->hasConstructor())

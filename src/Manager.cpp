@@ -44,7 +44,7 @@ namespace SLB {
 	int SLB_type(lua_State *L)
 	{
 		SLB_DEBUG_CALL;
-		const ClassInfo *ci = Manager::getInstance().getClass(L,-1);
+		const ClassInfo *ci = Manager::getInstance(L).getClass(L,-1);
 		if (ci)
 		{
 			lua_pushstring(L, ci->getName().c_str());
@@ -195,7 +195,7 @@ namespace SLB {
 	int SLB_allTypes(lua_State *L)
 	{
 		SLB_DEBUG_CALL;
-		Manager::ClassMap &map =  Manager::getInstance().getClasses();
+		Manager::ClassMap &map =  Manager::getInstance(L).getClasses();
 
 		lua_newtable(L);
 		for(Manager::ClassMap::iterator i = map.begin(); i != map.end(); ++i)
@@ -247,6 +247,10 @@ namespace SLB {
 		lua_setmetatable(L,-2); // SLB table
 
 		lua_settop(L,top);
+
+		// put the manager inside the lua_State 
+		lua_pushlightuserdata(L, this);
+		lua_setfield(L, LUA_REGISTRYINDEX, "SLB::Manager");
 	}
 	
 	void Manager::reset()
@@ -405,7 +409,7 @@ namespace SLB {
 				c = i->second.get();
 			}
 		}
-		if (c == 0) c = new ClassInfo(ti);
+		if (c == 0) c = new ClassInfo(this,ti);
 		return c;
 	}
 	
@@ -432,6 +436,30 @@ namespace SLB {
 		_global->set(new_name, ci);
 		_names[ new_name ] = ci->getTypeid();
 
+	}
+
+	Manager *Manager::getInstancePtr(lua_State *L)
+	{
+		if (L == 0)
+		{
+			if (_singleton == 0)
+			{
+				_singleton = new Manager();
+				atexit(Manager::reset);
+			}
+			return _singleton;
+		}
+		else
+		{
+			Manager *m = 0L;
+			lua_getfield(L,LUA_REGISTRYINDEX, "SLB::Manager");
+			if (lua_islightuserdata(L,-1))
+			{
+				m = reinterpret_cast<Manager*>(lua_touserdata(L,-1));
+			}
+			lua_pop(L,1);
+			return m;
+		}
 	}
 }
 

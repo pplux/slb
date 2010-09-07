@@ -53,8 +53,12 @@ namespace SLB {
 		typedef std::map< const std::string, TypeInfoWrapper > NameMap;
 		typedef std::map< std::pair<TypeInfoWrapper, TypeInfoWrapper >, Conversor > ConversionsMap;
 
-		static Manager &getInstance();
-		static Manager *getInstancePtr();
+		Manager();
+		~Manager();
+
+		// Given a luaState returns the manager associated with it
+		static Manager &getInstance(lua_State *L);
+		static Manager *getInstancePtr(lua_State *L);
 
 		const ClassInfo *getClass(const TypeInfoWrapper&) const;
 		const ClassInfo *getClass(const std::string&) const;
@@ -105,8 +109,6 @@ namespace SLB {
 		friend int SLB_allTypes(lua_State *);
 
 	private:
-		Manager();
-		~Manager();
 		Manager(const Manager&);
 		Manager& operator=(const Manager&);
 
@@ -149,9 +151,9 @@ namespace SLB {
 		
 	};
 	
-	inline Manager &Manager::getInstance()
+	inline Manager &Manager::getInstance(lua_State *L)
 	{
-		return *getInstancePtr();
+		return *getInstancePtr(L);
 	}
 
 	template<class D, class B>
@@ -194,20 +196,10 @@ namespace SLB {
 	{
 		return const_cast<void*>(convert(C1,C2, const_cast<void*>(obj)));
 	}
-	
-	inline Manager *Manager::getInstancePtr()
-	{
-		if (_singleton == 0)
-		{
-			_singleton = new Manager();
-			atexit(Manager::reset);
-		}
-		return _singleton;
-	}
 
 	inline bool copy(lua_State *from, int pos, lua_State *to)
 	{
-		return Manager::getInstance().copy(from,pos,to);
+		return Manager::getInstance(from).copy(from,pos,to);
 	}
 
 }

@@ -32,10 +32,9 @@
 
 namespace SLB {
 
-	InstanceBase::InstanceBase(Type t, const std::type_info &type) : _flags(t), _class(0)
+	InstanceBase::InstanceBase(Type t,ClassInfo *ci) : _flags(t), _class(ci)
 	{
 		SLB_DEBUG_CALL;
-		_class = Manager::getInstance().getClass( type );
 	}
 
 	InstanceBase::~InstanceBase() {SLB_DEBUG_CALL;}

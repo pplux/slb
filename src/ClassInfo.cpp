@@ -34,15 +34,16 @@
 
 namespace SLB {
 
-	ClassInfo::ClassInfo(const TypeInfoWrapper &ti) :
+	ClassInfo::ClassInfo(Manager *m, const TypeInfoWrapper &ti) :
 		Namespace(true),
+		_manager(m),
 		_typeid(ti), 
 		_name(""), 
 		_instanceFactory(0),
 		_isHybrid(false)
 	{
 		SLB_DEBUG_CALL;
-		Manager::getInstance().addClass(this);
+		_manager->addClass(this);
 		_name = _typeid.name();
 	}
 
@@ -56,7 +57,7 @@ namespace SLB {
 	{
 		SLB_DEBUG_CALL;
 		// rename first in the manager...
-		Manager::getInstance().rename(this, name);
+		_manager->rename(this, name);
 		_name = name;
 	}
 	
@@ -169,7 +170,7 @@ namespace SLB {
 		{
 			ClassInfo *i_ci = i->getClass();
 			assert("Invalid ClassInfo" && (i_ci != 0));
-			obj = Manager::getInstance().convert( 
+			obj = _manager->convert( 
 					i_ci->getTypeid(), 
 					getTypeid(), 
 					i->get_ptr()
@@ -189,7 +190,7 @@ namespace SLB {
 		{
 			ClassInfo *i_ci = i->getClass();
 			assert("Invalid ClassInfo" && (i_ci != 0));
-			obj = Manager::getInstance().convert( 
+			obj = _manager->convert( 
 					i_ci->getTypeid(),
 					getTypeid(),
 					i->get_const_ptr() );
@@ -235,7 +236,7 @@ namespace SLB {
 		{
 			if (ref)
 			{
-				pushInstance(L, _instanceFactory->create_ref(ref) );
+				pushInstance(L, _instanceFactory->create_ref(_manager, ref) );
 				SLB_DEBUG(7, "Class(%s) push_ref -> %p", _name.c_str(), ref);
 			}
 			else
@@ -254,7 +255,7 @@ namespace SLB {
 		SLB_DEBUG_CALL;
 		if (_instanceFactory)
 		{
-			pushInstance(L, _instanceFactory->create_ptr(ptr, fromConstructor) );
+			pushInstance(L, _instanceFactory->create_ptr(_manager, ptr, fromConstructor) );
 			SLB_DEBUG(7, "Class(%s) push_ptr (from_Constructor %d) -> %p", _name.c_str(), fromConstructor, ptr);
 
 			// if is Hybrid and fromConstructor
@@ -281,7 +282,7 @@ namespace SLB {
 		SLB_DEBUG_CALL;
 		if (_instanceFactory)
 		{
-			pushInstance(L, _instanceFactory->create_const_ptr(const_ptr) );
+			pushInstance(L, _instanceFactory->create_const_ptr(_manager, const_ptr) );
 			SLB_DEBUG(7, "Class(%s) push const_ptr -> %p", _name.c_str(), const_ptr);
 		}
 		else
@@ -297,7 +298,7 @@ namespace SLB {
 		{
 			if (ptr)
 			{
-				pushInstance(L, _instanceFactory->create_copy(ptr) );
+				pushInstance(L, _instanceFactory->create_copy(_manager, ptr) );
 				SLB_DEBUG(7, "Class(%s) push copy -> %p", _name.c_str(), ptr);
 			}
 			else

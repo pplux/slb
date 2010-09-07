@@ -119,7 +119,7 @@ namespace SLB {
 		FuncCall* getConstructor() { return _constructor.get(); }
 
 	protected:
-		ClassInfo(const TypeInfoWrapper &);
+		ClassInfo(Manager *m, const TypeInfoWrapper &);
 		virtual ~ClassInfo();
 		void pushImplementation(lua_State *);
 		virtual int __index(lua_State*);
@@ -128,6 +128,7 @@ namespace SLB {
 		virtual int __garbageCollector(lua_State*);
 		virtual int __tostring(lua_State*);
 
+		Manager          *_manager;
 		TypeInfoWrapper   _typeid;
 		std::string       _name;
 		InstanceFactory  *_instanceFactory;
@@ -160,8 +161,8 @@ namespace SLB {
 	template<class D, class B>
 	inline void ClassInfo::staticInheritsFrom()
 	{
-		Manager::getInstance().template addStaticConversor<D,B>();
-		_baseClasses[ _TIW(B) ] = Manager::getInstance().getOrCreateClass(_TIW(B));
+		_manager->template addStaticConversor<D,B>();
+		_baseClasses[ _TIW(B) ] = _manager->getOrCreateClass(_TIW(B));
 	}
 
 }

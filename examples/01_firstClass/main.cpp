@@ -29,11 +29,11 @@ private:
 
 };
 
-void doWrappers()
+void doWrappers(SLB::Manager *m)
 {
 	std::cout << "Loading wrappers..." << std::endl;
 	// this will register the wrapper of FirstClass
-	SLB::Class< FirstClass >("FirstClass")
+	SLB::Class< FirstClass >(m, "FirstClass")
 		// a comment/documentation for the class [optional]
 		.comment("This is our wrapper of FirstClass class!!")
 		// empty constructor, we can also wrapper constructors
@@ -80,10 +80,12 @@ int main(int, char**)
 		"print('c3',c3:getString())\n"
 		;
 
-	doWrappers();
+	SLB::Manager m;
+	doWrappers(&m);
 
 	// Custom SLB::SCript, a simplification to use SLB
-	SLB::Script s;
+
+	SLB::Script s(&m);
 	std::cout << "SCRIPT CODE:" << std::endl << lua_code << std::endl;
 	std::cout << "------------------" << std::endl;
 	s.doString(lua_code);

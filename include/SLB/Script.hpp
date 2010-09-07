@@ -41,7 +41,7 @@ namespace SLB {
 	class SLB_EXPORT Script
 	{	
 	public:
-		Script(bool loadDefaultLibs = true);
+		Script(Manager *m, bool loadDefaultLibs = true);
 		virtual ~Script();
 
 		void doFile(const std::string &filename) throw (std::exception);
@@ -84,6 +84,7 @@ namespace SLB {
 	private:
 		Script(const Script &s);
 		Script& operator=(const Script&);
+		Manager *_manager;
 		lua_State *_L;
 		ErrorHandler *_errorHandler;
 		bool _loadDefaultLibs;
