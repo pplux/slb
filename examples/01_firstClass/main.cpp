@@ -33,7 +33,7 @@ void doWrappers(SLB::Manager *m)
 {
 	std::cout << "Loading wrappers..." << std::endl;
 	// this will register the wrapper of FirstClass
-	SLB::Class< FirstClass >(m, "FirstClass")
+	SLB::Class< FirstClass >("FirstClass",m)
 		// a comment/documentation for the class [optional]
 		.comment("This is our wrapper of FirstClass class!!")
 		// empty constructor, we can also wrapper constructors

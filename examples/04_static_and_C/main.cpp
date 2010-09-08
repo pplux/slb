@@ -28,7 +28,7 @@ void doWrappers(SLB::Manager *m)
 {
 	std::cout << "Loading wrappers..." << std::endl;
 	// this will register the wrapper of StaticClass
-	SLB::Class< StaticClass, SLB::Instance::NoCopyNoDestroy >(m,"StaticClass")
+	SLB::Class< StaticClass, SLB::Instance::NoCopyNoDestroy >("StaticClass",m)
 		// static methods doesn't require de & like memebers
 		// see example_01
 		.set("getString", StaticClass::getString)
