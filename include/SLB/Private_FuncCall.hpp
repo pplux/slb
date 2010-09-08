@@ -199,7 +199,7 @@ namespace Private {
 		protected: \
 			int call(lua_State *L) \
 			{ \
-				ClassInfo *c = Manager::getInstance(L).getClass(typeid(C)); \
+				ClassInfo *c = Manager::getInstance(L)->getClass(typeid(C)); \
 				if (c == 0) luaL_error(L, "Class %s is not avaliable! ", typeid(C).name()); \
 				SLB_GET(N, 0); \
 				Private::Type<C*>::push(L, new C( SPP_ENUM_D(N,param_) ), true ); \
