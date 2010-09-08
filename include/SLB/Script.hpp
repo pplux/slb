@@ -41,7 +41,7 @@ namespace SLB {
 	class SLB_EXPORT Script
 	{	
 	public:
-		Script(Manager *m, bool loadDefaultLibs = true);
+		Script(Manager *m = Manager::defaultManager(), bool loadDefaultLibs = true);
 		virtual ~Script();
 
 		void doFile(const std::string &filename) throw (std::exception);

@@ -217,7 +217,7 @@ namespace SLB {
 		{NULL, NULL}
 	};
 
-	Manager* Manager::_singleton = 0;
+	Manager* Manager::_default = 0;
 
 	Manager::Manager()
 	{
@@ -256,8 +256,8 @@ namespace SLB {
 	void Manager::reset()
 	{
 		SLB_DEBUG_CALL;
-		delete _singleton;
-		_singleton = 0;
+		delete _default;
+		_default = 0;
 	}
 	
 	void Manager::addClass( ClassInfo *c )
@@ -440,26 +440,24 @@ namespace SLB {
 
 	Manager *Manager::getInstance(lua_State *L)
 	{
-		if (L == 0)
+		Manager *m = 0L;
+		lua_getfield(L,LUA_REGISTRYINDEX, "SLB::Manager");
+		if (lua_islightuserdata(L,-1))
 		{
-			if (_singleton == 0)
-			{
-				_singleton = new Manager();
-				atexit(Manager::reset);
-			}
-			return _singleton;
+			m = reinterpret_cast<Manager*>(lua_touserdata(L,-1));
 		}
-		else
+		lua_pop(L,1);
+		return m;
+	}
+
+	Manager *Manager::defaultManager()
+	{
+		if (_default == 0)
 		{
-			Manager *m = 0L;
-			lua_getfield(L,LUA_REGISTRYINDEX, "SLB::Manager");
-			if (lua_islightuserdata(L,-1))
-			{
-				m = reinterpret_cast<Manager*>(lua_touserdata(L,-1));
-			}
-			lua_pop(L,1);
-			return m;
+			_default = new Manager();
+			atexit(Manager::reset);
 		}
+		return _default;
 	}
 }
 

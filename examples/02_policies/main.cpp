@@ -31,7 +31,7 @@ void doWrappers(SLB::Manager *m)
 	// MyClass doesn't have a copy-constructor so it can not be
 	// wrapped with the default policy, you should use here
 	// SLB::Instance::NoCopy
-	SLB::Class< MyClass, SLB::Instance::NoCopy >(m, "MyClass")
+	SLB::Class< MyClass, SLB::Instance::NoCopy >("MyClass",m)
 		// example of a constructor with arguments, in form of
 		// C++ template
 		.constructor<const std::string&, int>()

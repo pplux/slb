@@ -61,6 +61,7 @@ namespace SLB {
 		  * (SLB::Manager::registerSLB).
 		  */
 		static Manager *getInstance(lua_State *L);
+		static Manager *defaultManager();
 
 		const ClassInfo *getClass(const TypeInfoWrapper&) const;
 		const ClassInfo *getClass(const std::string&) const;
@@ -119,7 +120,7 @@ namespace SLB {
 		ref_ptr<Namespace> _global;
 		ConversionsMap _conversions;
 
-		static Manager *_singleton;
+		static Manager *_default;
 		friend class ClassInfo;
 	};
 	

@@ -61,7 +61,7 @@ namespace SLB {
 	public:
 		typedef Class<T,W> __Self;
 
-		Class(Manager *m, const char *name);
+		Class(const char *name, Manager *m = Manager::defaultManager());
 		Class(const Class&);
 		Class& operator=(const Class&);
 
@@ -286,7 +286,7 @@ namespace SLB {
 	};
 	
 	template<typename T, typename W>
-	inline Class<T,W>::Class(Manager *m, const char *name)
+	inline Class<T,W>::Class(const char *name, Manager *m)
 		: _class(0), _lastObj(0), _param(0)
 	{
 		SLB_DEBUG_CALL;
