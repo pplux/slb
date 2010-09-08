@@ -44,7 +44,7 @@ namespace SLB {
 	int SLB_type(lua_State *L)
 	{
 		SLB_DEBUG_CALL;
-		const ClassInfo *ci = Manager::getInstance(L).getClass(L,-1);
+		const ClassInfo *ci = Manager::getInstance(L)->getClass(L,-1);
 		if (ci)
 		{
 			lua_pushstring(L, ci->getName().c_str());
@@ -195,7 +195,7 @@ namespace SLB {
 	int SLB_allTypes(lua_State *L)
 	{
 		SLB_DEBUG_CALL;
-		Manager::ClassMap &map =  Manager::getInstance(L).getClasses();
+		Manager::ClassMap &map =  Manager::getInstance(L)->getClasses();
 
 		lua_newtable(L);
 		for(Manager::ClassMap::iterator i = map.begin(); i != map.end(); ++i)
@@ -438,7 +438,7 @@ namespace SLB {
 
 	}
 
-	Manager *Manager::getInstancePtr(lua_State *L)
+	Manager *Manager::getInstance(lua_State *L)
 	{
 		if (L == 0)
 		{

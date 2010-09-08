@@ -56,9 +56,11 @@ namespace SLB {
 		Manager();
 		~Manager();
 
-		// Given a luaState returns the manager associated with it
-		static Manager &getInstance(lua_State *L);
-		static Manager *getInstancePtr(lua_State *L);
+		/** extracts the Manager registered given a luaState.
+		  * Returns null if in the lua_State there was no registered Manager
+		  * (SLB::Manager::registerSLB).
+		  */
+		static Manager *getInstance(lua_State *L);
 
 		const ClassInfo *getClass(const TypeInfoWrapper&) const;
 		const ClassInfo *getClass(const std::string&) const;
@@ -150,11 +152,6 @@ namespace SLB {
 		}
 		
 	};
-	
-	inline Manager &Manager::getInstance(lua_State *L)
-	{
-		return *getInstancePtr(L);
-	}
 
 	template<class D, class B>
 	inline void Manager::addConversor()
@@ -199,7 +196,7 @@ namespace SLB {
 
 	inline bool copy(lua_State *from, int pos, lua_State *to)
 	{
-		return Manager::getInstance(from).copy(from,pos,to);
+		return Manager::getInstance(from)->copy(from,pos,to);
 	}
 
 }
