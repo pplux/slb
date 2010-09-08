@@ -25,13 +25,13 @@ private:
 	int _int;
 };
 
-void doWrappers()
+void doWrappers(SLB::Manager *m)
 {
 	std::cout << "Loading wrappers..." << std::endl;
 	// MyClass doesn't have a copy-constructor so it can not be
 	// wrapped with the default policy, you should use here
 	// SLB::Instance::NoCopy
-	SLB::Class< MyClass, SLB::Instance::NoCopy >("MyClass")
+	SLB::Class< MyClass, SLB::Instance::NoCopy >(m, "MyClass")
 		// example of a constructor with arguments, in form of
 		// C++ template
 		.constructor<const std::string&, int>()
@@ -56,6 +56,7 @@ void doWrappers()
 
 int main(int, char**)
 {
-	doWrappers();
+	SLB::Manager m;
+	doWrappers(&m);
 	return 0;
 }

@@ -24,22 +24,22 @@ struct CustomPolicy {
 		// @fromConstructor is true if this instance was created inside the scripting language calling a 
 		//    class constructor method. If this instance was returned by a function, thus was not 
 		//    created inside the script then @fromConstructor = false.
-		Implementation( T* ptr, bool fromConstructor = false ) : InstanceBase( I_Pointer, typeid(T) ), _ptr(ptr)
+		Implementation(SLB::ClassInfo *ci, T* ptr, bool fromConstructor = false ) : InstanceBase( I_Pointer, ci ), _ptr(ptr)
 		{
 			if (fromConstructor) _flags |= I_Copy;
 		}
 		// constructor from const pointer
-		Implementation( const T *ptr ) : InstanceBase( I_Const_Pointer, typeid(T)), _const_ptr(ptr)
+		Implementation(SLB::ClassInfo *ci, const T *ptr ) : InstanceBase( I_Const_Pointer, ci), _const_ptr(ptr)
 		{
 		}
 
 		// constructor from reference
-		Implementation( T &ref ) : InstanceBase( I_Reference, typeid(T) ), _ptr( &ref )
+		Implementation(SLB::ClassInfo *ci, T &ref ) : InstanceBase( I_Reference,ci ), _ptr( &ref )
 		{
 		}
 
 		// copy constructor,  
-		Implementation( const T &ref) : InstanceBase( I_Copy, typeid(T) ), _ptr( 0L )
+		Implementation(SLB::ClassInfo *ci, const T &ref) : InstanceBase( I_Copy, ci ), _ptr( 0L )
 		{
 			_ptr = new T( ref );
 		}
@@ -81,13 +81,13 @@ private:
 	int _int;
 };
 
-void doWrappers()
+void doWrappers(SLB::Manager *m)
 {
 	std::cout << "Loading wrappers..." << std::endl;
 	// MyClass doesn't have a copy-constructor so it can not be
 	// wrapped with the default policy, you should use here
 	// SLB::Instance::NoCopy
-	SLB::Class< MyClass, SLB::Instance::NoCopy >("MyClass")
+	SLB::Class< MyClass, SLB::Instance::NoCopy >(m,"MyClass")
 		// example of a constructor with arguments, in form of
 		// C++ template
 		.constructor<const std::string&, int>()
@@ -112,6 +112,7 @@ void doWrappers()
 
 int main(int, char**)
 {
-	doWrappers();
+	SLB::Manager m;
+	doWrappers(&m);
 	return 0;
 }

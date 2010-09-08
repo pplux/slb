@@ -24,11 +24,11 @@ float c_function(float a, float b)
 std::string StaticClass::_string;
 int StaticClass::_int;
 
-void doWrappers()
+void doWrappers(SLB::Manager *m)
 {
 	std::cout << "Loading wrappers..." << std::endl;
 	// this will register the wrapper of StaticClass
-	SLB::Class< StaticClass, SLB::Instance::NoCopyNoDestroy >("StaticClass")
+	SLB::Class< StaticClass, SLB::Instance::NoCopyNoDestroy >(m,"StaticClass")
 		// static methods doesn't require de & like memebers
 		// see example_01
 		.set("getString", StaticClass::getString)
@@ -38,7 +38,7 @@ void doWrappers()
 	;
 
 	//Manually register a value/function...
-	SLB::Manager::getInstance().set( "c_function", SLB::FuncCall::create(c_function));
+	m->set( "c_function", SLB::FuncCall::create(c_function));
 };
 
 int main(int, char**)
@@ -52,11 +52,11 @@ int main(int, char**)
 		"print('i',StaticClass.getInt())\n"
 		"print('func',SLB.c_function(5,6))\n"
 		;
-
-	doWrappers();
+	SLB::Manager m;
+	doWrappers(&m);
 
 	// Custom SLB::SCript, a simplification to use SLB
-	SLB::Script s;
+	SLB::Script s(&m);
 	std::cout << "SCRIPT CODE:" << std::endl << lua_code << std::endl;
 	std::cout << "------------------" << std::endl;
 	s.doString(lua_code);
