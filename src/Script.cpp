@@ -145,7 +145,8 @@ namespace SLB {
 
 		if(luaL_loadstring(L,code.str().c_str()) || _errorHandler->lua_pcall(_L, 0, 0))
 		{
-			throw std::runtime_error( lua_tostring(L,-1) );
+			const char *error = lua_tostring(L,-1);
+			throw std::runtime_error(std::string(error));
 		}
 
 		lua_settop(L,top);

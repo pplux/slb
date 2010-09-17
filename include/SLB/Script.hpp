@@ -53,7 +53,7 @@ namespace SLB {
 		 /* ************************* WARNING *********************************
 		  * Sometines you need to manually call Garbage Collector(GC), to be sure
 		  * that all objects are destroyed. This is mandatory when using smartPointers
-		  * be very carefull. GC operations are really expensive, avoid calling GC
+		  * ,be very carefull. GC operations are really expensive, avoid calling GC
 		  * too frequently.
 		  * ************************* WARNING *********************************/
 		void callGC();
