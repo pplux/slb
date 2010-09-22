@@ -33,6 +33,7 @@
 #include "Manager.hpp"
 #include "Debug.hpp"
 #include "Export.hpp"
+#include "Allocator.hpp"
 
 namespace SLB {
 
@@ -96,10 +97,10 @@ namespace SLB {
 				// copy constructor,  
 				Implementation(ClassInfo *ci, const T &ref) : InstanceBase( I_Copy, ci ), _ptr( 0L )
 				{
-					_ptr = new T( ref );
+					_ptr = AllocatorNew<T, T>( ref );
 				}
 
-				virtual ~Implementation() { if (isCopy()) delete _ptr; }
+				virtual ~Implementation() { if (isCopy()) AllocatorDelete(_ptr); }
 
 				void* get_ptr() { return (isConst())? 0L : _ptr; }
 				const void* get_const_ptr() { return _const_ptr; }
@@ -137,7 +138,7 @@ namespace SLB {
 				{
 				}
 
-				virtual ~Implementation() { if (isCopy()) delete _ptr; }
+				virtual ~Implementation() { if (isCopy()) AllocatorDelete(_ptr); }
 
 				void* get_ptr() { return (isConst())? 0L : _ptr; }
 				const void* get_const_ptr() { return _const_ptr; }
@@ -214,7 +215,7 @@ namespace SLB {
 				// copy constructor,  
 				Implementation(ClassInfo *ci, const T &ref) : InstanceBase( I_Copy, ci ), _sm_ptr( 0L ), _const_ptr(0)
 				{
-					_sm_ptr = new T( ref );
+					_sm_ptr = AllocatorNew<T, T>( ref );
 					_const_ptr = &(*_sm_ptr);
 				}
 
@@ -329,28 +330,28 @@ namespace SLB {
 		{
 			T &ref = *reinterpret_cast<T*>(v_ref);
 			ClassInfo *ci = m->getClass(_TIW(T));
-			return new TInstance(ci, ref );
+			return new (Malloc(sizeof(TInstance))) TInstance(ci, ref);
 		}
 
 		virtual InstanceBase *create_ptr(Manager *m, void *v_ptr, bool fromConstructor )
 		{
 			T *ptr = reinterpret_cast<T*>(v_ptr);
 			ClassInfo *ci = m->getClass(_TIW(T));
-			return new TInstance(ci, ptr, fromConstructor );
+			return new (Malloc(sizeof(TInstance))) TInstance(ci, ptr, fromConstructor);
 		}
 
 		virtual InstanceBase *create_const_ptr(Manager *m, const void *v_ptr)
 		{
 			const T *const_ptr = reinterpret_cast<const T*>(v_ptr);
 			ClassInfo *ci = m->getClass(_TIW(T));
-			return new TInstance(ci, const_ptr );
+			return new (Malloc(sizeof(TInstance))) TInstance(ci, const_ptr);
 		}
 
 		virtual InstanceBase *create_copy(Manager *m, const void *v_ptr)
 		{
 			const T &const_ref = *reinterpret_cast<const T*>(v_ptr);
 			ClassInfo *ci = m->getClass(_TIW(T));
-			return new TInstance(ci, const_ref );
+			return new (Malloc(sizeof(TInstance))) TInstance(ci, const_ref);
 		}
 
 		virtual ~InstanceFactoryAdapter() {}

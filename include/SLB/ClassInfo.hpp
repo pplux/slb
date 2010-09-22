@@ -35,11 +35,11 @@
 #include "Table.hpp"
 #include "ref_ptr.hpp"
 #include "FuncCall.hpp"
+#include "String.hpp"
 //#include "ClassHelpers.hpp"
 #include <typeinfo>
 #include <map>
 #include <vector>
-#include <string>
 
 struct lua_State;
 
@@ -49,18 +49,20 @@ namespace SLB {
 	{
 	public:
 		Namespace( bool cacheable = true ) : Table("::", cacheable) {}
-	protected:
 		virtual ~Namespace() {}
 	};
 
 	class SLB_EXPORT ClassInfo : public Namespace
 	{
 	public:
-		typedef std::map<TypeInfoWrapper, ref_ptr<ClassInfo> > BaseClassMap;
+		typedef std::map<TypeInfoWrapper, ref_ptr<ClassInfo>, std::less<TypeInfoWrapper>, Allocator<int> > BaseClassMap;
+
+		ClassInfo(Manager *m, const TypeInfoWrapper &);
+		virtual ~ClassInfo();
 
 		const TypeInfoWrapper &getTypeid() const { return _typeid; }
-		const std::string &getName() const      { return _name; }
-		void setName(const std::string&);
+		const String &getName() const      { return _name; }
+		void setName(const String&);
 
 		void push_ref(lua_State *L, void *ref);
 		void push_ptr(lua_State *L, void *ptr, bool fromConstructor = false);
@@ -119,8 +121,6 @@ namespace SLB {
 		FuncCall* getConstructor() { return _constructor.get(); }
 
 	protected:
-		ClassInfo(Manager *m, const TypeInfoWrapper &);
-		virtual ~ClassInfo();
 		void pushImplementation(lua_State *);
 		virtual int __index(lua_State*);
 		virtual int __newindex(lua_State*);
@@ -130,7 +130,7 @@ namespace SLB {
 
 		Manager          *_manager;
 		TypeInfoWrapper   _typeid;
-		std::string       _name;
+		String            _name;
 		InstanceFactory  *_instanceFactory;
 		BaseClassMap      _baseClasses;
 		ref_ptr<FuncCall> _constructor;
@@ -154,8 +154,8 @@ namespace SLB {
 	template<class D, class B>
 	inline void ClassInfo::inheritsFrom()
 	{
-		Manager::getInstance().template addConversor<D,B>();
-		_baseClasses[ _TIW(B) ] = Manager::getInstance().getOrCreateClass(_TIW(B));
+		_manager->template addConversor<D,B>();
+		_baseClasses[ _TIW(B) ] = _manager->getOrCreateClass(_TIW(B));
 	}
 
 	template<class D, class B>

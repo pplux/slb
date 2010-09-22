@@ -33,6 +33,7 @@
 #include <SLB/util.hpp>
 #include <SLB/Hybrid.hpp>
 #include <SLB/Mutex.hpp>
+#include <SLB/Allocator.hpp>
 
 #include <iostream>
 
@@ -223,7 +224,7 @@ namespace SLB {
 	{
 		SLB_DEBUG_CALL;
 		SLB_DEBUG(0, "Manager initialization");
-		_global = new Namespace();
+		_global = AllocatorNew<Namespace>();
 	}
 
 	Manager::~Manager()
@@ -256,6 +257,8 @@ namespace SLB {
 	void Manager::reset()
 	{
 		SLB_DEBUG_CALL;
+		//default manager can't use Allocator since
+		// it hooks to atexit
 		delete _default;
 		_default = 0;
 	}
@@ -278,7 +281,7 @@ namespace SLB {
 		return 0;
 	}
 
-	const ClassInfo *Manager::getClass(const std::string &name) const
+	const ClassInfo *Manager::getClass(const String &name) const
 	{
 		SLB_DEBUG_CALL;
 		NameMap::const_iterator i = _names.find(name);
@@ -306,7 +309,7 @@ namespace SLB {
 	}
 
 
-	ClassInfo *Manager::getClass(const std::string &name)
+	ClassInfo *Manager::getClass(const String &name)
 	{
 		SLB_DEBUG_CALL;
 		NameMap::iterator i = _names.find(name);
@@ -409,22 +412,22 @@ namespace SLB {
 				c = i->second.get();
 			}
 		}
-		if (c == 0) c = new ClassInfo(this,ti);
+		if (c == 0) c = AllocatorNew<ClassInfo, Manager*, TypeInfoWrapper>(this,ti);
 		return c;
 	}
 	
-	void Manager::set(const std::string &name, Object *obj)
+	void Manager::set(const String &name, Object *obj)
 	{
 		SLB_DEBUG_CALL;
 		ActiveWaitCriticalSection lock(&managerMutex);
 		_global->set(name, obj);
 	}
 	
-	void Manager::rename(ClassInfo *ci, const std::string &new_name)
+	void Manager::rename(ClassInfo *ci, const String &new_name)
 	{
 		SLB_DEBUG_CALL;
 		CriticalSection lock(&managerMutex);
-		const std::string old_name = ci->getName();
+		const String old_name = ci->getName();
 
 		NameMap::iterator i = _names.find(old_name);
 		if ( i != _names.end() )
@@ -454,6 +457,8 @@ namespace SLB {
 	{
 		if (_default == 0)
 		{
+			//Default manager can't use Allocator since
+			// it hooks to atexit
 			_default = new Manager();
 			atexit(Manager::reset);
 		}

@@ -28,6 +28,7 @@
 
 #include <SLB/FuncCall.hpp>
 #include <SLB/Debug.hpp>
+#include <SLB/Allocator.hpp>
 
 namespace SLB {
 
@@ -67,7 +68,7 @@ namespace SLB {
 		}
 	}
 	
-	void FuncCall::setArgComment(size_t p, const std::string& c)
+	void FuncCall::setArgComment(size_t p, const String& c)
 	{
 		SLB_DEBUG_CALL;
 		if (p < _Targs.size())
@@ -86,6 +87,7 @@ namespace SLB {
 	{
 	public:
 		LuaCFunction(lua_CFunction f) : _func(f) { SLB_DEBUG_CALL; }
+		virtual ~LuaCFunction() { SLB_DEBUG_CALL; }
 	protected:
 		void pushImplementation(lua_State *L) {SLB_DEBUG_CALL; lua_pushcfunction(L,_func); }
 		virtual int call(lua_State *L)
@@ -94,14 +96,13 @@ namespace SLB {
 			luaL_error(L, "Code should never be reached %s:%d",__FILE__,__LINE__);
 			return 0;
 		}
-		virtual ~LuaCFunction() { SLB_DEBUG_CALL; }
 		lua_CFunction _func;
 	};
 
 	FuncCall* FuncCall::create(lua_CFunction f)
 	{
 		SLB_DEBUG_CALL;
-		return new LuaCFunction(f);
+		return AllocatorNew<LuaCFunction, lua_CFunction>(f);
 	}
 
 }

@@ -29,6 +29,7 @@
 #define __SLB_CLASS__
 
 #include "SPP.hpp"
+#include "Allocator.hpp"
 #include "Export.hpp"
 #include "Debug.hpp"
 #include "ClassInfo.hpp"
@@ -39,10 +40,10 @@
 #include "Instance.hpp"
 #include "Iterator.hpp"
 #include "Hybrid.hpp"
+#include "String.hpp"
 #include <typeinfo>
 #include <map>
 #include <vector>
-#include <string>
 
 #include <iostream>
 
@@ -226,8 +227,12 @@ namespace SLB {
 			typename IT::GetIteratorMember first,
 			typename IT::GetIteratorMember end )
 		{
-			return rawSet(name,
-				new Iterator( new StdIterator< IT >(first, end ) ) );
+			Iterator* it;
+			StdIterator< IT >* sit;
+			sit = AllocatorNew<StdIterator<IT>, typename IT::GetIteratorMember, typename IT::GetIteratorMember>(first, end);
+			it = AllocatorNew<Iterator, StdIterator<IT>*>(sit);
+			return rawSet(name, 
+				it );
 		}
 
 		template<typename C, typename T_Iterator>
@@ -249,8 +254,8 @@ namespace SLB {
 		}
 
 		// Metada
-		__Self &comment(const std::string&);
-		__Self &param(const std::string&);
+		__Self &comment(const String&);
+		__Self &param(const String&);
 
 		#define SLB_REPEAT(N) \
 		\
@@ -282,24 +287,26 @@ namespace SLB {
 		// For metadata
 		Object *_lastObj;
 		size_t _param;
+		Manager* _mgr;
 
 	};
 	
 	template<typename T, typename W>
 	inline Class<T,W>::Class(const char *name, Manager *m)
-		: _class(0), _lastObj(0), _param(0)
+		: _class(0), _lastObj(0), _param(0), _mgr(m)
 	{
 		SLB_DEBUG_CALL;
 		// we expect to have a template "Implementation" inside W
 		typedef typename W::template Implementation<T> Adapter;
 		_class = m->getOrCreateClass( typeid(T) );
 		_class->setName( name );
-		_class->setInstanceFactory(new InstanceFactoryAdapter< T, Adapter >() );
+		_class->setInstanceFactory( AllocatorNew<InstanceFactoryAdapter< T, Adapter > >() );
 		SLB_DEBUG(1, "Class declaration for %s[%s]", name, typeid(T).name());
 	}
 
 	template<typename T, typename W>
-	inline Class<T,W>::Class(const Class &c) : _class(c._class)
+	inline Class<T,W>::Class(const Class &c)
+		: _class(c._class), _mgr(c._mgr)
 	{
 	}
 	
@@ -307,6 +314,7 @@ namespace SLB {
 	inline Class<T,W>& Class<T,W>::operator=(const Class &c)
 	{
 		_class = c._class;
+		_mgr = c._mgr;
 	}
 	
 	template<typename T, typename W>
@@ -330,20 +338,20 @@ namespace SLB {
 	inline Class<T,W> &Class<T,W>::enumValue(const char *name, TEnum obj)
 	{
 		// "fake" Declaration of TEnum...
-		ClassInfo *c = Manager::getInstance().getOrCreateClass( typeid(TEnum) );
+		ClassInfo *c = _mgr->getOrCreateClass( typeid(TEnum) );
 		if (!c->initialized())
 		{
 			// if it is not initialized then add a simple adapter for 
 			// references.
-			c->setInstanceFactory( new InstanceFactoryAdapter< TEnum,
-				SLB::Instance::Default::Implementation<TEnum> >() );
+			c->setInstanceFactory( AllocatorNew< InstanceFactoryAdapter< TEnum,
+				SLB::Instance::Default::Implementation<TEnum> > >() );
 		}
 		// push a reference
 		return rawSet(name, Value::copy(obj));
 	}
 
 	template<typename T,  typename W>
-	inline Class<T,W> &Class<T,W>::comment( const std::string &s )
+	inline Class<T,W> &Class<T,W>::comment( const String &s )
 	{
 		if (_lastObj) _lastObj->setInfo(s);
 		else _class->setInfo(s);
@@ -351,7 +359,7 @@ namespace SLB {
 	}
 
 	template<typename T,  typename W>
-	inline Class<T,W> &Class<T,W>::param( const std::string &s )
+	inline Class<T,W> &Class<T,W>::param( const String &s )
 	{
 		//TODO: This should also work for constructors, and so on.
 		if (_lastObj)

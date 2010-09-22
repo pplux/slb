@@ -33,6 +33,7 @@
 #include "ref_ptr.hpp"
 #include "Export.hpp"
 #include "Debug.hpp"
+#include "String.hpp"
 #include "TypeInfoWrapper.hpp"
 #include <map>
 #include <cstdlib>
@@ -49,9 +50,10 @@ namespace SLB {
 	{
 	public:
 		typedef void* (*Conversor)(void *);
-		typedef std::map< TypeInfoWrapper, ref_ptr<ClassInfo> > ClassMap;
-		typedef std::map< const std::string, TypeInfoWrapper > NameMap;
-		typedef std::map< std::pair<TypeInfoWrapper, TypeInfoWrapper >, Conversor > ConversionsMap;
+		typedef std::map< TypeInfoWrapper, ref_ptr<ClassInfo>, std::less<TypeInfoWrapper>, Allocator<int> > ClassMap;
+		typedef std::map< const String, TypeInfoWrapper, std::less<const String>, Allocator<int> > NameMap;
+		typedef std::pair<TypeInfoWrapper, TypeInfoWrapper > TypeInfoWrapperPair;
+		typedef std::map< TypeInfoWrapperPair, Conversor, std::less<TypeInfoWrapperPair>, Allocator<int> > ConversionsMap;
 
 		Manager();
 		~Manager();
@@ -64,11 +66,11 @@ namespace SLB {
 		static Manager *defaultManager();
 
 		const ClassInfo *getClass(const TypeInfoWrapper&) const;
-		const ClassInfo *getClass(const std::string&) const;
+		const ClassInfo *getClass(const String&) const;
 		/// Returns the classInfo of an object, or null if it is a basic lua-type
 		ClassInfo *getClass(lua_State *L, int pos) const ;
 		ClassInfo *getClass(const TypeInfoWrapper&);
-		ClassInfo *getClass(const std::string&);
+		ClassInfo *getClass(const String&);
 		ClassInfo *getOrCreateClass(const TypeInfoWrapper&);
 
 		/** Copy from one lua_State to another:
@@ -82,7 +84,7 @@ namespace SLB {
 		bool copy(lua_State *from, int pos, lua_State *to);
 
 		// set a global value ( will be registered automatically on every lua_State )
-		void set(const std::string &, Object *obj);
+		void set(const String &, Object *obj);
 
 		// This will add a SLB table to the current global state
 		void registerSLB(lua_State *L);
@@ -99,7 +101,7 @@ namespace SLB {
 		static void reset();
 	protected:
 
-		void rename(ClassInfo *c, const std::string &new_name);
+		void rename(ClassInfo *c, const String &new_name);
 		void addClass( ClassInfo *c );
 		template<class Derived, class Base>
 		void addConversor();

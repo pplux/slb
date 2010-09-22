@@ -30,8 +30,9 @@
 #define __SLB_OBJECT__
 
 #include <assert.h>
-#include <string>
 #include "Export.hpp"
+#include "Allocator.hpp"
+#include "String.hpp"
 
 struct lua_State;
 
@@ -45,11 +46,10 @@ namespace SLB
 		void unref();
 
 		void push(lua_State *L);
-		void setInfo(const std::string&);
-		const std::string& getInfo() const;
+		void setInfo(const String&);
+		const String& getInfo() const;
 
 	protected:
-
 		Object();
 		virtual ~Object();
 
@@ -60,7 +60,7 @@ namespace SLB
 		void initialize(lua_State *) const;
 		static int GC_callback(lua_State *);
 		unsigned int _refCounter;
-		std::string _info; // for metadata, documentation, ...
+		String _info; // for metadata, documentation, ...
 
 		
 		Object( const Object &slbo);
@@ -80,11 +80,15 @@ namespace SLB
 	{
 		assert(_refCounter > 0);
 		--_refCounter; 
-		if (_refCounter == 0) delete this;
+		if (_refCounter == 0) 
+		{
+			this->~Object();
+			Free( this );
+		}
 	}
 
-	inline void Object::setInfo(const std::string& s) {_info = s;}
-	inline const std::string& Object::getInfo() const {return _info;}
+	inline void Object::setInfo(const String& s) {_info = s;}
+	inline const String& Object::getInfo() const {return _info;}
 
 } //end of SLB namespace
 

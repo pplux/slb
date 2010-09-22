@@ -44,7 +44,7 @@ namespace SLB {
 	Iterator::~Iterator()
 	{
 		SLB_DEBUG_CALL;
-		delete _iterator;
+		AllocatorDelete(_iterator);
 	}
 
 	int Iterator::iterator_call(lua_State *L)
