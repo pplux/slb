@@ -30,6 +30,7 @@
 #define __SLB_HYBRID__
 
 #include "Export.hpp"
+#include "Allocator.hpp"
 #include "SPP.hpp"
 #include "Manager.hpp"
 #include "LuaCall.hpp"
@@ -80,7 +81,7 @@ namespace SLB {
 		static void registerAsHybrid(ClassInfo *ci);
 
 	protected:
-		typedef std::map< const char *, LuaCallBase *> MethodMap;
+		typedef std::map< const char *, LuaCallBase *, std::less<const char*>, Allocator<int> > MethodMap;
 
 		HybridBase();
 		virtual ~HybridBase();
@@ -119,27 +120,28 @@ namespace SLB {
 	template<class BaseClass, class T_CriticalSection = ActiveWaitCriticalSection >
 	class Hybrid : public virtual HybridBase {
 	public:
-		Hybrid()
+		Hybrid(Manager* mgr)
+			: _mgr(mgr)
 		{
 			ClassInfo *c;
-			c = Manager::getInstance().getOrCreateClass( typeid(BaseClass) );
+			c = _mgr->getOrCreateClass( typeid(BaseClass) );
 			if (!c->initialized())
 			{
 				// Give a default instance factory... that only is able
 				// to handle push/get of pointers without handling 
 				// construction, copy, delete, ...
 				c->setInstanceFactory(
-					new InstanceFactoryAdapter< BaseClass,
-						Instance::NoCopyNoDestroy::Implementation<BaseClass> >()
-				);
+					AllocatorNew< InstanceFactoryAdapter< BaseClass,
+						Instance::NoCopyNoDestroy::Implementation<BaseClass> > >() );
 			}
 		}
 		virtual ~Hybrid() {}
-
+	private:
+		Manager* _mgr;
 	protected:
 		ClassInfo* getClassInfo() const
 		{
-			return Manager::getInstance().getClass( typeid(BaseClass) );
+			return _mgr->getClass( typeid(BaseClass) );
 		}
 		
 	#define SLB_ARG_H(N) ,T##N arg_##N
@@ -162,7 +164,7 @@ namespace SLB {
 				{ \
 					if (getMethod(name)) \
 					{ \
-						method = new LC(L, -1);\
+						method = AllocatorNew<LC, lua_State*, int>(L, -1);\
 						lua_pop(L,1); /*method is stored in the luaCall*/\
 						SLB_DEBUG(2,"method [%s] found in lua [OK] -> %p", name,method)\
 						_methods[name] = method;\

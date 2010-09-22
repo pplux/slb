@@ -50,10 +50,10 @@ namespace SLB {
 	ClassInfo::~ClassInfo()
 	{
 		SLB_DEBUG_CALL;
-		delete _instanceFactory; 
+		AllocatorDelete(_instanceFactory); 
 	}
 
-	void ClassInfo::setName(const std::string& name)
+	void ClassInfo::setName(const String& name)
 	{
 		SLB_DEBUG_CALL;
 		// rename first in the manager...
@@ -64,7 +64,7 @@ namespace SLB {
 	void ClassInfo::setInstanceFactory( InstanceFactory *factory)
 	{
 		SLB_DEBUG_CALL;
-		delete _instanceFactory; // delete old..
+		AllocatorDelete(_instanceFactory); // delete old..
 		_instanceFactory = factory;
 	}
 
@@ -400,7 +400,13 @@ namespace SLB {
 	{
 		InstanceBase* instance = 
 			*reinterpret_cast<InstanceBase**>(lua_touserdata(L, 1));
-		delete instance; 
+		
+		//Compiler pointer shifts from the virtual inheritance, must
+		// put pointer back to allocation address before deleting it.
+		void* addr = dynamic_cast<void*>(instance);
+		instance->~InstanceBase();
+		Free(addr);
+
 		return 0;
 	}
 

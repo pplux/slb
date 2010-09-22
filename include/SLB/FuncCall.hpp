@@ -31,6 +31,8 @@
 
 #include "Object.hpp"
 #include "Export.hpp"
+#include "Allocator.hpp"
+#include "String.hpp"
 #include "SPP.hpp"
 #include "lua.hpp"
 
@@ -77,9 +79,9 @@ namespace SLB
 
 		size_t getNumArguments() const { return _Targs.size(); }
 		const std::type_info* getArgType(size_t p) const { return _Targs[p].first; }
-		const std::string& getArgComment(size_t p) const { return _Targs[p].second; }
+		const String& getArgComment(size_t p) const { return _Targs[p].second; }
 		const std::type_info* getReturnedType() const { return _Treturn; }
-		void setArgComment(size_t p, const std::string& c);
+		void setArgComment(size_t p, const String& c);
 
 	protected:
 		FuncCall();
@@ -88,7 +90,8 @@ namespace SLB
 		void pushImplementation(lua_State *L);
 		virtual int call(lua_State *L) = 0;
 
-		std::vector< std::pair<const std::type_info*, std::string> > _Targs;
+		typedef std::pair<const std::type_info*, String> TypeInfoStringPair;
+		std::vector< TypeInfoStringPair, Allocator<TypeInfoStringPair> > _Targs;
 		const std::type_info* _Treturn;
 	private:
 		static int _call(lua_State *L);
@@ -122,24 +125,30 @@ namespace SLB
 	template<class C,class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 	inline FuncCall* FuncCall::createConst(R (C::*func)(SPP_ENUM_D(N,T)) const ) \
 	{ \
-		return new Private::FC_ConstMethod<C,R(SPP_ENUM_D(N,T))>(func); \
+		Private::FC_ConstMethod<C,R(SPP_ENUM_D(N,T))>* fn;\
+		AllocatorNewDeduced(fn, func);\
+		return fn;\
 	} \
 	template<class C,class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 	inline FuncCall* FuncCall::createNonConst(R (C::*func)(SPP_ENUM_D(N,T)) ) \
 	{ \
-		return new Private::FC_Method<C,R(SPP_ENUM_D(N,T))>(func); \
+		Private::FC_Method<C,R(SPP_ENUM_D(N,T))>* fn;\
+		AllocatorNewDeduced( fn, func ); \
+		return fn;\
 	} \
 	\
 	template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 	inline FuncCall* FuncCall::create(R (*func)(SPP_ENUM_D(N,T)) ) \
 	{ \
-		return new Private::FC_Function<R(SPP_ENUM_D(N,T))>(func);\
+		Private::FC_Function<R(SPP_ENUM_D(N,T))>* fn;\
+		AllocatorNewDeduced( fn, func );\
+		return fn;\
 	} \
 	\
 	template<class C SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 	inline FuncCall* FuncCall::classConstructor() \
 	{ \
-		return new Private::FC_ClassConstructor<C(SPP_ENUM_D(N,T))>;\
+		return AllocatorNew<Private::FC_ClassConstructor<C(SPP_ENUM_D(N,T))> >();\
 	} \
 	
 	SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)

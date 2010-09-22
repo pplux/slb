@@ -31,6 +31,7 @@
 
 #include "Object.hpp"
 #include "PushGet.hpp"
+#include "Allocator.hpp"
 
 struct lua_State;
 
@@ -44,32 +45,32 @@ namespace SLB {
 	{
 		// holds a reference to an object
 		template<class T> inline Object* ref( T& obj )
-		{ return new RefValue<T>(obj); }
+		{ return AllocatorNew<RefValue<T>, T>(obj); }
 
 		// holds a reference to a const object
 		template<class T> inline Object* ref( const T& obj )
-		{ return new RefValue<T>(obj); }
+		{ return AllocatorNew<RefValue<T>, T>(obj); }
 		
 		// holds a reference to an object (ptr)
 		template<class T> inline Object* ref( T *obj )
-		{ return new RefValue<T>(obj); }
+		{ return AllocatorNew<RefValue<T>, T>(obj); }
 		
 		// holds a reference to a const object (const ptr)
 		template<class T> inline Object* ref( const T *obj )
-		{ return new RefValue<T>(obj); }
+		{ return AllocatorNew<RefValue<T>, T>(obj); }
 
 		// creates a copy of the given object
 		template<class T> inline Object* copy( const T &obj)
-		{ return new CopyValue<T>(obj); }
+		{ return AllocatorNew<CopyValue<T>,T>(obj); }
 
 		// holds a ptr to an object, the object will be automatically
 		// deleted.
 		template<class T> inline Object* autoDelete( T *obj )
-		{ return new AutoDeleteValue<T>(obj); }
+		{ return AllocatorNew<AutoDeleteValue<T>,T>(obj); }
 	}
 
 	template<class T>
-	class RefValue: public virtual Object {
+	class RefValue: public Object {
 	public:
 		RefValue( T& obj );
 		RefValue( const T& obj );
@@ -89,23 +90,23 @@ namespace SLB {
 	};
 
 	template<class T>
-	class CopyValue : public virtual Object {
+	class CopyValue : public Object {
 	public:
 		CopyValue( const T& obj );
+		virtual ~CopyValue() {}
 	protected:
 		void pushImplementation(lua_State *L);
-		virtual ~CopyValue() {}
 	private:
 		T _obj;
 	};
 
 	template<class T>
-	class AutoDeleteValue : public virtual Object {
+	class AutoDeleteValue : public Object {
 	public:
 		AutoDeleteValue( T *obj );
+		virtual ~AutoDeleteValue();
 	protected:
 		void pushImplementation(lua_State *L);
-		virtual ~AutoDeleteValue();
 	private:
 		T *_obj;
 
@@ -172,7 +173,7 @@ namespace SLB {
 	template<class T>
 	inline AutoDeleteValue<T>::~AutoDeleteValue()
 	{
-		delete _obj;
+		AllocatorDelete(_obj);
 	}
 }
 

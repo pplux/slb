@@ -29,6 +29,7 @@
 #include <SLB/Hybrid.hpp>
 #include <SLB/lua.hpp>
 #include <SLB/Manager.hpp>
+#include <SLB/Allocator.hpp>
 #include <sstream>
 #include <iostream>
 
@@ -159,7 +160,7 @@ namespace SLB {
 		// delete the list of _methods
 		for(MethodMap::iterator i = _methods.begin(); i != _methods.end(); i++ )
 		{
-			delete i->second;
+			AllocatorDelete(i->second);
 		}
 		_methods.clear();
 	}
@@ -381,7 +382,7 @@ namespace SLB {
 				lua_tostring(L,2));
 		}
 
-		ref_ptr<InternalHybridSubclass> subc = new InternalHybridSubclass(ci);
+		ref_ptr<InternalHybridSubclass> subc = AllocatorNew<InternalHybridSubclass, ClassInfo*>(ci) ;
 		subc->push(L);
 
 		// -- set cache...

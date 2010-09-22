@@ -29,6 +29,7 @@
 #include<SLB/Script.hpp>
 #include<SLB/Debug.hpp>
 #include<SLB/Error.hpp>
+#include<SLB/Allocator.hpp>
 #include<sstream>
 
 namespace SLB {
@@ -47,13 +48,13 @@ namespace SLB {
 	Script::Script(Manager *m, bool default_libs) : _manager(m), _L(0), _errorHandler(0), _loadDefaultLibs(default_libs)
 	{
 		SLB_DEBUG_CALL;
-		_errorHandler = new DefaultErrorHandler();
+		_errorHandler = AllocatorNew<DefaultErrorHandler>();
 	}
 
 	Script::~Script()
 	{
 		SLB_DEBUG_CALL;
-		delete _errorHandler;
+		AllocatorDelete(_errorHandler);
 		close();
 	}
 	
@@ -153,7 +154,7 @@ namespace SLB {
 
 	void Script::setErrorHandler( ErrorHandler *e )
 	{
-		delete _errorHandler;
+		AllocatorDelete(_errorHandler);
 		_errorHandler = e;
 	}
 

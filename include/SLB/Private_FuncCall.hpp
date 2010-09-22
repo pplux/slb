@@ -30,6 +30,7 @@
 #define __SLB_PRIVATE_FUNC_CALL__
 
 #include "SPP.hpp"
+#include "Allocator.hpp"
 #include "PushGet.hpp"
 #include "ClassInfo.hpp"
 #include "Manager.hpp"
@@ -61,7 +62,7 @@ namespace Private {
 
 	// SLB_INFO: Collects info of the arguments
 	#define SLB_INFO_PARAMS(N) _Targs.push_back(\
-			std::pair<const std::type_info*, std::string>( &typeid(T##N), "") ); 
+			std::pair<const std::type_info*, String>( &typeid(T##N), "") ); 
 	#define SLB_INFO(RETURN, N) \
 		_Treturn = &typeid(RETURN);\
 		SPP_REPEAT(N,SLB_INFO_PARAMS ) \
@@ -158,11 +159,11 @@ namespace Private {
 		template< HEADER  SPP_ENUM_D(N, class T)> \
 		class FC_Function< RETURN (SPP_ENUM_D(N,T))> : public FuncCall { \
 		public: \
+			virtual ~FC_Function() {} \
 			FC_Function( RETURN (*func)(SPP_ENUM_D(N,T)) ) : _func(func) {\
 				SLB_INFO(RETURN, N) \
 			} \
 		protected: \
-			virtual ~FC_Function() {} \
 			int call(lua_State *L) \
 			{ \
 				__VA_ARGS__ \
@@ -202,7 +203,7 @@ namespace Private {
 				ClassInfo *c = Manager::getInstance(L)->getClass(typeid(C)); \
 				if (c == 0) luaL_error(L, "Class %s is not avaliable! ", typeid(C).name()); \
 				SLB_GET(N, 0); \
-				Private::Type<C*>::push(L, new C( SPP_ENUM_D(N,param_) ), true ); \
+				Private::Type<C*>::push(L, AllocatorNew( C( SPP_ENUM_D(N,param_) ) ), true ); \
 				return 1; \
 			} \
 		}; \

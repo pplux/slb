@@ -31,22 +31,22 @@
 
 #include "Export.hpp"
 #include "Object.hpp"
+#include "String.hpp"
 #include "ref_ptr.hpp"
 #include <typeinfo>
 #include <map>
-#include <string>
 #include "lua.hpp"
 
 namespace SLB {
 
-	class SLB_EXPORT Table : public virtual Object {
+	class SLB_EXPORT Table : public Object {
 	public:
-		typedef std::map< std::string, ref_ptr<Object> > Elements;
-		Table(const std::string &separator = "", bool cacheable = false);
+		typedef std::map< String, ref_ptr<Object>, std::less<String>, Allocator<int> > Elements;
+		Table(const String &separator = "", bool cacheable = false);
 
-		void erase(const std::string &);
-		Object* get(const std::string &);
-		void set(const std::string &, Object*);
+		void erase(const String &);
+		Object* get(const String &);
+		void set(const String &, Object*);
 
 		bool isCacheable() { return _cacheable; }
 
@@ -61,8 +61,8 @@ namespace SLB {
 	protected:
 		virtual ~Table();
 
-		Object* rawGet(const std::string &);
-		void rawSet(const std::string &, Object*);
+		Object* rawGet(const String &);
+		void rawSet(const String &, Object*);
 		
 		void pushImplementation(lua_State *);
 
@@ -85,17 +85,17 @@ namespace SLB {
 		int cacheTableIndex() { return lua_upvalueindex(1); }
 
 	private:
-		typedef std::pair<Table*,const std::string> TableFind;
+		typedef std::pair<Table*,const String> TableFind;
 		typedef int (Table::*TableMember)(lua_State*);
 
 		int __indexProxy(lua_State *L);
 		static int __meta(lua_State*);
 		void pushMeta(lua_State *L, TableMember) const;
 
-		TableFind getTable(const std::string &key, bool create);
+		TableFind getTable(const String &key, bool create);
 
 		bool _cacheable;
-		std::string _separator;
+		String _separator;
 
 		Table(const Table&);
 		Table& operator=(const Table&);

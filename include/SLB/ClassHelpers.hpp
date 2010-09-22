@@ -38,10 +38,10 @@ namespace SLB {
 	template<class C>
 	struct Operator
 	{
-		static C* defaultAdd (const C *a,  const C *b)  { return new C( (*a)+(*b) ); }	
-		static C* defaultSub (const C *a,  const C *b)  { return new C( (*a)-(*b) ); }	
-		static C* defaultMult(const C *a, const C *b)   { return new C( (*a)*(*b) ); }	
-		static C* defaultDiv (const C *a,  const C *b)  { return new C( (*a)/(*b) ); }	
+		static C* defaultAdd (const C *a,  const C *b)  { return AllocatorNew(C( (*a)+(*b) )); }	
+		static C* defaultSub (const C *a,  const C *b)  { return AllocatorNew(C( (*a)-(*b) )); }	
+		static C* defaultMult(const C *a, const C *b)   { return AllocatorNew(C( (*a)*(*b) )); }	
+		static C* defaultDiv (const C *a,  const C *b)  { return AllocatorNew(C( (*a)/(*b) )); }	
 	};
 
 }

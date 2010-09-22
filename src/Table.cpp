@@ -28,13 +28,14 @@
 
 #include <SLB/Table.hpp>
 #include <SLB/Debug.hpp>
+#include <SLB/Allocator.hpp>
 
 namespace SLB {
 
-	Table::Table(const std::string &sep, bool c) : _cacheable(c), _separator(sep) {SLB_DEBUG_CALL;}
+	Table::Table(const String &sep, bool c) : _cacheable(c), _separator(sep) {SLB_DEBUG_CALL;}
 	Table::~Table() {SLB_DEBUG_CALL;}
 		
-	Object* Table::rawGet(const std::string &name)
+	Object* Table::rawGet(const String &name)
 	{
 		SLB_DEBUG_CALL;
 		Elements::iterator i = _elements.find(name);
@@ -47,7 +48,7 @@ namespace SLB {
 		return i->second.get();
 	}
 
-	inline void Table::rawSet(const std::string &name, Object *obj)
+	inline void Table::rawSet(const String &name, Object *obj)
 	{
 		SLB_DEBUG_CALL;
 		if (obj == 0)
@@ -62,7 +63,7 @@ namespace SLB {
 		}
 	}
 
-	Object* Table::get(const std::string &name)
+	Object* Table::get(const String &name)
 	{
 		SLB_DEBUG_CALL;
 		TableFind t = getTable(name, false);
@@ -70,7 +71,7 @@ namespace SLB {
 		return 0;
 	}
 
-	void Table::erase(const std::string &name)
+	void Table::erase(const String &name)
 	{
 		SLB_DEBUG_CALL;
 		set(name, 0);
@@ -118,23 +119,23 @@ namespace SLB {
 	}
 
 
-	void Table::set(const std::string &name, Object *obj)
+	void Table::set(const String &name, Object *obj)
 	{
 		SLB_DEBUG_CALL;
 		TableFind t = getTable(name, true);
 		t.first->rawSet(t.second, obj);
 	}
 
-	Table::TableFind Table::getTable(const std::string &key, bool create)
+	Table::TableFind Table::getTable(const String &key, bool create)
 	{
 		SLB_DEBUG_CALL;
 		if (_separator.empty()) return TableFind(this,key);
 
-		std::string::size_type pos = key.find(_separator);
-		if (pos != std::string::npos)
+		String::size_type pos = key.find(_separator);
+		if (pos != String::npos)
 		{
-			const std::string &base = key.substr(0, pos);
-			const std::string &next = key.substr(pos+_separator.length());
+			const String &base = key.substr(0, pos);
+			const String &next = key.substr(pos+_separator.length());
 
 			Table* subtable = dynamic_cast<Table*>(rawGet(base));
 			
@@ -145,7 +146,7 @@ namespace SLB {
 					SLB_DEBUG(6, "Table (%p) create Subtable %s -> %s", this, 
 						base.c_str(), next.c_str());
 
-					subtable = new Table(_separator, _cacheable);
+					subtable = AllocatorNew<Table, String, bool>(_separator, _cacheable);
 					rawSet(base,subtable);
 				}
 				else
