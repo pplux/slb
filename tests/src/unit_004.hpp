@@ -45,7 +45,7 @@ namespace Unit_004 {
 	public:
 		Duck(bool f) : _fly(f) {}
 		virtual bool canFly() const { return _fly; }
-		const char *makeSound() const { return "cuack!"; }
+		const char *makeSound() const { return "Quack!"; }
 	protected:
 		bool _fly;
 	};
@@ -60,6 +60,19 @@ namespace Unit_004 {
 		bool _bites;
 	};
 
+	class Poodle : public Dog
+	{
+	public:
+		Poodle(bool b) : Dog(b) {}
+		const char *makeSound() const { return "Growl"; }
+	};
+	
+	class Dalmation : public Dog
+	{
+	public:
+		Dalmation(bool b) : Dog(b) {}
+		const char *makeSound() const { return "Bark"; } 
+	};
 
 } // end of unit 004
 

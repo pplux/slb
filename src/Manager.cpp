@@ -464,5 +464,35 @@ namespace SLB {
 		}
 		return _default;
 	}
+
+	void* Manager::recursiveConvert(const TypeInfoWrapper& C1, const TypeInfoWrapper &C2, const TypeInfoWrapper& prev, void *obj)
+	{
+		//This function does not support "diamond" inheritance patterns -- such inheritance patterns will 
+		// lead to infinite recursion of this function.  If you need to support "diamond" inheritance, then
+		// a list of all previously traversed nodes must be passed around instead of just ensuring to not walk
+		// into the previously traversed node alone.
+		//
+		//This function is O(N*N) worst case.  If there is a conversion that is hitting this code frequently
+		// you can add additional .inherits<> or .static_inherits<> to the derived class, adding the direct
+		// conversion being done to the _conversions map and bypassing this code.  For example if you have
+		// Animal -> Dog -> Dalmation and you are converting between Animal and Dalmation a lot, in the Dalmation
+		// wrapper add .inherits<Animal> along with .inherits<Dog>.  Now converting from Animal to Dalmation
+		// is O(Log2(N)) and doesn't invoke this algorithm like it does if you don't have .inherits<Animal>.
+		for (ConversionsMap::iterator it=_conversions.begin(); it!=_conversions.end(); ++it)
+		{
+			if (it->first.first == C1)
+			{
+				if (it->first.second == C2)
+				{
+					return it->second( obj );
+				}
+				else if (!(it->first.second == prev))
+				{
+					return recursiveConvert(it->first.second, C2, C1, it->second(obj));
+				}
+			}
+		}
+		return 0;
+	}
 }
 
