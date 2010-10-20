@@ -41,7 +41,7 @@
 #include <new>       // Required for placement new
 #include <stdexcept> // Required for std::length_error
 
-#include <SLB/Export.hpp>
+#include "Export.hpp"
 
 namespace SLB
 {

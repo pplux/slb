@@ -49,8 +49,8 @@
 #endif
 	
 #if SLB_DEBUG_LEVEL != 0
-	#include<SLB/SPP.hpp>
-	#include<SLB/Export.hpp>
+	#include "SPP.hpp"
+	#include "Export.hpp"
 
 	extern SLB_EXPORT int SLB_DEBUG_LEVEL_TAB;
 

@@ -111,6 +111,8 @@ namespace SLB {
 		/** Returns the classMap with all defined classes */
 		ClassMap& getClasses() { return _classes; }
 
+		void* recursiveConvert(const TypeInfoWrapper &C1, const TypeInfoWrapper &C2, const TypeInfoWrapper& prev, void *obj);
+
 		friend int SLB_allTypes(lua_State *);
 
 	private:
@@ -185,11 +187,26 @@ namespace SLB {
 		ConversionsMap::iterator i = _conversions.find( ConversionsMap::key_type(C1,C2) );
 		if (i != _conversions.end())
 		{
-			SLB_DEBUG(11, "convertible");
+			SLB_DEBUG(11, "directly convertible");
 			return i->second( obj );
 		}
-		SLB_DEBUG(11, "fail");
-		return 0;
+
+		//The _conversions map only hold direct conversions added via .inherits<> or .static_inherits<>.
+		// recursiveConvert can extract implied conversions from the _conversions table (but much less 
+		// efficiently than a direct conversion).  For example if a direct conversion from Animal to Dog
+		// exists and a conversion from Dog to Poodle exists, then recursiveConvert can convert an
+		// Animal to a Poodle.
+		void* result = recursiveConvert(C1, C2, TypeInfoWrapper(), obj);
+
+		if (result)
+		{
+			SLB_DEBUG(11, "indirectly convertible");
+		}
+		else
+		{
+			SLB_DEBUG(11, "fail");
+		}
+		return result;
 	}
 
 	inline const void* Manager::convert( const TypeInfoWrapper &C1, const TypeInfoWrapper &C2, const void *obj)

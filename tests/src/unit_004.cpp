@@ -51,6 +51,17 @@ namespace Unit_004 {
 			.inherits<Animal>()
 		;
 
+		SLB::Class<Poodle>("Unit_004::Poodle")
+			.constructor<bool>()
+			.inherits<Dog>()
+		;
+		
+		SLB::Class<Dalmation>("Unit_004::Dalmation")
+			.constructor<bool>()
+			.inherits<Dog>()
+			.inherits<Animal>() //Optional: Makes conversion between Animal and Dalmation faster
+		;
+
 		
 		SLB_DEBUG(1, "<-- Loading unit_004 wrapper <--");
 	}

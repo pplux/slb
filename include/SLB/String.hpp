@@ -28,11 +28,24 @@
 #define __SLB_STRING__
 
 #include "Allocator.hpp"
+#include "Export.hpp"
 #include <string>
 
 namespace SLB
 {
-	typedef std::basic_string< char, std::char_traits<char>, Allocator<char> > String;
+	class SLB_EXPORT String : public std::basic_string< char, std::char_traits<char>, Allocator<char> > 
+	{
+	public:
+		typedef std::basic_string< char, std::char_traits<char>, Allocator<char> > Base;
+		String() {}
+		String(const String& s) : Base(s.c_str()) {}
+		String(const char* s) : Base(s) {}
+		String(const Base& b) : Base(b) {}
+		String(const std::string& s) : Base(s.c_str()) {}
+
+		String& operator=(const String& s) { if (&s != this) { Base::operator=(s.c_str()); } return *this; }
+	};
+	
 }
 
 #endif
