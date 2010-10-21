@@ -50,7 +50,7 @@ namespace SLB {
 	ClassInfo::~ClassInfo()
 	{
 		SLB_DEBUG_CALL;
-		AllocatorDelete(_instanceFactory); 
+		Free_T(&_instanceFactory); 
 	}
 
 	void ClassInfo::setName(const String& name)
@@ -64,7 +64,7 @@ namespace SLB {
 	void ClassInfo::setInstanceFactory( InstanceFactory *factory)
 	{
 		SLB_DEBUG_CALL;
-		AllocatorDelete(_instanceFactory); // delete old..
+		Free_T(&_instanceFactory); // delete old..
 		_instanceFactory = factory;
 	}
 

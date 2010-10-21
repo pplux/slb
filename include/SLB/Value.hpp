@@ -173,7 +173,7 @@ namespace SLB {
 	template<class T>
 	inline AutoDeleteValue<T>::~AutoDeleteValue()
 	{
-		AllocatorDelete(_obj);
+		Free_T(&_obj);
 	}
 }
 
