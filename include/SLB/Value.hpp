@@ -93,8 +93,8 @@ namespace SLB {
 	class CopyValue : public Object {
 	public:
 		CopyValue( const T& obj );
-		virtual ~CopyValue() {}
 	protected:
+		virtual ~CopyValue() {}
 		void pushImplementation(lua_State *L);
 	private:
 		T _obj;
@@ -104,8 +104,8 @@ namespace SLB {
 	class AutoDeleteValue : public Object {
 	public:
 		AutoDeleteValue( T *obj );
-		virtual ~AutoDeleteValue();
 	protected:
+		virtual ~AutoDeleteValue();
 		void pushImplementation(lua_State *L);
 	private:
 		T *_obj;
