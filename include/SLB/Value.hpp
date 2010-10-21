@@ -45,28 +45,28 @@ namespace SLB {
 	{
 		// holds a reference to an object
 		template<class T> inline Object* ref( T& obj )
-		{ return AllocatorNew<RefValue<T>, T>(obj); }
+		{ return new (Malloc(sizeof(RefValue<T>))) RefValue<T>(obj); }
 
 		// holds a reference to a const object
 		template<class T> inline Object* ref( const T& obj )
-		{ return AllocatorNew<RefValue<T>, T>(obj); }
+		{ return new (Malloc(sizeof(RefValue<T>))) RefValue<T>(obj); }
 		
 		// holds a reference to an object (ptr)
 		template<class T> inline Object* ref( T *obj )
-		{ return AllocatorNew<RefValue<T>, T>(obj); }
+		{ return new (Malloc(sizeof(RefValue<T>))) RefValue<T>(obj); }
 		
 		// holds a reference to a const object (const ptr)
 		template<class T> inline Object* ref( const T *obj )
-		{ return AllocatorNew<RefValue<T>, T>(obj); }
+		{ return new (Malloc(sizeof(RefValue<T>))) RefValue<T>(obj); }
 
 		// creates a copy of the given object
 		template<class T> inline Object* copy( const T &obj)
-		{ return AllocatorNew<CopyValue<T>,T>(obj); }
+		{ return new (Malloc(sizeof(CopyValue<T>))) CopyValue<T>(obj); }
 
 		// holds a ptr to an object, the object will be automatically
 		// deleted.
 		template<class T> inline Object* autoDelete( T *obj )
-		{ return AllocatorNew<AutoDeleteValue<T>,T>(obj); }
+		{ return  new (Malloc(sizeof(AutoDeleteValue<T>))) AutoDeleteValue<T>(obj); }
 	}
 
 	template<class T>

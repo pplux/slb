@@ -203,13 +203,30 @@ namespace Private {
 				ClassInfo *c = Manager::getInstance(L)->getClass(typeid(C)); \
 				if (c == 0) luaL_error(L, "Class %s is not avaliable! ", typeid(C).name()); \
 				SLB_GET(N, 0); \
-				Private::Type<C*>::push(L, AllocatorNew( C( SPP_ENUM_D(N,param_) ) ), true ); \
+				Private::Type<C*>::push(L, new (Malloc(sizeof(C))) C(SPP_ENUM_D(N,param_)) , true ); \
 				return 1; \
 			} \
 		}; \
 
-	SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
+	SPP_MAIN_REPEAT(MAX,SLB_REPEAT)
 	#undef SLB_REPEAT
+
+	// For C() like constructors (empty constructors)
+	template<class C>
+	struct FC_ClassConstructor<C()> : public FuncCall
+	{
+	public:
+		FC_ClassConstructor() {}
+	protected:
+		int call(lua_State *L)
+		{
+			ClassInfo *c = Manager::getInstance(L)->getClass(typeid(C));
+			if (c == 0) luaL_error(L, "Class %s is not avaliable! ", typeid(C).name());
+			Private::Type<C*>::push(L, new (Malloc(sizeof(C))) C , true );
+			return 1;
+		}
+	};
+
 
 	#undef SLB_GET
 	#undef SLB_GET_PARAMS

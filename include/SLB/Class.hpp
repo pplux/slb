@@ -229,10 +229,9 @@ namespace SLB {
 		{
 			Iterator* it;
 			StdIterator< IT >* sit;
-			sit = AllocatorNew<StdIterator<IT>, typename IT::GetIteratorMember, typename IT::GetIteratorMember>(first, end);
-			it = AllocatorNew<Iterator, StdIterator<IT>*>(sit);
-			return rawSet(name, 
-				it );
+			sit = new (Malloc(sizeof(StdIterator<IT>))) StdIterator<IT>(first, end);
+			it = new (Malloc(sizeof(Iterator))) Iterator(sit);
+			return rawSet(name, it );
 		}
 
 		template<typename C, typename T_Iterator>
@@ -300,7 +299,8 @@ namespace SLB {
 		typedef typename W::template Implementation<T> Adapter;
 		_class = m->getOrCreateClass( typeid(T) );
 		_class->setName( name );
-		_class->setInstanceFactory( AllocatorNew<InstanceFactoryAdapter< T, Adapter > >() );
+		typedef InstanceFactoryAdapter< T, Adapter > t_IFA;
+		_class->setInstanceFactory( new (Malloc(sizeof(t_IFA))) t_IFA );
 		SLB_DEBUG(1, "Class declaration for %s[%s]", name, typeid(T).name());
 	}
 
@@ -343,8 +343,8 @@ namespace SLB {
 		{
 			// if it is not initialized then add a simple adapter for 
 			// references.
-			c->setInstanceFactory( AllocatorNew< InstanceFactoryAdapter< TEnum,
-				SLB::Instance::Default::Implementation<TEnum> > >() );
+			typedef InstanceFactoryAdapter< TEnum, SLB::Instance::Default::Implementation<TEnum> > t_IFA;
+			c->setInstanceFactory( new (Malloc(sizeof(t_IFA))) t_IFA );
 		}
 		// push a reference
 		return rawSet(name, Value::copy(obj));

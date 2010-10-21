@@ -224,7 +224,7 @@ namespace SLB {
 	{
 		SLB_DEBUG_CALL;
 		SLB_DEBUG(0, "Manager initialization");
-		_global = AllocatorNew<Namespace>();
+		_global = new (Malloc(sizeof(Namespace))) Namespace;
 	}
 
 	Manager::~Manager()
@@ -412,7 +412,7 @@ namespace SLB {
 				c = i->second.get();
 			}
 		}
-		if (c == 0) c = AllocatorNew<ClassInfo, Manager*, TypeInfoWrapper>(this,ti);
+		if (c == 0) c = new (Malloc(sizeof(ClassInfo))) ClassInfo(this,ti);
 		return c;
 	}
 	

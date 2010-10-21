@@ -120,7 +120,7 @@ namespace SLB {
 	template<class BaseClass, class T_CriticalSection = ActiveWaitCriticalSection >
 	class Hybrid : public virtual HybridBase {
 	public:
-		Hybrid(Manager* mgr)
+		Hybrid(Manager* mgr = Manager::defaultManager())
 			: _mgr(mgr)
 		{
 			ClassInfo *c;
@@ -130,9 +130,9 @@ namespace SLB {
 				// Give a default instance factory... that only is able
 				// to handle push/get of pointers without handling 
 				// construction, copy, delete, ...
-				c->setInstanceFactory(
-					AllocatorNew< InstanceFactoryAdapter< BaseClass,
-						Instance::NoCopyNoDestroy::Implementation<BaseClass> > >() );
+				typedef InstanceFactoryAdapter< BaseClass,
+					Instance::NoCopyNoDestroy::Implementation<BaseClass> > t_IFA;
+				c->setInstanceFactory( new (Malloc(sizeof(t_IFA))) t_IFA);
 			}
 		}
 		virtual ~Hybrid() {}
@@ -164,7 +164,7 @@ namespace SLB {
 				{ \
 					if (getMethod(name)) \
 					{ \
-						method = AllocatorNew<LC, lua_State*, int>(L, -1);\
+						method = new (Malloc(sizeof(LC))) LC(L, -1);\
 						lua_pop(L,1); /*method is stored in the luaCall*/\
 						SLB_DEBUG(2,"method [%s] found in lua [OK] -> %p", name,method)\
 						_methods[name] = method;\

@@ -97,7 +97,7 @@ namespace SLB {
 				// copy constructor,  
 				Implementation(ClassInfo *ci, const T &ref) : InstanceBase( I_Copy, ci ), _ptr( 0L )
 				{
-					_ptr = AllocatorNew<T, T>( ref );
+					_ptr = new (Malloc(sizeof(T))) T(ref);
 				}
 
 				virtual ~Implementation() { if (isCopy()) AllocatorDelete(_ptr); }
@@ -215,7 +215,7 @@ namespace SLB {
 				// copy constructor,  
 				Implementation(ClassInfo *ci, const T &ref) : InstanceBase( I_Copy, ci ), _sm_ptr( 0L ), _const_ptr(0)
 				{
-					_sm_ptr = AllocatorNew<T, T>( ref );
+					_sm_ptr = new (Malloc(sizeof(T))) T( ref );
 					_const_ptr = &(*_sm_ptr);
 				}
 
