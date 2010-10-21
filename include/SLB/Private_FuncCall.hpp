@@ -159,11 +159,11 @@ namespace Private {
 		template< HEADER  SPP_ENUM_D(N, class T)> \
 		class FC_Function< RETURN (SPP_ENUM_D(N,T))> : public FuncCall { \
 		public: \
-			virtual ~FC_Function() {} \
 			FC_Function( RETURN (*func)(SPP_ENUM_D(N,T)) ) : _func(func) {\
 				SLB_INFO(RETURN, N) \
 			} \
 		protected: \
+			virtual ~FC_Function() {} \
 			int call(lua_State *L) \
 			{ \
 				__VA_ARGS__ \

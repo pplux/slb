@@ -135,10 +135,10 @@ namespace SLB {
 				c->setInstanceFactory( new (Malloc(sizeof(t_IFA))) t_IFA);
 			}
 		}
-		virtual ~Hybrid() {}
 	private:
 		Manager* _mgr;
 	protected:
+		virtual ~Hybrid() {}
 		ClassInfo* getClassInfo() const
 		{
 			return _mgr->getClass( typeid(BaseClass) );

@@ -87,8 +87,8 @@ namespace SLB {
 	{
 	public:
 		LuaCFunction(lua_CFunction f) : _func(f) { SLB_DEBUG_CALL; }
-		virtual ~LuaCFunction() { SLB_DEBUG_CALL; }
 	protected:
+		virtual ~LuaCFunction() { SLB_DEBUG_CALL; }
 		void pushImplementation(lua_State *L) {SLB_DEBUG_CALL; lua_pushcfunction(L,_func); }
 		virtual int call(lua_State *L)
 		{

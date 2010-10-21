@@ -49,6 +49,7 @@ namespace SLB {
 	{
 	public:
 		Namespace( bool cacheable = true ) : Table("::", cacheable) {}
+	protected:
 		virtual ~Namespace() {}
 	};
 
@@ -58,7 +59,7 @@ namespace SLB {
 		typedef std::map<TypeInfoWrapper, ref_ptr<ClassInfo>, std::less<TypeInfoWrapper>, Allocator<int> > BaseClassMap;
 
 		ClassInfo(Manager *m, const TypeInfoWrapper &);
-		virtual ~ClassInfo();
+
 
 		const TypeInfoWrapper &getTypeid() const { return _typeid; }
 		const String &getName() const      { return _name; }
@@ -121,6 +122,7 @@ namespace SLB {
 		FuncCall* getConstructor() { return _constructor.get(); }
 
 	protected:
+		virtual ~ClassInfo();
 		void pushImplementation(lua_State *);
 		virtual int __index(lua_State*);
 		virtual int __newindex(lua_State*);

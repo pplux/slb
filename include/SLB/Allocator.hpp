@@ -168,14 +168,14 @@ namespace SLB
 	{
 		if (ptr && *ptr)
 		{
-			#ifdef _MSC_VER
+			/*#ifdef _MSC_VER
 			#pragma warning(push)
 			#pragma warning(disable: 4100) // unreferenced formal parameter
-			#endif
+			#endif*/
 			(*ptr)->~T();
-			#ifdef _MSC_VER
+			/*#ifdef _MSC_VER
 			#pragma warning(pop)
-			#endif
+			#endif*/
 			Free(*ptr);
 
 			// To clearly identify deleted pointers:
