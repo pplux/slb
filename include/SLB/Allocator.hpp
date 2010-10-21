@@ -162,20 +162,24 @@ namespace SLB
 		Allocator& operator=(const Allocator&);
 	};
 
+	
 	template <typename T>
-	void AllocatorDelete(T* ptr)
+	void Free_T(T** ptr)
 	{
-		if (ptr)
+		if (ptr && *ptr)
 		{
 			#ifdef _MSC_VER
 			#pragma warning(push)
 			#pragma warning(disable: 4100) // unreferenced formal parameter
 			#endif
-			ptr->~T();
+			(*ptr)->~T();
 			#ifdef _MSC_VER
 			#pragma warning(pop)
 			#endif
-			Free(ptr);
+			Free(*ptr);
+
+			// To clearly identify deleted pointers:
+			*ptr = 0L;
 		}
 	}
 }

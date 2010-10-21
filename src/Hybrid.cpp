@@ -160,7 +160,7 @@ namespace SLB {
 		// delete the list of _methods
 		for(MethodMap::iterator i = _methods.begin(); i != _methods.end(); i++ )
 		{
-			AllocatorDelete(i->second);
+			Free_T(&i->second);
 		}
 		_methods.clear();
 	}

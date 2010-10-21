@@ -100,7 +100,7 @@ namespace SLB {
 					_ptr = new (Malloc(sizeof(T))) T(ref);
 				}
 
-				virtual ~Implementation() { if (isCopy()) AllocatorDelete(_ptr); }
+				virtual ~Implementation() { if (isCopy()) Free_T(&_ptr); }
 
 				void* get_ptr() { return (isConst())? 0L : _ptr; }
 				const void* get_const_ptr() { return _const_ptr; }
@@ -138,7 +138,7 @@ namespace SLB {
 				{
 				}
 
-				virtual ~Implementation() { if (isCopy()) AllocatorDelete(_ptr); }
+				virtual ~Implementation() { if (isCopy()) Free_T(&_ptr); }
 
 				void* get_ptr() { return (isConst())? 0L : _ptr; }
 				const void* get_const_ptr() { return _const_ptr; }

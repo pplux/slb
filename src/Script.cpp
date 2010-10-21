@@ -54,7 +54,7 @@ namespace SLB {
 	Script::~Script()
 	{
 		SLB_DEBUG_CALL;
-		AllocatorDelete(_errorHandler);
+		Free_T(&_errorHandler);
 		close();
 	}
 	
@@ -154,7 +154,7 @@ namespace SLB {
 
 	void Script::setErrorHandler( ErrorHandler *e )
 	{
-		AllocatorDelete(_errorHandler);
+		Free_T(&_errorHandler);
 		_errorHandler = e;
 	}
 
