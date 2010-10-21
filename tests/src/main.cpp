@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 	SLB_DEBUG(0, "Closing script...");
 	delete s;
 	SLB_DEBUG(0, "End Test...");
-	SLB::Manager::getInstance().reset(); // clear all memory
+	SLB::Manager::defaultManager()->reset(); // clear all memory
 
 
 #ifdef USE_VALGRIND

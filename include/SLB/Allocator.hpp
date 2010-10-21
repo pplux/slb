@@ -105,14 +105,14 @@ namespace SLB
 
 		void destroy(T * const p) const
 		{
-	#ifdef _MSC_VER
-	#pragma warning(push)
-	#pragma warning(disable: 4100) // unreferenced formal parameter
-	#endif
+			#ifdef _MSC_VER
+			#pragma warning(push)
+			#pragma warning(disable: 4100) // unreferenced formal parameter
+			#endif
 			p->~T();
-	#ifdef _MSC_VER
-	#pragma warning(pop)
-	#endif
+			#ifdef _MSC_VER
+			#pragma warning(pop)
+			#endif
 		}
 
 		bool operator==(const Allocator& other) const 
@@ -163,60 +163,19 @@ namespace SLB
 	};
 
 	template <typename T>
-	T* AllocatorNew()
-	{
-		T* ptr = Allocator<T>().allocate(1);
-		new ((void*)ptr) T();
-		return ptr;
-	}
-
-	template <typename T>
-	T* AllocatorNew(const T& rhs)
-	{
-		T* ptr = Allocator<T>().allocate(1);
-		Allocator<T>().construct(ptr, rhs);
-		return ptr;
-	}
-
-	template <typename T, typename U>
-	T* AllocatorNew(const U& i)
-	{
-		T* ptr = Allocator<T>().allocate(1);
-		new ((void*)ptr) T(i);
-		return ptr;
-	}
-
-	template <typename T, typename U, typename V>
-	T* AllocatorNew(const U& i, const V& j)
-	{
-		T* ptr = Allocator<T>().allocate(1);
-		new ((void*)ptr) T(i, j);
-		return ptr;
-	}
-
-	/*
-	template <typename T, typename U, typename V, typename W>
-	T* AllocatorNew(const U& i, const V& j, const W& k)
-	{
-		T* ptr = Allocator<T>().allocate(1);
-		new ((void*)ptr) T(i, j, k);
-		return ptr;
-	}
-	*/
-
-	template <typename T, typename U>
-	void AllocatorNewDeduced(T*& ptr, const U& i)
-	{
-		ptr = AllocatorNew<T,U>(i);
-	}
-
-	template <typename T>
 	void AllocatorDelete(T* ptr)
 	{
 		if (ptr)
 		{
-			Allocator<T>().destroy(ptr);
-			Allocator<T>().deallocate(ptr, 1);
+			#ifdef _MSC_VER
+			#pragma warning(push)
+			#pragma warning(disable: 4100) // unreferenced formal parameter
+			#endif
+			ptr->~T();
+			#ifdef _MSC_VER
+			#pragma warning(pop)
+			#endif
+			Free(ptr);
 		}
 	}
 }

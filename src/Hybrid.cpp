@@ -382,7 +382,7 @@ namespace SLB {
 				lua_tostring(L,2));
 		}
 
-		ref_ptr<InternalHybridSubclass> subc = AllocatorNew<InternalHybridSubclass, ClassInfo*>(ci) ;
+		ref_ptr<InternalHybridSubclass> subc = new (Malloc(sizeof(InternalHybridSubclass))) InternalHybridSubclass(ci) ;
 		subc->push(L);
 
 		// -- set cache...

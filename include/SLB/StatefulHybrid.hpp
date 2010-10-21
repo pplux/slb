@@ -40,7 +40,11 @@ namespace SLB {
 		public S, public Hybrid< T >
 	{	
 	public:
-		StatefulHybrid(){}
+		StatefulHybrid(Manager *m = Manager::defaultManager(), bool loadDefaultLibs = true) :
+		  S(m,loadDefaultLibs),
+		  Hybrid<T>(m)
+		{
+		}
 		virtual ~StatefulHybrid() { S::close(); }
 
 		virtual bool isAttached() const;

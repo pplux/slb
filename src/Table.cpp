@@ -146,7 +146,7 @@ namespace SLB {
 					SLB_DEBUG(6, "Table (%p) create Subtable %s -> %s", this, 
 						base.c_str(), next.c_str());
 
-					subtable = AllocatorNew<Table, String, bool>(_separator, _cacheable);
+					subtable = new (Malloc(sizeof(Table))) Table(_separator, _cacheable);
 					rawSet(base,subtable);
 				}
 				else

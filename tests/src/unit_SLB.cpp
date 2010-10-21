@@ -45,7 +45,8 @@ namespace Unit_SLB {
 	{
 		SLB_DEBUG_CALL;
 		SLB_DEBUG(2, "Test __index metamethod & getCache");
-		SLB::ClassInfo *c = SLB::Manager::getInstance().getClass(L,1);
+		SLB::Manager *m = SLB::Manager::getInstance(L);
+		SLB::ClassInfo *c = m?m->getClass(L,1):0L;
 		if (c)
 		{
 			c->getCache(L);
@@ -61,7 +62,8 @@ namespace Unit_SLB {
 	{
 		SLB_DEBUG_CALL;
 		SLB_DEBUG(2, "Test __newindex metamethod & setCache");
-		SLB::ClassInfo *c = SLB::Manager::getInstance().getClass(L,1);
+		SLB::Manager *m = SLB::Manager::getInstance(L);
+		SLB::ClassInfo *c = m?m->getClass(L,1):0L;
 		if (c)
 		{
 			c->setCache(L);
@@ -75,7 +77,7 @@ namespace Unit_SLB {
 
 	bool Checks::checkHybridBase()
 	{
-		SLB::ClassInfo *ci = SLB::Manager::getInstance().getClass(typeid(SLB::HybridBase));
+		SLB::ClassInfo *ci = SLB::Manager::defaultManager()->getClass(typeid(SLB::HybridBase));
 		return (ci != 0L);
 	}
 

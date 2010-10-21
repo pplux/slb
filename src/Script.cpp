@@ -48,7 +48,7 @@ namespace SLB {
 	Script::Script(Manager *m, bool default_libs) : _manager(m), _L(0), _errorHandler(0), _loadDefaultLibs(default_libs)
 	{
 		SLB_DEBUG_CALL;
-		_errorHandler = AllocatorNew<DefaultErrorHandler>();
+		_errorHandler = new (Malloc(sizeof(DefaultErrorHandler))) DefaultErrorHandler;
 	}
 
 	Script::~Script()
