@@ -254,15 +254,6 @@ namespace SLB {
 		lua_setfield(L, LUA_REGISTRYINDEX, "SLB::Manager");
 	}
 	
-	void Manager::reset()
-	{
-		SLB_DEBUG_CALL;
-		//default manager can't use Allocator since
-		// it hooks to atexit
-		delete _default;
-		_default = 0;
-	}
-	
 	void Manager::addClass( ClassInfo *c )
 	{
 		SLB_DEBUG_CALL;
@@ -457,13 +448,20 @@ namespace SLB {
 	{
 		if (_default == 0)
 		{
-			//Default manager can't use Allocator since
-			// it hooks to atexit
-			_default = new Manager();
-			atexit(Manager::reset);
+			_default = new (Malloc(sizeof(Manager))) Manager();
 		}
 		return _default;
 	}
+	
+	void Manager::destroyDefaultManager()
+	{
+		if (_default)
+		{
+			Free(_default);
+			_default = 0;
+		}
+	}
+
 
 	void* Manager::recursiveConvert(const TypeInfoWrapper& C1, const TypeInfoWrapper &C2, const TypeInfoWrapper& prev, void *obj)
 	{

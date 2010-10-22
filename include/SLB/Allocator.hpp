@@ -43,6 +43,10 @@
 
 #include "Export.hpp"
 
+// To define Maps using our allocator
+//#define SLB_Map(Key,T) std::map<Key, T, std::less<Key>, Allocator< std::pair<const Key, T> > >
+#define SLB_Map(Key,T) std::map<Key, T>
+
 namespace SLB
 {
 	typedef void* (*MallocFn)(size_t);
@@ -182,5 +186,6 @@ namespace SLB
 			*ptr = 0L;
 		}
 	}
+
 }
 #endif

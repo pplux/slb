@@ -81,7 +81,7 @@ namespace SLB {
 		static void registerAsHybrid(ClassInfo *ci);
 
 	protected:
-		typedef std::map< const char *, LuaCallBase *, std::less<const char*>, Allocator<int> > MethodMap;
+		typedef SLB_Map(String, LuaCallBase *) MethodMap;
 
 		HybridBase();
 		virtual ~HybridBase();

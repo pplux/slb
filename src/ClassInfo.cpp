@@ -468,7 +468,14 @@ namespace SLB {
 		SLB_DEBUG_CALL;
 		if (base == this) return true;
 		BaseClassMap::iterator i = _baseClasses.find( base->_typeid );
-		return (i != _baseClasses.end());
+		if (i != _baseClasses.end()) return true;
+		// make it recursive
+		for(BaseClassMap::iterator i = _baseClasses.begin(); i != _baseClasses.end(); ++i)
+		{
+			if (i->second->isSubClassOf(base)) return true;
+		}
+		// no, definitely is not a subclass
+		return false;
 	}
 
 }

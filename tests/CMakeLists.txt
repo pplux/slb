@@ -17,10 +17,10 @@ foreach(script ${SCRIPTS_TEST})
 	if(SLB_USE_VALGRIND)
 		add_test("${TEST_NAME}" "valgrind" 
 			${VALGRIND_OPTS} 
-			"${EXECUTABLE_OUTPUT_PATH}/SLB_test" "${script}")
+			"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/SLB_test" "${script}")
 	else(SLB_USE_VALGRIND)
 		add_test("${TEST_NAME}" 
-			"${EXECUTABLE_OUTPUT_PATH}/SLB_test" "${script}")
+			"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/SLB_test" "${script}")
 	endif(SLB_USE_VALGRIND)
 endforeach(script)
 
