@@ -31,8 +31,10 @@
 #include "Export.hpp"
 #include <string>
 
+
 namespace SLB
 {
+#if 0
 	class SLB_EXPORT String : public std::basic_string< char, std::char_traits<char>, Allocator<char> > 
 	{
 	public:
@@ -44,8 +46,17 @@ namespace SLB
 		String(const std::string& s) : Base(s.c_str()) {}
 
 		String& operator=(const String& s) { if (&s != this) { Base::operator=(s.c_str()); } return *this; }
+		String& operator=(const char* c) { Base::operator=(c); return *this; }
+
+		bool operator==(const char *c)   const { return ( (*(Base*)this) == c); }
+		bool operator==(const String& s) const { return ( (*(Base*)this) == s); }
+		bool operator<(const char *c)    const { return ( (*(Base*)this) < c);  }
+		bool operator<(const String &s)  const { return ( (*(Base*)this) < s);  }
 	};
-	
+#else
+	typedef std::string String;
+#endif
+
 }
 
 #endif

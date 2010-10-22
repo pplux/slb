@@ -25,11 +25,12 @@
 */
 
 #include <SLB/Allocator.hpp>
+#include <SLB/Debug.hpp>
 
 namespace
 {
-	SLB::MallocFn s_mallocFn = NULL;
-	SLB::FreeFn s_freeFn = NULL;
+	static SLB::MallocFn s_mallocFn = NULL;
+	static SLB::FreeFn s_freeFn = NULL;
 }
 
 namespace SLB
@@ -42,22 +43,33 @@ namespace SLB
 
 	SLB_EXPORT void* Malloc(size_t sz)
 	{
+		SLB_DEBUG_CALL;
+		void *result = 0;
 		if (s_mallocFn)
 		{
-			return (s_mallocFn)(sz);
+			result = (s_mallocFn)(sz);
+			SLB_DEBUG(100, "Allocating memory (allocator=%p) : %lu bytes -> %p", (void*)s_mallocFn, sz, result);
+		}
+		else
+		{
+			result = malloc(sz);
+			SLB_DEBUG(100, "Allocating memory (allocator='default') : %lu bytes -> %p", sz, result);
 		}
 
-		return malloc(sz);
+		return result;
 	}
 
 	SLB_EXPORT void Free(void* ptr)
 	{
+		SLB_DEBUG_CALL;
 		if (s_freeFn)
 		{
+			SLB_DEBUG(100, "Deallocating memory (deallocator=%p) : ptr %p", (void*) s_freeFn, ptr);
 			(s_freeFn)(ptr);
 		}
 		else
 		{
+			SLB_DEBUG(100, "Deallocating memory (deallocator='default') : ptr %p", ptr);
 			free(ptr);
 		}
 	}

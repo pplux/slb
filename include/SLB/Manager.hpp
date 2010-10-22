@@ -50,10 +50,10 @@ namespace SLB {
 	{
 	public:
 		typedef void* (*Conversor)(void *);
-		typedef std::map< TypeInfoWrapper, ref_ptr<ClassInfo>, std::less<TypeInfoWrapper>, Allocator<int> > ClassMap;
-		typedef std::map< const String, TypeInfoWrapper, std::less<const String>, Allocator<int> > NameMap;
+		typedef SLB_Map( TypeInfoWrapper, ref_ptr<ClassInfo> ) ClassMap;
+		typedef SLB_Map( String, TypeInfoWrapper ) NameMap;
 		typedef std::pair<TypeInfoWrapper, TypeInfoWrapper > TypeInfoWrapperPair;
-		typedef std::map< TypeInfoWrapperPair, Conversor, std::less<TypeInfoWrapperPair>, Allocator<int> > ConversionsMap;
+		typedef SLB_Map( TypeInfoWrapperPair, Conversor ) ConversionsMap;
 
 		Manager();
 		~Manager();
@@ -63,7 +63,15 @@ namespace SLB {
 		  * (SLB::Manager::registerSLB).
 		  */
 		static Manager *getInstance(lua_State *L);
+
+		/** returns the defaultManager, just in case you don't need separated managers.
+		    To free the memory of the default manager call destroyDefaultManager(),
+		    the memory is NOT automatically freed at the end of the program.  */
 		static Manager *defaultManager();
+
+		/** removes the default manager, and resets its memory. It is safe to call defaultManager before
+		    destruction and a new instance will be created. */
+		static void destroyDefaultManager();
 
 		const ClassInfo *getClass(const TypeInfoWrapper&) const;
 		const ClassInfo *getClass(const String&) const;
@@ -94,11 +102,6 @@ namespace SLB {
 		const void* convert( const TypeInfoWrapper &C1, const TypeInfoWrapper &C2, const void *obj);
 
 		Namespace* getGlobals() { return _global.get(); }
-
-		/** Resets SLB clearing every class data. It is used only to check memory leaks, it should not be
-		 * used in normal runtime...
-		 */
-		static void reset();
 	protected:
 
 		void rename(ClassInfo *c, const String &new_name);

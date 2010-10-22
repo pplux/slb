@@ -90,7 +90,7 @@ namespace SLB
 		void pushImplementation(lua_State *L);
 		virtual int call(lua_State *L) = 0;
 
-		typedef std::pair<const std::type_info*, String> TypeInfoStringPair;
+		typedef std::pair<const std::type_info*, SLB::String> TypeInfoStringPair;
 		std::vector< TypeInfoStringPair, Allocator<TypeInfoStringPair> > _Targs;
 		const std::type_info* _Treturn;
 	private:

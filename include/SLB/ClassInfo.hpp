@@ -56,7 +56,7 @@ namespace SLB {
 	class SLB_EXPORT ClassInfo : public Namespace
 	{
 	public:
-		typedef std::map<TypeInfoWrapper, ref_ptr<ClassInfo>, std::less<TypeInfoWrapper>, Allocator<int> > BaseClassMap;
+		typedef SLB_Map(TypeInfoWrapper, ref_ptr<ClassInfo> ) BaseClassMap;
 
 		ClassInfo(Manager *m, const TypeInfoWrapper &);
 

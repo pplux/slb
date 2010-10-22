@@ -41,7 +41,7 @@ namespace SLB {
 
 	class SLB_EXPORT Table : public Object {
 	public:
-		typedef std::map< String, ref_ptr<Object>, std::less<String>, Allocator<int> > Elements;
+		typedef SLB_Map( String, ref_ptr<Object> ) Elements;
 		Table(const String &separator = "", bool cacheable = false);
 
 		void erase(const String &);
