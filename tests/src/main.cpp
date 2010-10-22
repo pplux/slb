@@ -68,7 +68,8 @@ int main(int argc, char **argv)
 		long vg_leaks = 0, vg_dubious = 0, vg_reachable = 0, dummy;
 		VALGRIND_COUNT_LEAKS(vg_leaks, vg_dubious, vg_reachable, dummy);
 
-		if (vg_leaks || vg_dubious || vg_reachable) exit(1);
+		//if (vg_leaks || vg_dubious || vg_reachable) exit(1);
+		if (vg_leaks || vg_dubious) result=2;
 	}
 #endif
 

@@ -34,7 +34,9 @@
 
 namespace SLB
 {
-#if 0
+#if 1
+	typedef std::basic_string< char, std::char_traits<char>, Allocator<char> > String;
+#else
 	class SLB_EXPORT String : public std::basic_string< char, std::char_traits<char>, Allocator<char> > 
 	{
 	public:
@@ -53,8 +55,6 @@ namespace SLB
 		bool operator<(const char *c)    const { return ( (*(Base*)this) < c);  }
 		bool operator<(const String &s)  const { return ( (*(Base*)this) < s);  }
 	};
-#else
-	typedef std::string String;
 #endif
 
 }

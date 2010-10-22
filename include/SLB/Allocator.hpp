@@ -44,8 +44,7 @@
 #include "Export.hpp"
 
 // To define Maps using our allocator
-//#define SLB_Map(Key,T) std::map<Key, T, std::less<Key>, Allocator< std::pair<const Key, T> > >
-#define SLB_Map(Key,T) std::map<Key, T>
+#define SLB_Map(Key,T) std::map<Key, T, std::less<Key>, Allocator< std::pair<const Key, T> > >
 
 namespace SLB
 {
