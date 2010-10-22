@@ -102,7 +102,7 @@ namespace SLB {
 	FuncCall* FuncCall::create(lua_CFunction f)
 	{
 		SLB_DEBUG_CALL;
-		return new (Malloc(sizeof(lua_CFunction))) LuaCFunction(f);
+		return new (Malloc(sizeof(LuaCFunction))) LuaCFunction(f);
 	}
 
 }

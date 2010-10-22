@@ -32,7 +32,7 @@ namespace Unit_003 {
 
 	void wrapper()
 	{
-/*		SLB_DEBUG_CALL;
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(1, "--> Loading unit_003 wrapper -->");
 		
 		SLB::Class<MapIntString>("Unit_003::MapIntString")
@@ -42,7 +42,7 @@ namespace Unit_003 {
 		;
 		
 		SLB_DEBUG(1, "<-- Loading unit_003 wrapper <--");
-*/	}
+	}
 
 
 	SLB_ON_LOAD(wrapper)

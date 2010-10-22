@@ -403,7 +403,10 @@ namespace SLB {
 				c = i->second.get();
 			}
 		}
-		if (c == 0) c = new (Malloc(sizeof(ClassInfo))) ClassInfo(this,ti);
+		if (c == 0)
+		{
+			c = new (Malloc(sizeof(ClassInfo))) ClassInfo(this,ti);
+		}
 		return c;
 	}
 	
@@ -457,8 +460,7 @@ namespace SLB {
 	{
 		if (_default)
 		{
-			Free(_default);
-			_default = 0;
+			Free_T(&_default);
 		}
 	}
 

@@ -26,6 +26,7 @@
 
 #include <SLB/Allocator.hpp>
 #include <SLB/Debug.hpp>
+#include <cstdlib>
 
 namespace
 {
