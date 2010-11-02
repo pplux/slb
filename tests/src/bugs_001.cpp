@@ -38,7 +38,7 @@ namespace Bugs_001 {
 
 	void test()
 	{
-		SLB_DEBUG(1, "--> Loading bug_001 wrapper -->");
+		SLB_DEBUG(1, "--> Testing bug_001  -->");
 		SLB::Manager m;
 		
 		SLB::Class< Bug::Bug >("Bug::Bug", &m )
