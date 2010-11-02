@@ -46,8 +46,11 @@ namespace Bugs_001 {
 			.set("method_b", &Bug::Bug::method_b)
 		;
 
-		SLB::Script s(&m);
-		s.doString("SLB.using(SLB); Bug.Bug.method_a(); Bug.Bug.method_b();");
+		SLB::Script s1(&m);
+		s1.doString("SLB.using(SLB); Bug.Bug.method_a(); Bug.Bug.method_b();");
+		// test without using
+		SLB::Script s2(&m);
+		s2.doString("SLB.Bug.Bug.method_a(); SLB.Bug.Bug.method_b();");
 	}
 
 	void wrapper()
