@@ -488,7 +488,11 @@ namespace SLB {
 				}
 				else if (!(it->first.second == prev))
 				{
-					return recursiveConvert(it->first.second, C2, C1, it->second(obj));
+					void *foundObj = recursiveConvert(it->first.second, C2, C1, it->second(obj));
+					if (foundObj)
+					{
+						return foundObj;
+					}
 				}
 			}
 		}
