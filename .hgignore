@@ -1,0 +1,4 @@
+^build
+^.*.swp
+^.DS_*
+^src/include
