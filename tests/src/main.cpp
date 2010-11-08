@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 	}
 	catch (std::exception &e)
 	{
-		std::cerr << "EXCEPTION: " << e.what() << std::endl;
+		std::cerr << "SLB_test -> EXCEPTION: " << e.what() << std::endl;
 		result = 1;
 	}
 
