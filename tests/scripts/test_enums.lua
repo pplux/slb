@@ -39,3 +39,8 @@ if t:isA() then error("Invalid C==A (2)") end
 if t:equal(Test.Enum.B) then error("Invalid C==B") end
 if t:isB() then error("Invalid C==B (2)") end
 
+-- comparisons in lua
+print("C->", Test.Enum.C)
+print("C->", Test.Enum.C)
+if Test.Enum.C ~= Test.Enum.C then error("Invalid Test.Enum.C == Test.Enum.C") end
+
