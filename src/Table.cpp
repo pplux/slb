@@ -242,6 +242,14 @@ namespace SLB {
 		return 1;
 	}
 
+	int Table::__eq(lua_State *L)
+	{
+		SLB_DEBUG_CALL;
+		SLB_DEBUG_STACK(10,L,"Table::__eq (%p)",this);
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
 	void Table::pushImplementation(lua_State *L)
 	{
 		SLB_DEBUG_CALL;
@@ -264,6 +272,8 @@ namespace SLB {
 		lua_setfield(L, -3, "__call");
 		pushMeta(L, &Table::__garbageCollector);
 		lua_setfield(L, -3, "__gc");
+		pushMeta(L, &Table::__eq);
+		lua_setfield(L, -3, "__eq");
 
 		lua_pop(L,1); // remove the cache table
 

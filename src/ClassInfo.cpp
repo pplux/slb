@@ -102,6 +102,13 @@ namespace SLB {
 		_meta__newindex[1] = func;
 	}
 
+	void ClassInfo::set__eq( FuncCall *func )
+	{
+		SLB_DEBUG_CALL;
+		SLB_DEBUG(2, "ClassInfo(%p) '%s' set __eq -> %p", this, _name.c_str(), func);
+		_meta__eq = func;
+	}
+
 	void ClassInfo::pushImplementation(lua_State *L)
 	{
 		Table::pushImplementation(L);
@@ -477,5 +484,22 @@ namespace SLB {
 		// no, definitely is not a subclass
 		return false;
 	}
+	
+	int ClassInfo::__eq(lua_State *L)
+	{
+		SLB_DEBUG_CALL;
+		SLB_DEBUG(4, "Called ClassInfo(%p) '%s' __eq", this, _name.c_str() );
+		if (_meta__eq.valid())
+		{
+			// 1 - func to call
+			_meta__eq->push(L);
+			lua_insert(L,1);
+			lua_call(L, lua_gettop(L)-1 , LUA_MULTRET);
+			return lua_gettop(L);
+		}
+		// default do the same as Table
+		else return Table::__eq(L);
+	}
+
 
 }

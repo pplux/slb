@@ -215,6 +215,17 @@ namespace SLB {
 		{
 			_class->setObject__newindex( FuncCall::create(func) ); return *this;
 		}
+
+		template<class T1, class T2>
+		__Self &__eq( bool (*func)(T1,T2) )
+		{
+			_class->setObject__newindex( FuncCall::create(func) ); return *this;
+		}
+
+		__Self &__eq(lua_CFunction func)
+		{
+			_class->set__eq( FuncCall::create(func) ); return *this;
+		}
 		
 		__Self &__add()
 		{ SLB_DEBUG_CALL; SLB_DEBUG(0, "NOT IMPLEMENTED!"); return *this; }
@@ -341,10 +352,15 @@ namespace SLB {
 		ClassInfo *c = _mgr->getOrCreateClass( typeid(TEnum) );
 		if (!c->initialized())
 		{
+			struct Aux
+			{
+				static bool equal(TEnum a, TEnum b) { return a == b; }
+			};
 			// if it is not initialized then add a simple adapter for 
 			// references.
 			typedef InstanceFactoryAdapter< TEnum, SLB::Instance::Default::Implementation<TEnum> > t_IFA;
 			c->setInstanceFactory( new (Malloc(sizeof(t_IFA))) t_IFA );
+			c->set__eq( FuncCall::create( &Aux::equal ));
 		}
 		// push a reference
 		return rawSet(name, Value::copy(obj));

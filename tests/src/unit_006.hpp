@@ -49,6 +49,7 @@ namespace Unit_006 {
 		bool isA() const;
 		bool isB() const;
 		bool isC() const;
+		Enum create(unsigned int) const;
 	private:
 		Enum _value;
 	};

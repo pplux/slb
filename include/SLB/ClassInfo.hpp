@@ -111,6 +111,10 @@ namespace SLB {
 		 *  - value */
 		void setClass__newindex( FuncCall* );
 
+		/** __eq method will receive to objects, and should return
+		  * true or false if those objects are equal or not. */
+		void set__eq( FuncCall* );
+
 		//This is used by some default initializations...
 		bool initialized() const { return _instanceFactory != 0; }
 
@@ -129,6 +133,7 @@ namespace SLB {
 		virtual int __call(lua_State*);
 		virtual int __garbageCollector(lua_State*);
 		virtual int __tostring(lua_State*);
+		virtual int __eq(lua_State *L);
 
 		Manager          *_manager;
 		TypeInfoWrapper   _typeid;
@@ -136,8 +141,9 @@ namespace SLB {
 		InstanceFactory  *_instanceFactory;
 		BaseClassMap      _baseClasses;
 		ref_ptr<FuncCall> _constructor;
-		ref_ptr<FuncCall> _meta__index[2]; // 0 = class, 1 = object
+		ref_ptr<FuncCall> _meta__index[2];    // 0 = class, 1 = object
 		ref_ptr<FuncCall> _meta__newindex[2]; // 0 = class, 1 = object
+		ref_ptr<FuncCall> _meta__eq; 
 		bool _isHybrid;
 
 	private:

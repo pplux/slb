@@ -35,6 +35,19 @@ namespace Unit_006 {
 
 	void Test::set(Test::Enum v) { _value = v; }
 	Test::Enum Test::get() const { return _value; }
+	Test::Enum Test::create(unsigned int i) const 
+	{
+		SLB_DEBUG_CALL;
+		switch(i)
+		{
+			case 0: return A;
+			case 1: return B;
+			case 2: return C;
+			default:
+				SLB_DEBUG(1, "ERROR!!!");
+				exit(1);
+		};
+	}
 	bool Test::equal(Test::Enum v) const { return v == _value; }
 	bool Test::isA() const { return _value == A; }
 	bool Test::isB() const { return _value == B; }
@@ -55,6 +68,7 @@ namespace Unit_006 {
 			.set("isA", &Test::isA)
 			.set("isB", &Test::isB)
 			.set("isC", &Test::isC)
+			.set("create", &Test::create)
 			.enumValue("Enum::A", Test::A)
 			.enumValue("Enum::B", Test::B)
 			.enumValue("Enum::C", Test::C)
