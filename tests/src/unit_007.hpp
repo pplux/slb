@@ -25,59 +25,39 @@
 */
 
 
-#include "unit_006.hpp"
+#ifndef __UNIT_007__
+#define __UNIT_007__
 
-namespace Unit_006 {
+#include <SLB/SLB.hpp>
+#include <tr1/memory>
 
-	Test::Test() : _value(Test::A)
+namespace Unit_007 {
+
+	class JamesBond
 	{
-	}
+	public:
+		typedef std::tr1::shared_ptr<JamesBond> Shared;
 
-	void Test::set(Test::Enum v) { _value = v; }
-	Test::Enum Test::get() const { return _value; }
-	Test::Enum Test::create(unsigned int i) const 
-	{
-		SLB_DEBUG_CALL;
-		switch(i)
-		{
-			case 0: return A;
-			case 1: return B;
-			case 2: return C;
-			default:
-				SLB_DEBUG(1, "ERROR!!!");
-				exit(1);
-		};
-	}
-	bool Test::equal(Test::Enum v) const { return v == _value; }
-	bool Test::isA() const { return _value == A; }
-	bool Test::isB() const { return _value == B; }
-	bool Test::isC() const { return _value == C; }
+		JamesBond();
+		~JamesBond();
 
+		std::string speak() const;
+		int num() const { return _num; }
 
+		// Total of instances that are currently alive
+		static int total() { return _Total; }
 
-	void wrapper()
-	{
-		SLB_DEBUG_CALL;
-		SLB_DEBUG(1, "--> Loading unit_006 wrapper -->");
-		
-		SLB::Class< Test >("Unit_006::Test")
-			.constructor()
-			.set("set", &Test::set)
-			.set("get", &Test::get)
-			.set("equal", &Test::equal)
-			.set("isA", &Test::isA)
-			.set("isB", &Test::isB)
-			.set("isC", &Test::isC)
-			.set("create", &Test::create)
-			.enumValue("Enum::A", Test::A)
-			.enumValue("Enum::B", Test::B)
-			.enumValue("Enum::C", Test::C)
-		;
-
-		SLB_DEBUG(1, "<-- Loading unit_006 wrapper <--");
-	}
+		// Max num of instances (historic data)
+		static int max()   { return _Max; }
+	private:
+		JamesBond(const JamesBond &);
+		JamesBond& operator=(const JamesBond &);
+		int _num;
+		static int _Total;
+		static int _Max;
+	};
 
 
-	SLB_ON_LOAD(wrapper)
+} // end of unit SLB
 
-}
+#endif

@@ -25,56 +25,68 @@
 */
 
 
-#include "unit_006.hpp"
+#include "unit_007.hpp"
+#include <sstream>
 
-namespace Unit_006 {
+namespace Unit_007 {
 
-	Test::Test() : _value(Test::A)
-	{
-	}
+	int JamesBond::_Total = 0;
+	int JamesBond::_Max   = 0;
 
-	void Test::set(Test::Enum v) { _value = v; }
-	Test::Enum Test::get() const { return _value; }
-	Test::Enum Test::create(unsigned int i) const 
+	JamesBond::JamesBond()
 	{
 		SLB_DEBUG_CALL;
-		switch(i)
-		{
-			case 0: return A;
-			case 1: return B;
-			case 2: return C;
-			default:
-				SLB_DEBUG(1, "ERROR!!!");
-				exit(1);
-		};
+		_num = _Total++;
+		if (_Total > _Max) _Max = _Total;
+		SLB_DEBUG("Create Instance (total=%d) (Max=%d)", _Total, _Max);
 	}
-	bool Test::equal(Test::Enum v) const { return v == _value; }
-	bool Test::isA() const { return _value == A; }
-	bool Test::isB() const { return _value == B; }
-	bool Test::isC() const { return _value == C; }
+
+	JamesBond::~JamesBond()
+	{
+		SLB_DEBUG_CALL;
+		_Total--;
+	}
+
+	std::string JamesBond::speak() const
+	{
+		std::stringstream s;
+		s << "I'm Bond, James Bond (number... mmm..." << _num << ")";
+		return s.str();
+	}
 
 
 
 	void wrapper()
 	{
 		SLB_DEBUG_CALL;
-		SLB_DEBUG(1, "--> Loading unit_006 wrapper -->");
+		SLB_DEBUG(1, "--> Loading unit_007 wrapper -->");
+
+		struct Aux
+		{
+			static JamesBond::Shared constructor()
+			{
+				return JamesBond::Shared(new JamesBond());
+			}
+
+			static JamesBond* convert( JamesBond::Shared *s )
+			{
+				return &(**s);
+			}
+		};
 		
-		SLB::Class< Test >("Unit_006::Test")
-			.constructor()
-			.set("set", &Test::set)
-			.set("get", &Test::get)
-			.set("equal", &Test::equal)
-			.set("isA", &Test::isA)
-			.set("isB", &Test::isB)
-			.set("isC", &Test::isC)
-			.set("create", &Test::create)
-			.enumValue("Enum::A", Test::A)
-			.enumValue("Enum::B", Test::B)
-			.enumValue("Enum::C", Test::C)
+		SLB::Class< JamesBond, SLB::Instance::NoCopyNoDestroy >("Unit_007::JamesBond")
+			.constructor(&Aux::constructor)
+			.set("total", &JamesBond::total)
+			.set("max", &JamesBond::max)
+			.set("num", &JamesBond::num)
+			.set("speak", &JamesBond::speak)
 		;
 
-		SLB_DEBUG(1, "<-- Loading unit_006 wrapper <--");
+		SLB::Class < JamesBond::Shared >("Unit_007::JamesBond::Shared")
+			.convertibleTo(&Aux::convert)
+		;
+
+		SLB_DEBUG(1, "<-- Loading unit_007 wrapper <--");
 	}
 
 

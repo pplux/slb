@@ -58,7 +58,6 @@ namespace SLB {
 	public:
 		typedef SLB_Map(TypeInfoWrapper, ref_ptr<ClassInfo> ) BaseClassMap;
 
-		ClassInfo(Manager *m, const TypeInfoWrapper &);
 
 
 		const TypeInfoWrapper &getTypeid() const { return _typeid; }
@@ -79,6 +78,9 @@ namespace SLB {
 		// This version uses static cast instead of dynamic_cast
 		template<class This, class Base>
 		void staticInheritsFrom();
+
+		template<class This, class Other>
+		void convertibleTo( Other* (*func)(This*) );
 
 
 		void setConstructor( FuncCall *constructor );
@@ -111,6 +113,10 @@ namespace SLB {
 		 *  - value */
 		void setClass__newindex( FuncCall* );
 
+		/** __eq method will receive to objects, and should return
+		  * true or false if those objects are equal or not. */
+		void set__eq( FuncCall* );
+
 		//This is used by some default initializations...
 		bool initialized() const { return _instanceFactory != 0; }
 
@@ -122,6 +128,8 @@ namespace SLB {
 		FuncCall* getConstructor() { return _constructor.get(); }
 
 	protected:
+		// Class Info are crated using manager->getOrCreateClass()
+		ClassInfo(Manager *m, const TypeInfoWrapper &);
 		virtual ~ClassInfo();
 		void pushImplementation(lua_State *);
 		virtual int __index(lua_State*);
@@ -129,6 +137,7 @@ namespace SLB {
 		virtual int __call(lua_State*);
 		virtual int __garbageCollector(lua_State*);
 		virtual int __tostring(lua_State*);
+		virtual int __eq(lua_State *L);
 
 		Manager          *_manager;
 		TypeInfoWrapper   _typeid;
@@ -136,8 +145,9 @@ namespace SLB {
 		InstanceFactory  *_instanceFactory;
 		BaseClassMap      _baseClasses;
 		ref_ptr<FuncCall> _constructor;
-		ref_ptr<FuncCall> _meta__index[2]; // 0 = class, 1 = object
+		ref_ptr<FuncCall> _meta__index[2];    // 0 = class, 1 = object
 		ref_ptr<FuncCall> _meta__newindex[2]; // 0 = class, 1 = object
+		ref_ptr<FuncCall> _meta__eq; 
 		bool _isHybrid;
 
 	private:
@@ -165,6 +175,24 @@ namespace SLB {
 	{
 		_manager->template addStaticConversor<D,B>();
 		_baseClasses[ _TIW(B) ] = _manager->getOrCreateClass(_TIW(B));
+	}
+
+	template<class This, class Other>
+	inline void ClassInfo::convertibleTo( Other* (*func)(This*) )
+	{
+		assert( (typeid(This) != typeid(Other)) && "Invalid convertibleTo -> can not add convertibleTo to the same class");
+		/* This is a pretty ugly cast, SLB Manager handles changes from one type to other through
+		   void*, here we are changing the function to receive two pointers from the expected types (when the
+		   origin will be void*) It should be completely safe, as a pointer is the same size no matter the type. 
+
+		   Anyway, it's a pretty ugly trick. */
+		typedef void* (*T_void)(void*);
+		T_void aux_f = reinterpret_cast<T_void>(func);
+
+		/* Once we've forced the conversion of the function we can let the manager know how to change from
+		   this type to the other one */
+		_manager->template addClassConversor<This,Other>(aux_f);
+		_baseClasses[ _TIW(Other) ] = _manager->getOrCreateClass(_TIW(Other));
 	}
 
 }
