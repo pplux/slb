@@ -29,7 +29,12 @@
 #define __UNIT_007__
 
 #include <SLB/SLB.hpp>
-#include <tr1/memory>
+#if defined(_MSC_VER) 
+#	include <memory>
+#else
+#	include <tr1/memory>
+#endif
+
 
 namespace Unit_007 {
 
@@ -45,10 +50,10 @@ namespace Unit_007 {
 		int num() const { return _num; }
 
 		// Total of instances that are currently alive
-		static int total() { return _Total; }
+		static int TOTAL() { return _Total; }
 
 		// Max num of instances (historic data)
-		static int max()   { return _Max; }
+		static int MAX()   { return _Max; }
 	private:
 		JamesBond(const JamesBond &);
 		JamesBond& operator=(const JamesBond &);
