@@ -58,7 +58,6 @@ namespace SLB {
 	public:
 		typedef SLB_Map(TypeInfoWrapper, ref_ptr<ClassInfo> ) BaseClassMap;
 
-		ClassInfo(Manager *m, const TypeInfoWrapper &);
 
 
 		const TypeInfoWrapper &getTypeid() const { return _typeid; }
@@ -129,6 +128,8 @@ namespace SLB {
 		FuncCall* getConstructor() { return _constructor.get(); }
 
 	protected:
+		// Class Info are crated using manager->getOrCreateClass()
+		ClassInfo(Manager *m, const TypeInfoWrapper &);
 		virtual ~ClassInfo();
 		void pushImplementation(lua_State *);
 		virtual int __index(lua_State*);

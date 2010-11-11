@@ -43,7 +43,6 @@ namespace SLB {
 		_isHybrid(false)
 	{
 		SLB_DEBUG_CALL;
-		_manager->addClass(this);
 		_name = _typeid.name();
 	}
 
