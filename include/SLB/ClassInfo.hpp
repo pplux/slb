@@ -56,7 +56,7 @@ namespace SLB {
 	class SLB_EXPORT ClassInfo : public Namespace
 	{
 	public:
-		typedef SLB_Map(TypeInfoWrapper, ref_ptr<ClassInfo> ) BaseClassMap;
+		typedef SLB_Map(TypeInfoWrapper, ClassInfo* ) BaseClassMap;
 
 
 
@@ -167,20 +167,23 @@ namespace SLB {
 	inline void ClassInfo::inheritsFrom()
 	{
 		_manager->template addConversor<D,B>();
-		_baseClasses[ _TIW(B) ] = _manager->getOrCreateClass(_TIW(B));
+		ClassInfo *ci = _manager->getOrCreateClass(_TIW(B));
+		assert( (ci != this) && "Circular reference between ClassInfo classes");
+		_baseClasses[ _TIW(B) ] = ci;
 	}
 
 	template<class D, class B>
 	inline void ClassInfo::staticInheritsFrom()
 	{
 		_manager->template addStaticConversor<D,B>();
-		_baseClasses[ _TIW(B) ] = _manager->getOrCreateClass(_TIW(B));
+		ClassInfo *ci = _manager->getOrCreateClass(_TIW(B));
+		assert( (ci != this) && "Circular reference between ClassInfo classes");
+		_baseClasses[ _TIW(B) ] = ci;
 	}
 
 	template<class This, class Other>
 	inline void ClassInfo::convertibleTo( Other* (*func)(This*) )
 	{
-		assert( (typeid(This) != typeid(Other)) && "Invalid convertibleTo -> can not add convertibleTo to the same class");
 		/* This is a pretty ugly cast, SLB Manager handles changes from one type to other through
 		   void*, here we are changing the function to receive two pointers from the expected types (when the
 		   origin will be void*) It should be completely safe, as a pointer is the same size no matter the type. 
@@ -192,7 +195,9 @@ namespace SLB {
 		/* Once we've forced the conversion of the function we can let the manager know how to change from
 		   this type to the other one */
 		_manager->template addClassConversor<This,Other>(aux_f);
-		_baseClasses[ _TIW(Other) ] = _manager->getOrCreateClass(_TIW(Other));
+		ClassInfo *ci = _manager->getOrCreateClass(_TIW(Other));
+		assert( (ci != this) && "Circular reference between ClassInfo classes");
+		_baseClasses[ _TIW(Other) ] = ci;
 	}
 
 }
