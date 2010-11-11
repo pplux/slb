@@ -59,7 +59,7 @@ namespace Unit_001 {
 
 		SLB::Class< Vector >("Unit_001::Vector")
 			.constructor()
-			.set("push_back", &Vector::push_back)
+			.nonconst_set<Vector, void, const Vector::value_type&>("push_back", &Vector::push_back)
 #ifdef WIN32
 			.set("get", &Vector::operator[] )
 			// Windows 2008 needs complete specification... :(
@@ -78,7 +78,7 @@ namespace Unit_001 {
 
 		SLB::Class< iVector >("Unit_001::iVector")
 			.constructor()
-			.set("push_back", &iVector::push_back)
+			.nonconst_set<iVector, void, const iVector::value_type&>("push_back", &iVector::push_back)
 #ifdef WIN32
 			.set("get", &iVector::operator[] )
 // Windows 2008 needs complete specification... :(
