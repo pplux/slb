@@ -107,6 +107,13 @@ namespace SLB {
 		__Self &static_inherits()
 		{ _class->staticInheritsFrom<T,TBase>(); return *this;}
 
+		template<typename T_to>
+		__Self &convertibleTo( T_to* (*func)(T*)  = &(ClassConversor<T,T_to>::defaultConvert) )
+		{
+			_class->convertibleTo<T,T_to>(func);
+			return *this;
+		}
+
 
 		/* Class__index for (non-const)methods */
 		template<class C, class R, class P>
@@ -288,6 +295,10 @@ namespace SLB {
 			/* constructors */ \
 			template<class T0 SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
 			__Self &constructor(); \
+		\
+			/* Constructors (wrappers to c-functions)  */ \
+			template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+			__Self &constructor(R (func)(SPP_ENUM_D(N,T)) ); \
 
 		SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
 		#undef SLB_REPEAT
@@ -452,6 +463,14 @@ namespace SLB {
 			_class->setConstructor( fc );\
 			return *this; \
 		} \
+		/* Constructors (wrappers c-functions)  */ \
+		template<typename T, typename W> \
+		template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
+		inline Class<T,W> &Class<T,W>::constructor( R (func)(SPP_ENUM_D(N,T)) ){ \
+			_class->setConstructor( FuncCall::create( func ) ); \
+			return *this;\
+		} \
+	\
 
 	SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
 	#undef SLB_REPEAT
