@@ -110,6 +110,8 @@ namespace SLB {
 		void addConversor();
 		template<class Derived, class Base>
 		void addStaticConversor();
+		template<class A, class B>
+		void addClassConversor( Conversor );
 
 		/** Returns the classMap with all defined classes */
 		ClassMap& getClasses() { return _classes; }
@@ -158,6 +160,11 @@ namespace SLB {
 			D* derived = static_cast<D*>(base);
 			return (void*) derived;
 		}
+
+		static B* defaultConvert( D* ptr )
+		{
+			return &static_cast<B>(*ptr);
+		}
 		
 	};
 
@@ -173,6 +180,12 @@ namespace SLB {
 	{
 		_conversions[ ConversionsMap::key_type(_TIW(D), _TIW(B)) ] = &ClassConversor<D,B>::convertToBase;
 		_conversions[ ConversionsMap::key_type(_TIW(B), _TIW(D)) ] = &ClassConversor<D,B>::staticConvertToDerived;
+	}
+
+	template<class A, class B>
+	inline void Manager::addClassConversor( Conversor c )
+	{
+		_conversions[ ConversionsMap::key_type(_TIW(A), _TIW(B)) ] = c;
 	}
 
 	inline void* Manager::convert( const TypeInfoWrapper &C1, const TypeInfoWrapper &C2, void *obj)

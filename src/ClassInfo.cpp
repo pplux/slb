@@ -337,7 +337,8 @@ namespace SLB {
 				Object *obj = 0;
 				for(BaseClassMap::iterator i = _baseClasses.begin(); obj == 0L && i != _baseClasses.end(); ++i)
 				{
-					obj = ((Table*)(i->second.get()))->get(key);
+					Table *table = (i->second.get());
+					obj = table->get(key);
 				}
 				if (obj)
 				{

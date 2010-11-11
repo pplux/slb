@@ -2,3 +2,4 @@
 ^.*.swp
 ^.DS_*
 ^src/include
+.orig$
