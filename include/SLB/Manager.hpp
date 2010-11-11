@@ -105,7 +105,6 @@ namespace SLB {
 	protected:
 
 		void rename(ClassInfo *c, const String &new_name);
-		void addClass( ClassInfo *c );
 		template<class Derived, class Base>
 		void addConversor();
 		template<class Derived, class Base>

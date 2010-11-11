@@ -254,13 +254,6 @@ namespace SLB {
 		lua_setfield(L, LUA_REGISTRYINDEX, "SLB::Manager");
 	}
 	
-	void Manager::addClass( ClassInfo *c )
-	{
-		SLB_DEBUG_CALL;
-		CriticalSection lock(&managerMutex);
-		_classes[ c->getTypeid() ] = c;
-	}
-
 	const ClassInfo *Manager::getClass(const TypeInfoWrapper &ti) const
 	{
 		SLB_DEBUG_CALL;
@@ -405,7 +398,9 @@ namespace SLB {
 		}
 		if (c == 0)
 		{
+			CriticalSection lock(&managerMutex);
 			c = new (Malloc(sizeof(ClassInfo))) ClassInfo(this,ti);
+			_classes[ c->getTypeid() ] = c;
 		}
 		return c;
 	}
