@@ -76,8 +76,8 @@ namespace Unit_007 {
 		
 		SLB::Class< JamesBond, SLB::Instance::NoCopyNoDestroy >("Unit_007::JamesBond")
 			.constructor(&Aux::constructor)
-			.set("total", &JamesBond::total)
-			.set("max", &JamesBond::max)
+			.set("total", &JamesBond::TOTAL)
+			.set("max", &JamesBond::MAX)
 			.set("num", &JamesBond::num)
 			.set("speak", &JamesBond::speak)
 		;
