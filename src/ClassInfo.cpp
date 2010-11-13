@@ -49,6 +49,7 @@ namespace SLB {
 	ClassInfo::~ClassInfo()
 	{
 		SLB_DEBUG_CALL;
+		_baseClasses.clear(); // force deletion of memory
 		Free_T(&_instanceFactory); 
 	}
 
@@ -336,7 +337,7 @@ namespace SLB {
 				Object *obj = 0;
 				for(BaseClassMap::iterator i = _baseClasses.begin(); obj == 0L && i != _baseClasses.end(); ++i)
 				{
-					Table *table = (i->second.get());
+					Table *table = (i->second);
 					obj = table->get(key);
 				}
 				if (obj)
@@ -443,7 +444,7 @@ namespace SLB {
 		;
 		for(BaseClassMap::iterator i = _baseClasses.begin(); i != _baseClasses.end(); ++i)
 		{
-				lua_pushfstring(L, "\n\tinherits from %s (%p)",i->second->getName().c_str(), (Object*) i->second.get());
+				lua_pushfstring(L, "\n\tinherits from %s (%p)",i->second->getName().c_str(), (Object*) i->second);
 		}
 		for(Elements::iterator i = _elements.begin(); i != _elements.end(); ++i)
 		{
