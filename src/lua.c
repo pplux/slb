@@ -1,5 +1,13 @@
 #define luaall_c
 
+#ifndef SLB_STATIC_LIBRARY
+	#define LUA_BUILD_AS_DLL
+	#ifdef SLB_LIBRARY
+		#define LUA_LIB
+		#define LUA_CORE
+	#endif
+#endif
+
 #include "lua/lobject.c"
 #include "lua/lapi.c"
 #include "lua/lcode.c"

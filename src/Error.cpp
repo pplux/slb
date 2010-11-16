@@ -158,7 +158,8 @@ void DefaultErrorHandler::begin(const char *error)
 
 const char* DefaultErrorHandler::end()
 {
-	return _out.str().c_str();
+	_final = _out.str();
+	return _final.c_str();
 }
 
 void DefaultErrorHandler::stackElement(int level)

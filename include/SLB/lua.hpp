@@ -35,9 +35,12 @@ extern "C" {
 	#include <lauxlib.h>
 	#include <lualib.h>
 #else
-	#ifdef SLB_LIBRARY
-		#define LUA_CORE
-		#define LUA_LIB
+	#ifndef SLB_STATIC_LIBRARY
+		#define LUA_BUILD_AS_DLL
+		#ifdef SLB_LIBRARY
+			#define LUA_LIB
+			#define LUA_CORE
+		#endif
 	#endif
 	// Local (static) lua (v 5.1.3)
 	#include "lua/lua.h"

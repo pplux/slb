@@ -123,13 +123,18 @@ namespace SLB {
 		int top = lua_gettop(L);
 		SLB_DEBUG(10, "filename %s = ", filename.c_str());
 
-		if(luaL_loadfile(L,filename.c_str()))
+		switch(luaL_loadfile(L,filename.c_str()))
 		{
-			throw std::runtime_error("can not open file");
+			case LUA_ERRFILE:
+			case LUA_ERRSYNTAX: throw std::runtime_error(lua_tostring(_L, -1)); break;
+			case LUA_ERRMEM:    throw std::runtime_error("Error allocating memory"); break;
 		}
+
+		// otherwise...
 		if( _errorHandler->lua_pcall(_L, 0, 0))
 		{
-			throw std::runtime_error( lua_tostring(_L, -1) );
+			const char *s = lua_tostring(L,-1);
+			throw std::runtime_error( s );
 		}
 
 		lua_settop(L,top);
@@ -146,7 +151,8 @@ namespace SLB {
 
 		if(luaL_loadstring(L,code.str().c_str()) || _errorHandler->lua_pcall(_L, 0, 0))
 		{
-			throw std::runtime_error( lua_tostring(L,-1) );
+			const char *s = lua_tostring(L,-1);
+			throw std::runtime_error( s );
 		}
 
 		lua_settop(L,top);

@@ -8,6 +8,8 @@ OPTION(SLB_BUILD_TESTS "Enable building Tests" OFF)
 OPTION(SLB_BUILD_EXAMPLES "Enable examples" ON)
 OPTION(SLB_USE_EMBEDDED_LUA "Use Lua embedded" ON)
 OPTION(SLB_USE_VALGRIND "Use valgrind to check memory leaks" OFF)
+OPTION(SLB_STATIC_LIBRARY "Compile SLB as an Static Library" OFF)
+
 SET(SLB_DEBUG_LEVEL 0)
 
 link_directories( ${LIBRARY_OUTPUT_PATH} )
@@ -22,6 +24,7 @@ add_definitions(-DSLB_DEBUG_OUTPUT=stdout)
 file(GLOB HEADERS_SLB "${SLB_SOURCE_DIR}/include/SLB/*.hpp")
 file(GLOB SOURCES_SLB "${SLB_SOURCE_DIR}/src/*.cpp")
 
+# Use our Lua or external
 if(SLB_USE_EMBEDDED_LUA)
 	include_directories( "${SLB_SOURCE_DIR}/include/SLB/lua" )
 	file(GLOB HEADERS_SLB_LUA "${SLB_SOURCE_DIR}/include/SLB/lua/*.h")
@@ -30,11 +33,19 @@ else(SLB_USE_EMBEDDED_LUA)
 	add_definitions(-DSLB_EXTERNAL_LUA)
 endif(SLB_USE_EMBEDDED_LUA)
 
+# compile as DLL or static library
+if(SLB_STATIC_LIBRARY)
+	add_definitions(-DSLB_STATIC_LIBRARY)
+	set(LIB_TYPE "STATIC")
+else(SLB_STATIC_LIBRARY)
+	set(LIB_TYPE "SHARED")
+endif(SLB_STATIC_LIBRARY)
+
 set(HEADERS ${HEADERS_SLB} ${HEADERS_SLB_LUA})
 set(SOURCES ${SOURCES_SLB} ${SOURCES_SLB_LUA})
 
 add_library(SLB
-	SHARED
+	${LIB_TYPE}
 	${HEADERS}
 	${SOURCES}
 )
@@ -42,12 +53,6 @@ add_library(SLB
 if(WIN32)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	add_definitions(-DSLB_LIBRARY)
-	if (SLB_USE_EMBEDDED_LUA)
-		add_definitions(-DLUA_BUILD_AS_DLL)
-	else (SLB_USE_EMBEDDED_LUA)
-		#TODO add here lua as external dependency
-		message(FATAL "Missing configuration for lua as external dll in win32")
-	endif(SLB_USE_EMBEDDED_LUA)
 else(WIN32)
 	set(CMAKE_C_FLAGS_DEBUG "-Wall -g ")
 	set(CMAKE_CXX_FLAGS_DEBUG "-Wall -g ")

@@ -118,6 +118,7 @@ namespace SLB {
 		virtual void stackElement(int level);
 	private:
 		std::ostringstream _out;
+		std::string _final;
 	};
 
 
