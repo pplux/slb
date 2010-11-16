@@ -1,0 +1,2 @@
+- Rename ClassInfo to TypeInfo.
+- Remove Type and replace it with TypeInfo's, and default implementations for basic types.
