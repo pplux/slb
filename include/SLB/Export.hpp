@@ -30,6 +30,7 @@
 #define __SLB_EXPORT__
 
 #if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
+	#define SLB_WINDOWS 1
 	#  if defined( SLB_STATIC_LIBRARY )
 	#    define SLB_EXPORT
 	#  elif defined( SLB_LIBRARY )

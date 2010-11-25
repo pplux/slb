@@ -48,10 +48,10 @@ namespace SLB {
 	Script::Script(Manager *m, bool default_libs) : 
 		_manager(m), 
 		_L(0),
-		_errorHandler(0),
-		_loadDefaultLibs(default_libs),
 		_allocator(&Script::allocator),
-		_allocator_ud(0)
+		_allocator_ud(0),
+		_errorHandler(0),
+		_loadDefaultLibs(default_libs)
 	{
 		SLB_DEBUG_CALL;
 		
@@ -189,7 +189,9 @@ namespace SLB {
 		else
 		{
 			void *newpos = SLB::Malloc(nsize);
-			memcpy(newpos, ptr, osize);
+			size_t count = osize;
+			if (nsize < osize) count = nsize;
+			memcpy(newpos, ptr, count);
 			SLB::Free(ptr);
 			return newpos;
 		}

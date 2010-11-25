@@ -29,19 +29,24 @@
 #ifndef __SLB_LUA__
 #define __SLB_LUA__
 
+#include "Export.hpp"
+
 extern "C" {
 #ifdef SLB_EXTERNAL_LUA
 	#include <lua.h>
 	#include <lauxlib.h>
 	#include <lualib.h>
 #else
-	#ifndef SLB_STATIC_LIBRARY
-		#define LUA_BUILD_AS_DLL
-		#ifdef SLB_LIBRARY
-			#define LUA_LIB
-			#define LUA_CORE
-		#endif
-	#endif
+	#if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
+		#ifndef SLB_STATIC_LIBRARY
+			#define LUA_BUILD_AS_DLL
+			#ifdef SLB_LIBRARY
+				#define LUA_LIB
+				#define LUA_CORE
+			#endif
+		#endif // SLB_STATIC_LIBRARY
+	#endif // on windows...
+
 	// Local (static) lua (v 5.1.3)
 	#include "lua/lua.h"
 	#include "lua/lauxlib.h"
