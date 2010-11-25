@@ -95,6 +95,7 @@ namespace SLB
 	inline Mutex::~Mutex() {}
 	inline void Mutex::lock(){}
 	inline void Mutex::unlock() {}
+	inline bool Mutex::trylock() { return true; }
 #else // SLB_NO_THREAD_SAFE
 #ifdef WIN32
 	// Windows implementation...
