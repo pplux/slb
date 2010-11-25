@@ -73,10 +73,13 @@ namespace SLB {
 		T get(const std::string&name)
 		{ return SLB::getGlobal<T>(getState(), name.c_str()); }
 
+		static void* allocator(void *ud, void *ptr, size_t osize, size_t nsize);
+
 	protected:
 		virtual void onNewState(lua_State *L) {}
 		virtual void onCloseState(lua_State *L) {}
 		virtual void onGC(lua_State *L) {}
+		void setAllocator(lua_Alloc f, void *ud = 0);
 
 		lua_State* getState();
 		void close(); // will close lua_state
@@ -86,6 +89,8 @@ namespace SLB {
 		Script& operator=(const Script&);
 		Manager *_manager;
 		lua_State *_L;
+		lua_Alloc _allocator;
+		void *    _allocator_ud;
 		ErrorHandler *_errorHandler;
 		bool _loadDefaultLibs;
 	};

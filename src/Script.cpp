@@ -45,10 +45,19 @@ namespace SLB {
 	}
 #endif
 
-	Script::Script(Manager *m, bool default_libs) : _manager(m), _L(0), _errorHandler(0), _loadDefaultLibs(default_libs)
+	Script::Script(Manager *m, bool default_libs) : 
+		_manager(m), 
+		_L(0),
+		_errorHandler(0),
+		_loadDefaultLibs(default_libs),
+		_allocator(&Script::allocator),
+		_allocator_ud(0)
 	{
 		SLB_DEBUG_CALL;
-		_errorHandler = new (Malloc(sizeof(DefaultErrorHandler))) DefaultErrorHandler;
+		
+		DefaultErrorHandler *err = 0;
+		New_T(&err);
+		_errorHandler = err;
 	}
 
 	Script::~Script()
@@ -57,6 +66,12 @@ namespace SLB {
 		Free_T(&_errorHandler);
 		close();
 	}
+
+	void Script::setAllocator(lua_Alloc f, void *ud)
+	{
+		_allocator = f;
+		_allocator_ud = ud;
+	}
 	
 	lua_State* Script::getState()
 	{
@@ -64,7 +79,7 @@ namespace SLB {
 		if (!_L)
 		{
 			SLB_DEBUG(10, "Open default libs = %s", _loadDefaultLibs ? " true": " false");
-			_L = luaL_newstate();
+			_L = lua_newstate(_allocator, _allocator_ud);
 			assert("Can not create more lua_states" && (_L != 0L));
 			if (_loadDefaultLibs) luaL_openlibs(_L);
 			_manager->registerSLB(_L);
@@ -162,6 +177,22 @@ namespace SLB {
 	{
 		Free_T(&_errorHandler);
 		_errorHandler = e;
+	}
+
+	void *Script::allocator(void *ud, void *ptr, size_t osize, size_t nsize)
+	{
+		if (nsize == 0)
+		{
+			SLB::Free(ptr);
+			return 0;
+		}
+		else
+		{
+			void *newpos = SLB::Malloc(nsize);
+			memcpy(newpos, ptr, osize);
+			SLB::Free(ptr);
+			return newpos;
+		}
 	}
 
 } /* SLB */
