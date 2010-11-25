@@ -179,11 +179,17 @@ namespace SLB
 			/*#ifdef _MSC_VER
 			#pragma warning(pop)
 			#endif*/
-			Free(*ptr);
+			SLB::Free(*ptr);
 
 			// To clearly identify deleted pointers:
 			*ptr = 0L;
 		}
+	}
+
+	template<typename T>
+	void New_T(T **ptr)
+	{
+		if (ptr) *ptr = new (SLB::Malloc(sizeof(T))) T();
 	}
 
 }
