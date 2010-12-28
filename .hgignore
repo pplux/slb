@@ -1,0 +1,6 @@
+^build
+^.*.swp
+^.DS_*
+^src/include
+.orig$
+relre:~$
