@@ -106,7 +106,7 @@ namespace SLB {
 		//TODO: Use Manager to retreive a defaultHandler
 		DefaultErrorHandler handler;
 
-		if(handler.lua_pcall(_L, numArgs, numOutput))
+		if(handler.call(_L, numArgs, numOutput))
 		{
 			const char* msg = lua_tostring(_L, -1);
 			throw std::runtime_error( msg ? msg : "Unknown Error" );

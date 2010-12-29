@@ -131,7 +131,7 @@ namespace SLB {
 			//TODO this can be improved a little bit... by storing this metatable
 			//somewhere....
 			lua_newtable(_L); // [+1] metatable 
-			lua_pushvalue(_L, LUA_GLOBALSINDEX); // [+1] globals _G
+			lua_pushglobaltable(_L); // [+1] globals _G
 			lua_setfield(_L, -2, "__index"); // [-1] metatable.__index = _G
 			lua_setmetatable(L,-2); // [-1]
 			// done
@@ -305,14 +305,30 @@ namespace SLB {
 		const HybridBase *hb = get_hybrid( L, 1 );
 		if (hb->_L == 0) luaL_error(L, "Instance(%p) not attached to any lua_State...", hb);
 		if (hb->_L != L) luaL_error(L, "This instance(%p) is attached to another lua_State(%p)", hb, hb->_L);
+		
+		// save current global environment
+		lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
+		int original_G = luaL_ref(L, LUA_REGISTRYINDEX);
+
 		// get the real function to call
 		lua_pushvalue(L, lua_upvalueindex(1));
+
 		// get the environment (from object) and set it
 		lua_rawgeti(L, LUA_REGISTRYINDEX, hb->_global_environment);
-		lua_setfenv(L,-2);
+		
+		// replace global environemnt
+		lua_rawseti(L,LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
+
 		lua_insert(L,1); //put the target function at 1
 		SLB_DEBUG_STACK(10, L, "Hybrid(%p)::call_lua_method ...", hb);
 		lua_call(L, lua_gettop(L) - 1, LUA_MULTRET);
+
+		// restore the global environment
+		lua_rawgeti(L, LUA_REGISTRYINDEX, original_G);
+		lua_rawseti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
+		// free the reference
+		luaL_unref(L, LUA_REGISTRYINDEX, original_G);
+
 		return lua_gettop(L);
 	}
 

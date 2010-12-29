@@ -146,7 +146,7 @@ namespace SLB {
 		}
 
 		// otherwise...
-		if( _errorHandler->lua_pcall(_L, 0, 0))
+		if( _errorHandler->call(_L, 0, 0))
 		{
 			const char *s = lua_tostring(L,-1);
 			throw std::runtime_error( s );
@@ -164,7 +164,7 @@ namespace SLB {
 		std::stringstream code;
 		code << "--" << hint << std::endl << o_code;
 
-		if(luaL_loadstring(L,code.str().c_str()) || _errorHandler->lua_pcall(_L, 0, 0))
+		if(luaL_loadstring(L,code.str().c_str()) || _errorHandler->call(_L, 0, 0))
 		{
 			const char *s = lua_tostring(L,-1);
 			throw std::runtime_error( s );
@@ -191,7 +191,7 @@ namespace SLB {
 			void *newpos = SLB::Malloc(nsize);
 			size_t count = osize;
 			if (nsize < osize) count = nsize;
-			memcpy(newpos, ptr, count);
+			if (ptr) memcpy(newpos, ptr, count);
 			SLB::Free(ptr);
 			return newpos;
 		}

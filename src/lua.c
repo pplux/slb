@@ -1,7 +1,18 @@
 /* one.c -- Lua core, libraries, and interpreter in a single file
 */
 
-#define MAKE_LIB 1
+#define MAKE_LIB  1
+
+#if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
+       #ifndef SLB_STATIC_LIBRARY
+               #define LUA_BUILD_AS_DLL
+               #ifdef SLB_LIBRARY
+                       #define LUA_LIB
+                       #define LUA_CORE
+               #endif
+       #endif
+#endif
+
 
 /* default is to build the full interpreter */
 #ifndef MAKE_LIB
@@ -45,6 +56,7 @@
 #define pushclosure pushclosure2
 #include "lua/lvm.c"
 #include "lua/lzio.c"
+#undef pushclosure
 
 /* auxiliary library -- used by all */
 #include "lua/lauxlib.c"
