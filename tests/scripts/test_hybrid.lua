@@ -4,12 +4,12 @@ SLB.using(SLB.Unit_002)
 chunk = assert(loadstring[[
 print("Loading hybrid members...")
 
-function HClass:calc(a, b)
-	result = a + b
+function HClass.calc(a, b)
+	self.result = a + b
 end
 
 function HClass:get()
-	return result
+	return self.result
 end
 
 ]])()
