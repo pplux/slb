@@ -31,13 +31,14 @@ namespace Bugs_001 {
 
 	namespace Bug
 	{
-		void Bug::method_a() {SLB_DEBUG(1,"Method_A"); std::cout << "Method A" << std::endl; }
-		void Bug::method_b() {SLB_DEBUG(1,"Method_B"); std::cout << "Method B" << std::endl; }
+		void Bug::method_a() {SLB_DEBUG_CALL;SLB_DEBUG(1,"Method_A"); std::cout << "Method A" << std::endl; }
+		void Bug::method_b() {SLB_DEBUG_CALL;SLB_DEBUG(1,"Method_B"); std::cout << "Method B" << std::endl; }
 	};
 
 
 	void test()
 	{
+		SLB_DEBUG_CALL;
 		SLB_DEBUG(1, "--> Testing bug_001  -->");
 		SLB::Manager m;
 		
