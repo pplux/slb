@@ -75,8 +75,9 @@ namespace SLB {
 		void unAttach(); 
 
 		/** Use this function to register this class as hybrid, it will override
-		 * ClassInfo metamethods of class__index, class__newindex and object__index
-		 * if your class requires those methods contact me to see if it is possible
+		 * ClassInfo metamethods of class__index, class__newindex, object__index and
+         * object__newindex. 
+		 * Note: if your class requires those methods contact me to see if it is possible
 		 * to do it, by the moment this is the only way this works */
 		static void registerAsHybrid(ClassInfo *ci);
 
@@ -102,7 +103,7 @@ namespace SLB {
 
 	private:
 		lua_State * _L;
-		int _global_environment;
+		int _data; //< lua ref to internal data
 
 		// pops a key,value from tom and sets as our method
 		// [-2,0]
@@ -112,6 +113,7 @@ namespace SLB {
 		static int class__newindex(lua_State *);
 		static int class__index(lua_State *);
 		static int object__index(lua_State *);
+		static int object__newindex(lua_State *);
 
 	protected:
 		mutable Mutex _mutex;
