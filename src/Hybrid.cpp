@@ -106,7 +106,7 @@ namespace SLB {
 
 
 	HybridBase::HybridBase() : _L(0),
-		_global_environment(0)
+		_data(0)
 	{
 		SLB_DEBUG_CALL;
 	}
@@ -127,16 +127,9 @@ namespace SLB {
 		{
 			SLB_DEBUG_CLEAN_STACK(L,0);
 			_L = L;
-			lua_newtable(_L); // [+1]
-			//TODO this can be improved a little bit... by storing this metatable
-			//somewhere....
-			lua_newtable(_L); // [+1] metatable 
-			lua_pushglobaltable(_L); // [+1] globals _G
-			lua_setfield(_L, -2, "__index"); // [-1] metatable.__index = _G
-			lua_setmetatable(L,-2); // [-1]
-			// done
-
-			_global_environment = luaL_ref(_L, LUA_REGISTRYINDEX); // [-1]
+			// create a table to store internal data
+			lua_newtable(_L);
+			_data = luaL_ref(_L, LUA_REGISTRYINDEX);
 		}
 	}
 
@@ -145,10 +138,10 @@ namespace SLB {
 		SLB_DEBUG_CALL;
 		clearMethodMap();
 		_subclassMethods = 0;
-		if (_L && _global_environment )
+		if (_L && _data )
 		{
-			luaL_unref(_L, LUA_REGISTRYINDEX, _global_environment);
-			_global_environment = 0;
+			luaL_unref(_L, LUA_REGISTRYINDEX, _data);
+			_data = 0;
 			_L = 0;
 		}
 	}
@@ -263,6 +256,7 @@ namespace SLB {
 		ci->setClass__newindex( FuncCall::create(class__newindex) );
 		ci->setClass__index( FuncCall::create(class__index) );
 		ci->setObject__index( FuncCall::create(object__index) );
+		ci->setObject__newindex( FuncCall::create(object__newindex) );
 		ci->setHybrid();
 	}
 	
@@ -306,28 +300,11 @@ namespace SLB {
 		if (hb->_L == 0) luaL_error(L, "Instance(%p) not attached to any lua_State...", hb);
 		if (hb->_L != L) luaL_error(L, "This instance(%p) is attached to another lua_State(%p)", hb, hb->_L);
 		
-		// save current global environment
-		lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
-		int original_G = luaL_ref(L, LUA_REGISTRYINDEX);
-
 		// get the real function to call
 		lua_pushvalue(L, lua_upvalueindex(1));
-
-		// get the environment (from object) and set it
-		lua_rawgeti(L, LUA_REGISTRYINDEX, hb->_global_environment);
-		
-		// replace global environemnt
-		lua_rawseti(L,LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
-
 		lua_insert(L,1); //put the target function at 1
 		SLB_DEBUG_STACK(10, L, "Hybrid(%p)::call_lua_method ...", hb);
 		lua_call(L, lua_gettop(L) - 1, LUA_MULTRET);
-
-		// restore the global environment
-		lua_rawgeti(L, LUA_REGISTRYINDEX, original_G);
-		lua_rawseti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
-		// free the reference
-		luaL_unref(L, LUA_REGISTRYINDEX, original_G);
 
 		return lua_gettop(L);
 	}
@@ -376,10 +353,44 @@ namespace SLB {
 
 		// 2 - key (string) (at top)
 		const char *key = lua_tostring(L,2);
-		// call getMethod of hybrid (basic)
-		if(!obj->getMethod(key)) luaL_error(L, "Invalid method %s", key);
-		assert("Invalid stored function" && (lua_type(L,-1) == LUA_TFUNCTION) );
-		return 1;
+
+		// first look into _data table to see if the key is valid there
+		lua_rawgeti(L, LUA_REGISTRYINDEX, obj->_data);
+		lua_getfield(L, -1, key);
+		if (lua_isnil(L,-1))
+		{
+			lua_pop(L,2); // remove nil, and _data table
+		}
+		else return 1; // result found.
+
+		// getMethod of hybrid (basic)
+		if(obj->getMethod(key)) return 1;
+
+		// nothing found..
+		return 0;
+	}
+
+	int HybridBase::object__newindex(lua_State *L)
+	{
+		SLB_DEBUG_CALL;
+		SLB_DEBUG_CLEAN_STACK(L,+1);
+		SLB_DEBUG(4, "HybridBase::object__newindex");
+		// 1 - obj (table with classInfo)
+		HybridBase* obj = get<HybridBase*>(L,1);
+		if (obj == 0) luaL_error(L, "Invalid instance at #1");
+		if (!obj->_L) luaL_error(L, "Hybrid instance not attached or invalid method");
+		if (obj->_L != L) luaL_error(L, "Can not use that object outside its lua_state(%p)", obj->_L);
+
+		// 2 - key (string)
+		// 3 - value (top)
+
+		// get the _data table and put the value there
+		lua_rawgeti(L, LUA_REGISTRYINDEX, obj->_data);
+		lua_replace(L,1); // replace top element, so key, value will be at the top
+		// set the value
+		lua_settable(L,1);
+
+		return 0;
 	}
 	
 	int HybridBase::class__index(lua_State *L)

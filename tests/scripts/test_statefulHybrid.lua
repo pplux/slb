@@ -7,7 +7,8 @@ sfh:doString(
 	SLB.using(SLB.Unit_005)
 	print('hi from inside a Script')
 	function SFH:calc(v)
-		r = (r or 0) + v
+        local r = (self.r or 0) +v
+		self.r = r
 		return r
 	end
 ]],"example")
