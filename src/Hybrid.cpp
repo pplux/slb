@@ -137,6 +137,10 @@ namespace SLB {
 			// done
 
 			_global_environment = luaL_ref(_L, LUA_REGISTRYINDEX); // [-1]
+
+			// create a table to store internal data
+			lua_newtable(_L);
+			_data = luaL_ref(_L, LUA_REGISTRYINDEX);
 		}
 	}
 
@@ -148,6 +152,7 @@ namespace SLB {
 		if (_L && _global_environment )
 		{
 			luaL_unref(_L, LUA_REGISTRYINDEX, _global_environment);
+			luaL_unref(_L, LUA_REGISTRYINDEX, _data);
 			_global_environment = 0;
 			_L = 0;
 		}
@@ -263,6 +268,7 @@ namespace SLB {
 		ci->setClass__newindex( FuncCall::create(class__newindex) );
 		ci->setClass__index( FuncCall::create(class__index) );
 		ci->setObject__index( FuncCall::create(object__index) );
+		ci->setObject__newindex( FuncCall::create(object__newindex) );
 		ci->setHybrid();
 	}
 	
@@ -360,10 +366,43 @@ namespace SLB {
 
 		// 2 - key (string) (at top)
 		const char *key = lua_tostring(L,2);
+
+		// first look into _data table to see if the key is valid there
+		lua_rawgeti(L, LUA_REGISTRYINDEX, obj->_data);
+		lua_getfield(L, -1, key);
+		if (lua_isnil(L,-1))
+		{
+			lua_pop(L,2); // remove nil, and _data table
+		}
+		else return 1; // result found.
+
 		// call getMethod of hybrid (basic)
-		if(!obj->getMethod(key)) luaL_error(L, "Invalid method %s", key);
+		if(!obj->getMethod(key)) luaL_error(L, "Invalid method '%s'", key);
 		assert("Invalid stored function" && (lua_type(L,-1) == LUA_TFUNCTION) );
 		return 1;
+	}
+
+	int HybridBase::object__newindex(lua_State *L)
+	{
+		SLB_DEBUG_CALL;
+		SLB_DEBUG_CLEAN_STACK(L,+1);
+		SLB_DEBUG(4, "HybridBase::object__newindex");
+		// 1 - obj (table with classInfo)
+		HybridBase* obj = get<HybridBase*>(L,1);
+		if (obj == 0) luaL_error(L, "Invalid instance at #1");
+		if (!obj->_L) luaL_error(L, "Hybrid instance not attached or invalid method");
+		if (obj->_L != L) luaL_error(L, "Can not use that object outside its lua_state(%p)", obj->_L);
+
+		// 2 - key (string)
+		// 3 - value (top)
+
+		// get the _data table and put the value there
+		lua_rawgeti(L, LUA_REGISTRYINDEX, obj->_data);
+		lua_replace(L,1); // replace top element, so key, value will be at the top
+		// set the value
+		lua_settable(L,1);
+
+		return 0;
 	}
 	
 	int HybridBase::class__index(lua_State *L)
