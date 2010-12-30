@@ -68,7 +68,7 @@ namespace SLB {
 		 this method remember to call the parent (HybridBase) to set _L properly and register
 		 itself there.*/
 		virtual void attach(lua_State *);
-		bool isAttached() const { return (_L != 0); }
+		virtual bool isAttached() const { return (_L != 0); }
 
 		/** use this to release memory allocated by the hybrid object, inside
 		 * the lua_State.*/
@@ -103,7 +103,6 @@ namespace SLB {
 
 	private:
 		lua_State * _L;
-		int _global_environment;
 		int _data; //< lua ref to internal data
 
 		// pops a key,value from tom and sets as our method
