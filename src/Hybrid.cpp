@@ -106,7 +106,7 @@ namespace SLB {
 
 
 	HybridBase::HybridBase() : _L(0),
-		_global_environment(0)
+		_data(0)
 	{
 		SLB_DEBUG_CALL;
 	}
@@ -127,16 +127,6 @@ namespace SLB {
 		{
 			SLB_DEBUG_CLEAN_STACK(L,0);
 			_L = L;
-			lua_newtable(_L); // [+1]
-			//TODO this can be improved a little bit... by storing this metatable
-			//somewhere....
-			lua_newtable(_L); // [+1] metatable 
-			lua_pushvalue(_L, LUA_GLOBALSINDEX); // [+1] globals _G
-			lua_setfield(_L, -2, "__index"); // [-1] metatable.__index = _G
-			lua_setmetatable(L,-2); // [-1]
-			// done
-
-			_global_environment = luaL_ref(_L, LUA_REGISTRYINDEX); // [-1]
 
 			// create a table to store internal data
 			lua_newtable(_L);
@@ -149,11 +139,10 @@ namespace SLB {
 		SLB_DEBUG_CALL;
 		clearMethodMap();
 		_subclassMethods = 0;
-		if (_L && _global_environment )
+		if (_L && _data )
 		{
-			luaL_unref(_L, LUA_REGISTRYINDEX, _global_environment);
 			luaL_unref(_L, LUA_REGISTRYINDEX, _data);
-			_global_environment = 0;
+			_data = 0;
 			_L = 0;
 		}
 	}
@@ -313,9 +302,6 @@ namespace SLB {
 		if (hb->_L != L) luaL_error(L, "This instance(%p) is attached to another lua_State(%p)", hb, hb->_L);
 		// get the real function to call
 		lua_pushvalue(L, lua_upvalueindex(1));
-		// get the environment (from object) and set it
-		lua_rawgeti(L, LUA_REGISTRYINDEX, hb->_global_environment);
-		lua_setfenv(L,-2);
 		lua_insert(L,1); //put the target function at 1
 		SLB_DEBUG_STACK(10, L, "Hybrid(%p)::call_lua_method ...", hb);
 		lua_call(L, lua_gettop(L) - 1, LUA_MULTRET);
@@ -376,10 +362,11 @@ namespace SLB {
 		}
 		else return 1; // result found.
 
-		// call getMethod of hybrid (basic)
-		if(!obj->getMethod(key)) luaL_error(L, "Invalid method '%s'", key);
-		assert("Invalid stored function" && (lua_type(L,-1) == LUA_TFUNCTION) );
-		return 1;
+		// getMethod of hybrid (basic)
+		if(obj->getMethod(key)) return 1;
+
+		// nothing found..
+		return 0;
 	}
 
 	int HybridBase::object__newindex(lua_State *L)
