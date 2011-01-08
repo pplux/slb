@@ -36,9 +36,9 @@
 #include "ref_ptr.hpp"
 #include "FuncCall.hpp"
 #include "String.hpp"
+#include "Property.hpp"
 //#include "ClassHelpers.hpp"
 #include <typeinfo>
-#include <map>
 #include <vector>
 
 struct lua_State;
@@ -127,6 +127,14 @@ namespace SLB {
 		void setHybrid() { _isHybrid = true; }
 		FuncCall* getConstructor() { return _constructor.get(); }
 
+		// to add properties
+		void addProperty(const String &name, BaseProperty *prop)
+		{
+			_properties[name] = prop;
+		}
+
+		BaseProperty* getProperty(const String &key);
+
 	protected:
 		// Class Info are crated using manager->getOrCreateClass()
 		ClassInfo(Manager *m, const TypeInfoWrapper &);
@@ -144,6 +152,7 @@ namespace SLB {
 		String            _name;
 		InstanceFactory  *_instanceFactory;
 		BaseClassMap      _baseClasses;
+		BaseProperty::Map _properties;
 		ref_ptr<FuncCall> _constructor;
 		ref_ptr<FuncCall> _meta__index[2];    // 0 = class, 1 = object
 		ref_ptr<FuncCall> _meta__newindex[2]; // 0 = class, 1 = object

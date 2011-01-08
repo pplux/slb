@@ -50,6 +50,7 @@ namespace SLB {
 	{
 		SLB_DEBUG_CALL;
 		_baseClasses.clear(); // force deletion of memory
+		_properties.clear(); // force deletion of properties
 		Free_T(&_instanceFactory); 
 	}
 
@@ -236,6 +237,20 @@ namespace SLB {
 		return instance;
 	}
 
+	BaseProperty* ClassInfo::getProperty(const String &key)
+	{
+		BaseProperty::Map::iterator prop = _properties.find(key);
+		BaseProperty::Map::const_iterator end = _properties.end();
+		for(BaseClassMap::iterator i = _baseClasses.begin(); (prop == end) && i != _baseClasses.end(); ++i)
+		{
+			prop = i->second->_properties.find(key);
+			end = i->second->_properties.end();
+		}
+
+		if (prop != end) return prop->second.get();
+		return 0;
+	}
+
 	void ClassInfo::push_ref(lua_State *L, void *ref )
 	{
 		SLB_DEBUG_CALL;
@@ -327,7 +342,7 @@ namespace SLB {
 		{
 			// type == 0 -> class __index
 			// type == 1 -> object __index
-			int type = lua_istable(L,1)? 0 : 1; 
+			const int type = lua_istable(L,1)? 0 : 1; 
 			SLB_DEBUG(4, "Called ClassInfo(%p) '%s' __index %s", this, _name.c_str(), type? "OBJECT" : "CLASS");
 
 			// if looking for a class method, using an string...
@@ -345,7 +360,19 @@ namespace SLB {
 					obj->push(L);
 					result = 1;
 				}
+				else
+				{
+					BaseProperty *prop = getProperty(key);
+					if (prop)
+					{
+						prop->get(L,1);
+						// properties can neber be cached by table
+						// so here we return directly the result value.
+						return 1;
+					}
+				} // end of properties
 			}
+
 
 			if (result < 1) // still not found...
 			{
@@ -381,6 +408,21 @@ namespace SLB {
 		// 1 = object __index
 		int type = lua_istable(L,1)? 0 : 1; 
 		SLB_DEBUG(4, "Called ClassInfo(%p) '%s' __newindex %s", this, _name.c_str(), type? "OBJECT" : "CLASS");
+
+		// search for properties
+		if (type == 1 && lua_isstring(L,2))
+		{
+			const char *key = lua_tostring(L,2);
+			BaseProperty *prop = getProperty(key);
+			if (prop)
+			{
+				prop->set(L,1);
+				// as with property-get we can not cache results with properties, so
+				// instead of calling Table::__newindex we just return.
+				return 1;
+			}
+		}
+
 		if (_meta__newindex[type].valid())
 		{
 			// 1 - func to call

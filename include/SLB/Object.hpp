@@ -82,8 +82,9 @@ namespace SLB
 		--_refCounter; 
 		if (_refCounter == 0) 
 		{
+			void *ptr = dynamic_cast<void*>(this);
 			this->~Object();
-			Free( this );
+			Free( ptr );
 		}
 	}
 
