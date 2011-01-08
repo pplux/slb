@@ -38,7 +38,7 @@ namespace Unit_007 {
 		SLB_DEBUG_CALL;
 		_num = _Total++;
 		if (_Total > _Max) _Max = _Total;
-		SLB_DEBUG("Create Instance (total=%d) (Max=%d)", _Total, _Max);
+		SLB_DEBUG(1,"Create Instance (total=%d) (Max=%d)", _Total, _Max);
 	}
 
 	JamesBond::~JamesBond()

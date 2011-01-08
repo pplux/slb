@@ -37,7 +37,7 @@ namespace SLB {
 // Abstract Error Handler
 ////////////////////////////////////////////////////////////////////////////////
 
-int ErrorHandler::lua_pcall(lua_State *L, int nargs, int nresults)
+int ErrorHandler::call(lua_State *L, int nargs, int nresults)
 {
 	SLB_DEBUG_CALL;
 
@@ -48,7 +48,7 @@ int ErrorHandler::lua_pcall(lua_State *L, int nargs, int nresults)
 	lua_insert(L, base);
 
 	// call the function
-	int result = ::lua_pcall(L, nargs, nresults, base);
+	int result = lua_pcall(L, nargs, nresults, base);
 
 	// remove the error handler
 	lua_remove(L, base);
