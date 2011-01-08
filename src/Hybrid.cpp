@@ -127,7 +127,6 @@ namespace SLB {
 		{
 			SLB_DEBUG_CLEAN_STACK(L,0);
 			_L = L;
-
 			// create a table to store internal data
 			lua_newtable(_L);
 			_data = luaL_ref(_L, LUA_REGISTRYINDEX);
@@ -300,11 +299,13 @@ namespace SLB {
 		const HybridBase *hb = get_hybrid( L, 1 );
 		if (hb->_L == 0) luaL_error(L, "Instance(%p) not attached to any lua_State...", hb);
 		if (hb->_L != L) luaL_error(L, "This instance(%p) is attached to another lua_State(%p)", hb, hb->_L);
+		
 		// get the real function to call
 		lua_pushvalue(L, lua_upvalueindex(1));
 		lua_insert(L,1); //put the target function at 1
 		SLB_DEBUG_STACK(10, L, "Hybrid(%p)::call_lua_method ...", hb);
 		lua_call(L, lua_gettop(L) - 1, LUA_MULTRET);
+
 		return lua_gettop(L);
 	}
 

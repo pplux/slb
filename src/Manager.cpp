@@ -123,28 +123,30 @@ namespace SLB {
 			lua_pop(L,1);
 
 			// get or create _G's metatable 
-			if(!lua_getmetatable(L, LUA_GLOBALSINDEX))
+			// 1st recover _G
+			lua_pushglobaltable(L); // [1:_G] --> _G = globals
+			if(!lua_getmetatable(L, -1))
 			{
-				lua_newtable(L);
-				// set as metatable of _B 
-				lua_pushvalue(L,-1);
-				lua_setmetatable(L, LUA_GLOBALSINDEX);
+				lua_newtable(L); // [2:_G,MT] --> MT = MetaTable (for globals)
+				// set as metatable of _G (keeping a copy)
+				lua_pushvalue(L,-1); //[3:_G,MT,MT]
+				lua_setmetatable(L, -3); // [2:_G,MT]
 			}
 			else
 			{
 				luaL_error(L, "Can not use SLB.using,"
 					" _G already has a metatable");
 			}
-
-			lua_newtable(L); // create the "SLB_using" table
-			lua_pushvalue(L,-1); // keep a copy in registry 
-			lua_setfield(L, LUA_REGISTRYINDEX, "SLB_using");
+			// [2:(_G)(MT)]
+			lua_newtable(L); // [3:_G,MT,SU] SU --> create the "SLB_using" table
+			lua_pushvalue(L,-1); // [4:_G,MT,SU,SU] --> keep a copy in registry 
+			lua_setfield(L, LUA_REGISTRYINDEX, "SLB_using"); // [3:_G,MT,SU]
 
 			// push the using_index func with the SLB_using table as closure
-			lua_pushvalue(L,-1);
-			lua_pushcclosure(L, SLB_using_index, 1); // push the closure
+			lua_pushvalue(L,-1); //[4:_G,MT,SU,SU]
+			lua_pushcclosure(L, SLB_using_index, 1); // [4:_G,MT,SU,func] func -> push the closure
 			// set this functions as "__index" of the metatable (at -3)
-			lua_setfield(L, -3, "__index");
+			lua_setfield(L, -3, "__index"); // 3[4:_G,MT_SU]
 
 			// leave the SLB_using table at the top
 		}
@@ -239,7 +241,12 @@ namespace SLB {
 		int top = lua_gettop(L);
 
 		// Register global functions
-		luaL_register(L, "SLB", SLB_funcs);
+		lua_newtable(L);
+		luaL_setfuncs(L, SLB_funcs, 0);
+		// keep a copy of the SLB table before setting the global SLB
+		lua_pushvalue(L,-1);
+		lua_setglobal(L,"SLB");
+
 		// metatable of "SLB"
 		lua_newtable(L);
 		lua_pushstring(L,"__index");
