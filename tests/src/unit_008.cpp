@@ -25,27 +25,31 @@
 */
 
 
-#ifndef __SLB_CLASS_HELPERS__
-#define __SLB_CLASS_HELPERS__
+#include "unit_008.hpp"
+#include <sstream>
 
-#include "SPP.hpp"
-#include "FuncCall.hpp"
+namespace Unit_008 {
 
-struct lua_State;
 
-namespace SLB {
-
-	template<class C>
-	struct Operator
+	void wrapper()
 	{
-		static C* defaultAdd (const C *a,  const C *b)  { return new (Malloc(sizeof(C))) C( (*a)+(*b) ); }	
-		static C* defaultSub (const C *a,  const C *b)  { return new (Malloc(sizeof(C))) C( (*a)-(*b) ); }	
-		static C* defaultMult(const C *a,  const C *b)  { return new (Malloc(sizeof(C))) C( (*a)*(*b) ); }	
-		static C* defaultDiv (const C *a,  const C *b)  { return new (Malloc(sizeof(C))) C( (*a)/(*b) ); }	
-	};
+		SLB_DEBUG_CALL;
+		SLB_DEBUG(1, "--> Loading unit_008 wrapper -->");
 
+		SLB::Class<POD>("Unit_008::POD")
+			.comment("Default constructor for POD structure")
+			.constructor()
+			.property("i",&POD::i)
+			.property("f",&POD::f)
+			.property("d",&POD::d)
+			.property("string", &POD::string)
+			.property("next", &POD::next)
+		;
+
+		SLB_DEBUG(1, "<-- Loading unit_008 wrapper <--");
+	}
+
+
+	SLB_ON_LOAD(wrapper)
 
 }
-
-
-#endif

@@ -83,7 +83,7 @@ namespace SLB {
 		/** this function returns the index where to find the cache table that
 		 * __index method uses if _cacheable is true. This method must NOT be called
 		 * outside metamethod's implementation. */
-		int cacheTableIndex() { return lua_upvalueindex(1); }
+		static int cacheTableIndex() { return lua_upvalueindex(1); }
 
 	private:
 		typedef std::pair<Table*,const String> TableFind;

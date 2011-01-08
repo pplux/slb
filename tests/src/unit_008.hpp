@@ -25,27 +25,25 @@
 */
 
 
-#ifndef __SLB_CLASS_HELPERS__
-#define __SLB_CLASS_HELPERS__
+#ifndef __UNIT_008__
+#define __UNIT_008__
 
-#include "SPP.hpp"
-#include "FuncCall.hpp"
+#include <SLB/SLB.hpp>
 
-struct lua_State;
+namespace Unit_008 {
 
-namespace SLB {
 
-	template<class C>
-	struct Operator
+	// C-like structure, simple linked list.
+	struct POD
 	{
-		static C* defaultAdd (const C *a,  const C *b)  { return new (Malloc(sizeof(C))) C( (*a)+(*b) ); }	
-		static C* defaultSub (const C *a,  const C *b)  { return new (Malloc(sizeof(C))) C( (*a)-(*b) ); }	
-		static C* defaultMult(const C *a,  const C *b)  { return new (Malloc(sizeof(C))) C( (*a)*(*b) ); }	
-		static C* defaultDiv (const C *a,  const C *b)  { return new (Malloc(sizeof(C))) C( (*a)/(*b) ); }	
+		int i;
+		float f;
+		double d;
+		const char *string;
+		POD *next;
 	};
 
 
-}
-
+} // end of unit SLB
 
 #endif

@@ -25,27 +25,37 @@
 */
 
 
-#ifndef __SLB_CLASS_HELPERS__
-#define __SLB_CLASS_HELPERS__
 
-#include "SPP.hpp"
-#include "FuncCall.hpp"
-
-struct lua_State;
+#include <SLB/Property.hpp>
+#include <SLB/Debug.hpp>
+#include <SLB/util.hpp>
+#include <iostream>
 
 namespace SLB {
 
-	template<class C>
-	struct Operator
-	{
-		static C* defaultAdd (const C *a,  const C *b)  { return new (Malloc(sizeof(C))) C( (*a)+(*b) ); }	
-		static C* defaultSub (const C *a,  const C *b)  { return new (Malloc(sizeof(C))) C( (*a)-(*b) ); }	
-		static C* defaultMult(const C *a,  const C *b)  { return new (Malloc(sizeof(C))) C( (*a)*(*b) ); }	
-		static C* defaultDiv (const C *a,  const C *b)  { return new (Malloc(sizeof(C))) C( (*a)/(*b) ); }	
-	};
 
+BaseProperty::BaseProperty()
+{
+}
 
+BaseProperty::~BaseProperty()
+{
+}
+
+void BaseProperty::pushImplementation(lua_State *L)
+{
+	luaL_error(L, "Properties can not be accessed directly");
+}
+
+void BaseProperty::set(lua_State *L, int idx)
+{
+	luaL_error(L, "Invalid property write");
+}
+
+void BaseProperty::get(lua_State *L, int idx)
+{
+	luaL_error(L, "Invalid property read");
 }
 
 
-#endif
+}
