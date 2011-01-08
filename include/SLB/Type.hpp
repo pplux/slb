@@ -68,13 +68,6 @@ namespace Private {
 			return *obj;
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			SLB_DEBUG(10,"check '%s' at pos %d", typeid(T).name(), pos);
-			return getClass(L)->check(L, pos);
-		}
-		
 	};
 
 	template<class T>
@@ -141,12 +134,6 @@ namespace Private {
 			return reinterpret_cast<T*>( getClass(L)->get_ptr(L, pos) );
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			SLB_DEBUG(10,"check '%s' at pos %d", typeid(T).name(), pos);
-			return getClass(L)->check(L, pos);
-		}
 	};
 	
 	template<class T>
@@ -198,12 +185,6 @@ namespace Private {
 			return reinterpret_cast<const T*>( getClass(L)->get_const_ptr(L, pos) );
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			SLB_DEBUG(10,"check '%s' at pos %d", typeid(T).name(), pos);
-			return getClass(L)->check(L, pos);
-		}
 	};
 
 	template<class T>
@@ -226,12 +207,6 @@ namespace Private {
 			return *(obj);
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			SLB_DEBUG(10,"check '%s' at pos %d", typeid(T).name(), pos);
-			return Type<const T*>::check(L,pos);
-		}
 	};
 	
 	template<class T>
@@ -260,12 +235,6 @@ namespace Private {
 			return *(Type<T*>::get(L,pos));
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			SLB_DEBUG(10,"check '%s' at pos %d", typeid(T).name(), pos);
-			return Type<T*>::check(L,pos);
-		}
 	};
 
 	//--- Specializations ---------------------------------------------------
@@ -288,16 +257,11 @@ namespace Private {
 		{
 			SLB_DEBUG_CALL; 
 			SLB_DEBUG(8,"Get<void*> (L=%p, pos=%i ) =%p)",L, pos, lua_touserdata(L,pos));
-			if (check(L,pos)) return lua_touserdata(L,pos);
+			if (lua_islightuserdata(L,pos)) return lua_touserdata(L,pos);
 			//TODO: Check here if is an userdata and convert it to void
 			return 0;
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return (lua_islightuserdata(L,pos) != 0);
-		}
 	};
 
 	// Type specialization for <int>
@@ -318,11 +282,6 @@ namespace Private {
 			return v;
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return (lua_isnumber(L,pos) != 0);
-		}
 	};
 
 	template<>
@@ -338,12 +297,6 @@ namespace Private {
 		{
 			SLB_DEBUG_CALL; 
 			return Type<int>::get(L,p);
-		}
-
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return Type<int>::check(L,pos);
 		}
 	};
 
@@ -365,11 +318,6 @@ namespace Private {
 			return v;
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return (lua_isnumber(L,pos) != 0);
-		}
 	};
 
 	template<>
@@ -387,11 +335,6 @@ namespace Private {
 			return Type<unsigned int>::get(L,p);
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return Type<unsigned int>::check(L,pos);
-		}
 	};
 
 
@@ -412,11 +355,6 @@ namespace Private {
 			return v;
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return (lua_isnumber(L,pos) != 0);
-		}
 	};
 
 
@@ -439,11 +377,6 @@ namespace Private {
 			return v;
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return (lua_isnumber(L,pos) != 0);
-		}
 	};
 
 	template<>
@@ -461,11 +394,6 @@ namespace Private {
 			return Type<unsigned long>::get(L,p);
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return Type<unsigned long>::check(L,pos);
-		}
 	};
 
 	template<>
@@ -486,11 +414,6 @@ namespace Private {
 			return v;
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return (lua_isnumber(L,pos) != 0);
-		}
 	};
 
 	template<>
@@ -508,11 +431,6 @@ namespace Private {
 			return Type<unsigned long long>::get(L,p);
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return Type<unsigned long long>::check(L,pos);
-		}
 	};
 
 	// Type specialization for <double>
@@ -533,11 +451,6 @@ namespace Private {
 			return v;
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return (lua_isnumber(L,pos) != 0);
-		}
 	};
 
 	template<>
@@ -555,11 +468,6 @@ namespace Private {
 			return Type<double>::get(L,p);
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return Type<double>::check(L,pos);
-		}
 	};
 
 	// Type specialization for <float>
@@ -581,11 +489,6 @@ namespace Private {
 			return v;
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return (lua_isnumber(L,pos) != 0);
-		}
 	};
 
 	template<>
@@ -603,11 +506,6 @@ namespace Private {
 			return Type<float>::get(L,p);
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return Type<float>::check(L,pos);
-		}
 	};
 
 	
@@ -629,11 +527,6 @@ namespace Private {
 			return v;
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return lua_isboolean(L,pos);
-		}
 	};
 
 	template<>
@@ -654,11 +547,6 @@ namespace Private {
 			return v;
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return (lua_isstring(L,pos) != 0);
-		}
 	};
 
 	template<>
@@ -680,11 +568,6 @@ namespace Private {
 			return std::string(v);
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return (lua_isstring(L,pos) != 0);
-		}
 	};
 
 
@@ -707,11 +590,6 @@ namespace Private {
 			return v;
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return (lua_isstring(L,pos) != 0);
-		}
 	};
 
 	template<>
@@ -732,11 +610,6 @@ namespace Private {
 			return v;
 		}
 
-		static bool check(lua_State *L, int pos)
-		{
-			SLB_DEBUG_CALL; 
-			return (lua_isstring(L,pos) != 0);
-		}
 	};
 
 }} // end of SLB::Private
