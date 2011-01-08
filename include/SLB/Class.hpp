@@ -114,6 +114,12 @@ namespace SLB {
 			return *this;
 		}
 
+		template<typename M>
+		__Self &property(const char *name, M T::*member)
+		{
+			_class->addProperty(name, BaseProperty::create(member));
+			return *this;
+		}
 
 		/* Class__index for (non-const)methods */
 		template<class C, class R, class P>
