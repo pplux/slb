@@ -281,24 +281,10 @@ namespace Private {
 			SLB_DEBUG(6,"Get integer (pos %d) = %d",p,v);
 			return v;
 		}
-
 	};
 
-	template<>
-	struct Type<const int&>
-	{
-		static void push(lua_State *L, const int &v)
-		{
-			SLB_DEBUG_CALL; 
-			Type<int>::push(L,v);
-		}
-
-		static int get(lua_State *L, int p)
-		{
-			SLB_DEBUG_CALL; 
-			return Type<int>::get(L,p);
-		}
-	};
+	template<> struct Type<int&> : public Type<int> {};
+	template<> struct Type<const int&> : public Type<int> {};
 
 	// Type specialization for <unsigned int>
 	template<>
@@ -320,23 +306,9 @@ namespace Private {
 
 	};
 
-	template<>
-	struct Type<const unsigned int&>
-	{
-		static void push(lua_State *L, const unsigned int &v)
-		{
-			SLB_DEBUG_CALL; 
-			Type<unsigned int>::push(L,v);
-		}
-
-		static unsigned int get(lua_State *L, int p)
-		{
-			SLB_DEBUG_CALL; 
-			return Type<unsigned int>::get(L,p);
-		}
-
-	};
-
+	template<> struct Type<unsigned int&> : public Type<unsigned int> {};
+	template<> struct Type<const unsigned int&> : public Type<unsigned int> {};
+	
 
 	template<>
 	struct Type<long>
@@ -357,6 +329,9 @@ namespace Private {
 
 	};
 
+	template<> struct Type<long&> : public Type<long> {};
+	template<> struct Type<const long&> : public Type<long> {};
+	
 
 	/* unsigned long == unsigned int */
 	template<>
@@ -379,22 +354,9 @@ namespace Private {
 
 	};
 
-	template<>
-	struct Type<const unsigned long&>
-	{
-		static void push(lua_State *L, const unsigned long &v)
-		{
-			SLB_DEBUG_CALL; 
-			Type<unsigned long>::push(L,v);
-		}
-
-		static unsigned long get(lua_State *L, int p)
-		{
-			SLB_DEBUG_CALL; 
-			return Type<unsigned long>::get(L,p);
-		}
-
-	};
+	template<> struct Type<unsigned long&> : public Type<unsigned long> {};
+	template<> struct Type<const unsigned long&> : public Type<unsigned long> {};
+	
 
 	template<>
 	struct Type<unsigned long long>
@@ -413,26 +375,11 @@ namespace Private {
 			SLB_DEBUG(6,"Get unsigned long long (pos %d) = %llu",p,v);
 			return v;
 		}
-
 	};
 
-	template<>
-	struct Type<const unsigned long long&>
-	{
-		static void push(lua_State *L, const unsigned long long &v)
-		{
-			SLB_DEBUG_CALL; 
-			Type<unsigned long long>::push(L,v);
-		}
-
-		static unsigned long long get(lua_State *L, int p)
-		{
-			SLB_DEBUG_CALL; 
-			return Type<unsigned long long>::get(L,p);
-		}
-
-	};
-
+	template<> struct Type<unsigned long long&> : public Type<unsigned long long> {};
+	template<> struct Type<const unsigned long long&> : public Type<unsigned long long> {};
+	
 	// Type specialization for <double>
 	template<>
 	struct Type<double>
@@ -453,23 +400,9 @@ namespace Private {
 
 	};
 
-	template<>
-	struct Type<const double&>
-	{
-		static void push(lua_State *L, const double &v)
-		{
-			SLB_DEBUG_CALL; 
-			Type<double>::push(L,v);
-		}
-
-		static double get(lua_State *L, int p)
-		{
-			SLB_DEBUG_CALL; 
-			return Type<double>::get(L,p);
-		}
-
-	};
-
+	template<> struct Type<double&> : public Type<double> {};
+	template<> struct Type<const double&> : public Type<double> {};
+	
 	// Type specialization for <float>
 	template<>
 	struct Type<float>
@@ -491,23 +424,9 @@ namespace Private {
 
 	};
 
-	template<>
-	struct Type<const float&>
-	{
-		static void push(lua_State *L, const float &v)
-		{
-			SLB_DEBUG_CALL; 
-			Type<float>::push(L,v);
-		}
-
-		static float get(lua_State *L, int p)
-		{
-			SLB_DEBUG_CALL; 
-			return Type<float>::get(L,p);
-		}
-
-	};
-
+	template<> struct Type<float&> : public Type<float> {};
+	template<> struct Type<const float&> : public Type<float> {};
+	
 	
 	// Type specialization for <bool>
 	template<>
@@ -526,8 +445,11 @@ namespace Private {
 			SLB_DEBUG(6,"Get bool (pos %d) = %d",p,v);
 			return v;
 		}
-
 	};
+
+
+	template<> struct Type<bool&> : public Type<bool> {};
+	template<> struct Type<const bool&> : public Type<bool> {};
 
 	template<>
 	struct Type<std::string>

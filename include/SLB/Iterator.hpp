@@ -119,6 +119,10 @@ namespace SLB
 		Container* container = SLB::get<Container*>(L,1);
 		lua_pushcclosure(L, StdIterator<T>::next, 0);
 		Iterator *d = reinterpret_cast<Iterator*>(lua_newuserdata(L, sizeof(Iterator)*2));
+		Iterator empty;
+		memcpy(d+0,&empty,sizeof(Iterator)); // copy the image of an empty iterator into the lua memory
+		memcpy(d+1,&empty,sizeof(Iterator)); // ""
+		//TODO: make sure iterators doesn't need to handle destruction...
 		d[0] = (container->*_begin)();
 		d[1] = (container->*_end)();
 		return 2;
