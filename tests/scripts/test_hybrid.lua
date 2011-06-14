@@ -1,7 +1,7 @@
 SLB.using(SLB.Unit_002)
 
 -- example of how to use an string to define functions of an Hybrid class
-chunk = assert(loadstring[[
+chunk = assert(load[[
 print("Loading hybrid members...")
 
 function HClass:calc(a, b)
