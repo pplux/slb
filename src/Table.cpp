@@ -302,6 +302,7 @@ namespace SLB {
 	int Table::__meta(lua_State *L)
 	{
 		SLB_DEBUG_CALL;
+    SLB_DEBUG_STACK(10,L,"Table::__meta (static method)");
 		// upvalue(1) is the cache table...
 		Table *table = reinterpret_cast<Table*>(lua_touserdata(L, lua_upvalueindex(2)));
 		TableMember member = *reinterpret_cast<TableMember*>(lua_touserdata(L, lua_upvalueindex(3)));
