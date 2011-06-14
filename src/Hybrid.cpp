@@ -359,21 +359,26 @@ namespace SLB {
 		lua_getfield(L, -1, key);
 		if (lua_isnil(L,-1))
 		{
-			lua_pop(L,2); // remove nil, and _data table
+			lua_pop(L,2); // remove _data table + nil
 		}
-		else return 1; // result found.
+		else 
+    {
+      lua_remove(L,-2); // remove _data table
+      return 1; // result found.
+    }
 
 		// getMethod of hybrid (basic)
 		if(obj->getMethod(key)) return 1;
 
 		// nothing found..
-		return 0;
+    lua_pushnil(L);
+		return 1;
 	}
 
 	int HybridBase::object__newindex(lua_State *L)
 	{
 		SLB_DEBUG_CALL;
-		SLB_DEBUG_CLEAN_STACK(L,+1);
+		SLB_DEBUG_CLEAN_STACK(L,-2); // we pop two values...
 		SLB_DEBUG(4, "HybridBase::object__newindex");
 		// 1 - obj (table with classInfo)
 		HybridBase* obj = get<HybridBase*>(L,1);

@@ -253,9 +253,16 @@ namespace SLB {
 	void Table::pushImplementation(lua_State *L)
 	{
 		SLB_DEBUG_CALL;
-		lua_newtable(L); // an NEW empty table
 
+		lua_newtable(L); // an NEW empty table
 		lua_newtable(L); // and its metatable:
+
+    //----------------------------------------------------------------------
+    // Set the metatable (empty) to the table to avoid calling __gc on the
+    // table itself. This is new in lua 5.2
+    lua_pushvalue(L,-1);
+    lua_setmetatable(L,-3);
+    //----------------------------------------------------------------------
 
 		lua_newtable(L); // cache
 
@@ -275,9 +282,7 @@ namespace SLB {
 		pushMeta(L, &Table::__eq);
 		lua_setfield(L, -3, "__eq");
 
-		lua_pop(L,1); // remove the cache table
-
-		lua_setmetatable(L,-2);
+		lua_pop(L,2); // remove the cache table and metatable
 	}
 
 	int Table::__indexProxy(lua_State *L)
@@ -304,9 +309,12 @@ namespace SLB {
 		SLB_DEBUG_CALL;
     SLB_DEBUG_STACK(10,L,"Table::__meta (static method)");
 		// upvalue(1) is the cache table...
-		Table *table = reinterpret_cast<Table*>(lua_touserdata(L, lua_upvalueindex(2)));
-		TableMember member = *reinterpret_cast<TableMember*>(lua_touserdata(L, lua_upvalueindex(3)));
-		return (table->*member)(L);
+    void *table_raw = lua_touserdata(L, lua_upvalueindex(2));
+    void *table_member_raw = lua_touserdata(L, lua_upvalueindex(3));
+		Table *table = reinterpret_cast<Table*>(table_raw);
+		TableMember member = *reinterpret_cast<TableMember*>(table_member_raw);
+
+    return (table->*member)(L);
 	}
 	
 	/** Pushmeta exepects a cache-table at the top, and creates a metamethod with 3 upvalues,
