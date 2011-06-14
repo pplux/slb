@@ -451,19 +451,15 @@ namespace SLB {
     SLB_DEBUG_CALL;
     void *raw_ptr = lua_touserdata(L,1);
   
-    // if raw_ptr != userdata that means the garbage collector is
-    // collecting the ClassInfo table, so there is no object to delete.
-    // if raw_ptr returns != 0 then we are executing the __gc event on a proper object
-    if (raw_ptr) {
-		  InstanceBase* instance = 
-			  *reinterpret_cast<InstanceBase**>(raw_ptr);
+    if (raw_ptr != 0) luaL_error(L, "SLB check ERROR: __garbageCollector called on a no-instance value");
+		InstanceBase* instance = 
+		  *reinterpret_cast<InstanceBase**>(raw_ptr);
 		
-		  //Compiler pointer shifts from the virtual inheritance, must
-		  // put pointer back to allocation address before deleting it.
-		  void* addr = dynamic_cast<void*>(instance);
-		  instance->~InstanceBase();
-		  Free(addr);
-    }
+		//Compiler pointer shifts from the virtual inheritance, must
+		// put pointer back to allocation address before deleting it.
+		void* addr = dynamic_cast<void*>(instance);
+		instance->~InstanceBase();
+		Free(addr);
 
 		return 0;
 	}

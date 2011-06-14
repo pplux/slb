@@ -555,7 +555,7 @@ void luaG_errormsg (lua_State *L) {
     incr_top(L);
     luaD_call(L, L->top - 2, 1, 0);  /* call it */
   }
-  luaD_throw(L, LUA_ERRRUN);
+    luaD_throw(L, LUA_ERRRUN);
 }
 
 
