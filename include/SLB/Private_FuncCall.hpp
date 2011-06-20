@@ -62,9 +62,9 @@ namespace Private {
 
   // SLB_INFO: Collects info of the arguments
   #define SLB_INFO_PARAMS(N) _Targs.push_back(\
-      std::pair<const std::type_info*, String>( &typeid(T##N), "") ); 
+      std::pair<TypeInfoWrapper, String>( _TIW(T##N), "") ); 
   #define SLB_INFO(RETURN, N) \
-    _Treturn = &typeid(RETURN);\
+    _Treturn = _TIW(RETURN);\
     SPP_REPEAT(N,SLB_INFO_PARAMS ) \
 
   // SLB_GET: Generates Code to get N parameters 
@@ -200,8 +200,8 @@ namespace Private {
     protected: \
       int call(lua_State *L) \
       { \
-        ClassInfo *c = Manager::getInstance(L)->getClass(typeid(C)); \
-        if (c == 0) luaL_error(L, "Class %s is not avaliable! ", typeid(C).name()); \
+        ClassInfo *c = Manager::getInstance(L)->getClass(_TIW(C)); \
+        if (c == 0) luaL_error(L, "Class %s is not avaliable! ", _TIW(C).name()); \
         SLB_GET(N, 0); \
         Private::Type<C*>::push(L, new (Malloc(sizeof(C))) C(SPP_ENUM_D(N,param_)) , true ); \
         return 1; \
@@ -220,8 +220,8 @@ namespace Private {
   protected:
     int call(lua_State *L)
     {
-      ClassInfo *c = Manager::getInstance(L)->getClass(typeid(C));
-      if (c == 0) luaL_error(L, "Class %s is not avaliable! ", typeid(C).name());
+      ClassInfo *c = Manager::getInstance(L)->getClass(_TIW(C));
+      if (c == 0) luaL_error(L, "Class %s is not avaliable! ", _TIW(C).name());
       Private::Type<C*>::push(L, new (Malloc(sizeof(C))) C , true );
       return 1;
     }

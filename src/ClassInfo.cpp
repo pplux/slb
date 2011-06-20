@@ -37,13 +37,13 @@ namespace SLB {
   ClassInfo::ClassInfo(Manager *m, const TypeInfoWrapper &ti) :
     Namespace(true),
     _manager(m),
-    _typeid(ti), 
+    __TIW(ti), 
     _name(""), 
     _instanceFactory(0),
     _isHybrid(false)
   {
     SLB_DEBUG_CALL;
-    _name = _typeid.name();
+    _name = __TIW.name();
   }
 
   ClassInfo::~ClassInfo()
@@ -502,7 +502,7 @@ namespace SLB {
         for (size_t i = 0; i < fc->getNumArguments(); ++i)
         {
           lua_pushfstring(L, "\n\t\t[%d] (%s) [%s]",i,
-            fc->getArgType(i)->name(),
+            fc->getArgType(i).name(),
             fc->getArgComment(i).c_str()
             );
         }
@@ -510,7 +510,7 @@ namespace SLB {
       }
       else
       {
-        lua_pushfstring(L, "\n\t%s -> %p [%s] [%s]",i->first.c_str(), obj, typeid(*obj).name(), obj->getInfo().c_str() );
+        lua_pushfstring(L, "\n\t%s -> %p [%s] [%s]",i->first.c_str(), obj, "TODO:_TIW(*obj).name()", obj->getInfo().c_str() );
       }
     }
     lua_concat(L, lua_gettop(L) - top);
@@ -521,7 +521,7 @@ namespace SLB {
   {
     SLB_DEBUG_CALL;
     if (base == this) return true;
-    BaseClassMap::iterator i = _baseClasses.find( base->_typeid );
+    BaseClassMap::iterator i = _baseClasses.find( base->__TIW );
     if (i != _baseClasses.end()) return true;
     // make it recursive
     for(BaseClassMap::iterator i = _baseClasses.begin(); i != _baseClasses.end(); ++i)

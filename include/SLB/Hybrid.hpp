@@ -126,7 +126,7 @@ namespace SLB {
       : _mgr(mgr)
     {
       ClassInfo *c;
-      c = _mgr->getOrCreateClass( typeid(BaseClass) );
+      c = _mgr->getOrCreateClass( _TIW(BaseClass) );
       if (!c->initialized())
       {
         // Give a default instance factory... that only is able
@@ -143,7 +143,7 @@ namespace SLB {
     virtual ~Hybrid() {}
     ClassInfo* getClassInfo() const
     {
-      return _mgr->getClass( typeid(BaseClass) );
+      return _mgr->getClass( _TIW(BaseClass) );
     }
     
   #define SLB_ARG_H(N) ,T##N arg_##N

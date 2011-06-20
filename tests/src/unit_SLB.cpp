@@ -77,7 +77,7 @@ namespace Unit_SLB {
 
 	bool Checks::checkHybridBase()
 	{
-		SLB::ClassInfo *ci = SLB::Manager::defaultManager()->getClass(typeid(SLB::HybridBase));
+		SLB::ClassInfo *ci = SLB::Manager::defaultManager()->getClass(_TIW(SLB::HybridBase));
 		return (ci != 0L);
 	}
 
