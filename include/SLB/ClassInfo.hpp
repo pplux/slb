@@ -19,9 +19,9 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-	
-	Jose L. Hidalgo (www.pplux.com)
-	pplux@pplux.com
+  
+  Jose L. Hidalgo (www.pplux.com)
+  pplux@pplux.com
 */
 
 
@@ -45,169 +45,169 @@ struct lua_State;
 
 namespace SLB {
 
-	class SLB_EXPORT Namespace : public Table
-	{
-	public:
-		Namespace( bool cacheable = true ) : Table("::", cacheable) {}
-	protected:
-		virtual ~Namespace() {}
-	};
+  class SLB_EXPORT Namespace : public Table
+  {
+  public:
+    Namespace( bool cacheable = true ) : Table("::", cacheable) {}
+  protected:
+    virtual ~Namespace() {}
+  };
 
-	class SLB_EXPORT ClassInfo : public Namespace
-	{
-	public:
-		typedef SLB_Map(TypeInfoWrapper, ClassInfo* ) BaseClassMap;
-
-
-
-		const TypeInfoWrapper &getTypeid() const { return _typeid; }
-		const String &getName() const      { return _name; }
-		void setName(const String&);
-
-		void push_ref(lua_State *L, void *ref);
-		void push_ptr(lua_State *L, void *ptr, bool fromConstructor = false);
-		void push_const_ptr(lua_State *L, const void *const_ptr);
-		void push_copy(lua_State *L, const void *ptr);
-		void* get_ptr(lua_State*, int pos) const;
-		const void* get_const_ptr(lua_State*, int pos) const;
-
-		// Uses dynamic_cast to convert from Base to Derived
-		template<class This, class Base>
-		void inheritsFrom();
-
-		// This version uses static cast instead of dynamic_cast
-		template<class This, class Base>
-		void staticInheritsFrom();
-
-		template<class This, class Other>
-		void convertibleTo( Other* (*func)(This*) );
+  class SLB_EXPORT ClassInfo : public Namespace
+  {
+  public:
+    typedef SLB_Map(TypeInfoWrapper, ClassInfo* ) BaseClassMap;
 
 
-		void setConstructor( FuncCall *constructor );
-		void setInstanceFactory( InstanceFactory *);
 
-		/** __index method will receive:
-		 *  - object
-		 *  - key */
-		void setObject__index( FuncCall* );
+    const TypeInfoWrapper &getTypeid() const { return _typeid; }
+    const String &getName() const      { return _name; }
+    void setName(const String&);
 
-		/** __index method will receive:
-		 *  - object
-		 *  - key
-		 *  - value */
-		void setObject__newindex( FuncCall* );
+    void push_ref(lua_State *L, void *ref);
+    void push_ptr(lua_State *L, void *ptr, bool fromConstructor = false);
+    void push_const_ptr(lua_State *L, const void *const_ptr);
+    void push_copy(lua_State *L, const void *ptr);
+    void* get_ptr(lua_State*, int pos) const;
+    const void* get_const_ptr(lua_State*, int pos) const;
 
-		/** Here you can use setCache/getCache methods to
-		 * speed up indexing.
-		 *
-		 * __index method will receive:
-		 *  - [table] -> ClassInfo
-		 *  - key */
-		void setClass__index( FuncCall* );
+    // Uses dynamic_cast to convert from Base to Derived
+    template<class This, class Base>
+    void inheritsFrom();
 
-		/** Here you can use setCache/getCache methods to
-		 * speed up indexing.
-		 * __index method will receive:
-		 *  - [table] -> ClassInfo
-		 *  - key
-		 *  - value */
-		void setClass__newindex( FuncCall* );
+    // This version uses static cast instead of dynamic_cast
+    template<class This, class Base>
+    void staticInheritsFrom();
 
-		/** __eq method will receive to objects, and should return
-		  * true or false if those objects are equal or not. */
-		void set__eq( FuncCall* );
-
-		//This is used by some default initializations...
-		bool initialized() const { return _instanceFactory != 0; }
-
-		bool isSubClassOf( const ClassInfo* );
-		bool hasConstructor() const { return _constructor.valid(); }
-
-		//--Private methods -(not meant to be used)-------------------
-		void setHybrid() { _isHybrid = true; }
-		FuncCall* getConstructor() { return _constructor.get(); }
-
-		// to add properties
-		void addProperty(const String &name, BaseProperty *prop)
-		{
-			_properties[name] = prop;
-		}
-
-		BaseProperty* getProperty(const String &key);
-
-	protected:
-		// Class Info are crated using manager->getOrCreateClass()
-		ClassInfo(Manager *m, const TypeInfoWrapper &);
-		virtual ~ClassInfo();
-		void pushImplementation(lua_State *);
-		virtual int __index(lua_State*);
-		virtual int __newindex(lua_State*);
-		virtual int __call(lua_State*);
-		virtual int __garbageCollector(lua_State*);
-		virtual int __tostring(lua_State*);
-		virtual int __eq(lua_State *L);
-
-		Manager          *_manager;
-		TypeInfoWrapper   _typeid;
-		String            _name;
-		InstanceFactory  *_instanceFactory;
-		BaseClassMap      _baseClasses;
-		BaseProperty::Map _properties;
-		ref_ptr<FuncCall> _constructor;
-		ref_ptr<FuncCall> _meta__index[2];    // 0 = class, 1 = object
-		ref_ptr<FuncCall> _meta__newindex[2]; // 0 = class, 1 = object
-		ref_ptr<FuncCall> _meta__eq; 
-		bool _isHybrid;
-
-	private:
-		void pushInstance(lua_State *L, InstanceBase *instance);
-		InstanceBase* getInstance(lua_State *L, int pos) const;
-
-		friend class Manager;
-	};
+    template<class This, class Other>
+    void convertibleTo( Other* (*func)(This*) );
 
 
-	//--------------------------------------------------------------------
-	// Inline implementations:
-	//--------------------------------------------------------------------
-	
-		
-	template<class D, class B>
-	inline void ClassInfo::inheritsFrom()
-	{
-		_manager->template addConversor<D,B>();
-		ClassInfo *ci = _manager->getOrCreateClass(_TIW(B));
-		assert( (ci != this) && "Circular reference between ClassInfo classes");
-		_baseClasses[ _TIW(B) ] = ci;
-	}
+    void setConstructor( FuncCall *constructor );
+    void setInstanceFactory( InstanceFactory *);
 
-	template<class D, class B>
-	inline void ClassInfo::staticInheritsFrom()
-	{
-		_manager->template addStaticConversor<D,B>();
-		ClassInfo *ci = _manager->getOrCreateClass(_TIW(B));
-		assert( (ci != this) && "Circular reference between ClassInfo classes");
-		_baseClasses[ _TIW(B) ] = ci;
-	}
+    /** __index method will receive:
+     *  - object
+     *  - key */
+    void setObject__index( FuncCall* );
 
-	template<class This, class Other>
-	inline void ClassInfo::convertibleTo( Other* (*func)(This*) )
-	{
-		/* This is a pretty ugly cast, SLB Manager handles changes from one type to other through
-		   void*, here we are changing the function to receive two pointers from the expected types (when the
-		   origin will be void*) It should be completely safe, as a pointer is the same size no matter the type. 
+    /** __index method will receive:
+     *  - object
+     *  - key
+     *  - value */
+    void setObject__newindex( FuncCall* );
 
-		   Anyway, it's a pretty ugly trick. */
-		typedef void* (*T_void)(void*);
-		T_void aux_f = reinterpret_cast<T_void>(func);
+    /** Here you can use setCache/getCache methods to
+     * speed up indexing.
+     *
+     * __index method will receive:
+     *  - [table] -> ClassInfo
+     *  - key */
+    void setClass__index( FuncCall* );
 
-		/* Once we've forced the conversion of the function we can let the manager know how to change from
-		   this type to the other one */
-		_manager->template addClassConversor<This,Other>(aux_f);
-		ClassInfo *ci = _manager->getOrCreateClass(_TIW(Other));
-		assert( (ci != this) && "Circular reference between ClassInfo classes");
-		_baseClasses[ _TIW(Other) ] = ci;
-	}
+    /** Here you can use setCache/getCache methods to
+     * speed up indexing.
+     * __index method will receive:
+     *  - [table] -> ClassInfo
+     *  - key
+     *  - value */
+    void setClass__newindex( FuncCall* );
+
+    /** __eq method will receive to objects, and should return
+      * true or false if those objects are equal or not. */
+    void set__eq( FuncCall* );
+
+    //This is used by some default initializations...
+    bool initialized() const { return _instanceFactory != 0; }
+
+    bool isSubClassOf( const ClassInfo* );
+    bool hasConstructor() const { return _constructor.valid(); }
+
+    //--Private methods -(not meant to be used)-------------------
+    void setHybrid() { _isHybrid = true; }
+    FuncCall* getConstructor() { return _constructor.get(); }
+
+    // to add properties
+    void addProperty(const String &name, BaseProperty *prop)
+    {
+      _properties[name] = prop;
+    }
+
+    BaseProperty* getProperty(const String &key);
+
+  protected:
+    // Class Info are crated using manager->getOrCreateClass()
+    ClassInfo(Manager *m, const TypeInfoWrapper &);
+    virtual ~ClassInfo();
+    void pushImplementation(lua_State *);
+    virtual int __index(lua_State*);
+    virtual int __newindex(lua_State*);
+    virtual int __call(lua_State*);
+    virtual int __garbageCollector(lua_State*);
+    virtual int __tostring(lua_State*);
+    virtual int __eq(lua_State *L);
+
+    Manager          *_manager;
+    TypeInfoWrapper   _typeid;
+    String            _name;
+    InstanceFactory  *_instanceFactory;
+    BaseClassMap      _baseClasses;
+    BaseProperty::Map _properties;
+    ref_ptr<FuncCall> _constructor;
+    ref_ptr<FuncCall> _meta__index[2];    // 0 = class, 1 = object
+    ref_ptr<FuncCall> _meta__newindex[2]; // 0 = class, 1 = object
+    ref_ptr<FuncCall> _meta__eq; 
+    bool _isHybrid;
+
+  private:
+    void pushInstance(lua_State *L, InstanceBase *instance);
+    InstanceBase* getInstance(lua_State *L, int pos) const;
+
+    friend class Manager;
+  };
+
+
+  //--------------------------------------------------------------------
+  // Inline implementations:
+  //--------------------------------------------------------------------
+  
+    
+  template<class D, class B>
+  inline void ClassInfo::inheritsFrom()
+  {
+    _manager->template addConversor<D,B>();
+    ClassInfo *ci = _manager->getOrCreateClass(_TIW(B));
+    assert( (ci != this) && "Circular reference between ClassInfo classes");
+    _baseClasses[ _TIW(B) ] = ci;
+  }
+
+  template<class D, class B>
+  inline void ClassInfo::staticInheritsFrom()
+  {
+    _manager->template addStaticConversor<D,B>();
+    ClassInfo *ci = _manager->getOrCreateClass(_TIW(B));
+    assert( (ci != this) && "Circular reference between ClassInfo classes");
+    _baseClasses[ _TIW(B) ] = ci;
+  }
+
+  template<class This, class Other>
+  inline void ClassInfo::convertibleTo( Other* (*func)(This*) )
+  {
+    /* This is a pretty ugly cast, SLB Manager handles changes from one type to other through
+       void*, here we are changing the function to receive two pointers from the expected types (when the
+       origin will be void*) It should be completely safe, as a pointer is the same size no matter the type. 
+
+       Anyway, it's a pretty ugly trick. */
+    typedef void* (*T_void)(void*);
+    T_void aux_f = reinterpret_cast<T_void>(func);
+
+    /* Once we've forced the conversion of the function we can let the manager know how to change from
+       this type to the other one */
+    _manager->template addClassConversor<This,Other>(aux_f);
+    ClassInfo *ci = _manager->getOrCreateClass(_TIW(Other));
+    assert( (ci != this) && "Circular reference between ClassInfo classes");
+    _baseClasses[ _TIW(Other) ] = ci;
+  }
 
 }
 

@@ -19,9 +19,9 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-	
-	Jose L. Hidalgo (www.pplux.com)
-	pplux@pplux.com
+  
+  Jose L. Hidalgo (www.pplux.com)
+  pplux@pplux.com
 */
 
 
@@ -33,85 +33,85 @@
 
 namespace SLB {
 
-	LuaCallBase::LuaCallBase(lua_State *L, int index) : _L(L) { SLB_DEBUG_CALL; getFunc(index); } 
+  LuaCallBase::LuaCallBase(lua_State *L, int index) : _L(L) { SLB_DEBUG_CALL; getFunc(index); } 
 
-	LuaCallBase::LuaCallBase(lua_State *L, const char *func) : _L(L) 
-	{
-		SLB_DEBUG_CALL;
-		lua_getglobal(L,func);
-		getFunc(-1);
-		lua_pop(L,1); 
-	}
+  LuaCallBase::LuaCallBase(lua_State *L, const char *func) : _L(L) 
+  {
+    SLB_DEBUG_CALL;
+    lua_getglobal(L,func);
+    getFunc(-1);
+    lua_pop(L,1); 
+  }
 
-	LuaCallBase::~LuaCallBase()
-	{
-		SLB_DEBUG_CALL;
-		luaL_unref(_L, LUA_REGISTRYINDEX, _ref); 
-	}
+  LuaCallBase::~LuaCallBase()
+  {
+    SLB_DEBUG_CALL;
+    luaL_unref(_L, LUA_REGISTRYINDEX, _ref); 
+  }
 
-	void LuaCallBase::getFunc(int index)
-	{
-		SLB_DEBUG_CALL;
-		lua_pushvalue(_L,index);
-		if (lua_type(_L, -1) != LUA_TFUNCTION)
-		{
-			throw std::runtime_error( "No Lua function was found at the index you provided." );
-		}
-		_ref = luaL_ref(_L, LUA_REGISTRYINDEX);
-	}
+  void LuaCallBase::getFunc(int index)
+  {
+    SLB_DEBUG_CALL;
+    lua_pushvalue(_L,index);
+    if (lua_type(_L, -1) != LUA_TFUNCTION)
+    {
+      throw std::runtime_error( "No Lua function was found at the index you provided." );
+    }
+    _ref = luaL_ref(_L, LUA_REGISTRYINDEX);
+  }
 
-	int LuaCallBase::errorHandler(lua_State *L)
-	{
-		SLB_DEBUG_CALL;
-		std::ostringstream out; // Use lua pushfstring and so on...
-		lua_Debug debug;
+  int LuaCallBase::errorHandler(lua_State *L)
+  {
+    SLB_DEBUG_CALL;
+    std::ostringstream out; // Use lua pushfstring and so on...
+    lua_Debug debug;
 
-		out << "SLB Exception: "
-			<< std::endl << "-------------------------------------------------------"
-			<< std::endl;
-		out << "Lua Error:" << std::endl << "\t" 
-			<<  lua_tostring(L, -1) << std::endl
-			<< "Traceback:" << std::endl;
-		for ( int level = 0; lua_getstack(L, level, &debug ); level++)
-		{
-			if (lua_getinfo(L, "Sln", &debug) )
-			{
-				//TODO use debug.name and debug.namewhat
-				//make this more friendly
-				out << "\t [ " << level << " (" << debug.what << ") ] ";
-				if (debug.currentline > 0 )
-				{
-					out << debug.short_src << ":" << debug.currentline; 
-				}
-				if (debug.name)
-				{
-					out << " @ " << debug.name;
-				   if (debug.namewhat) out << "(" << debug.namewhat << ")";
-				}
-				out << std::endl;
-			}
-			else
-			{
-				out << "[ERROR using Lua DEBUG INTERFACE]" << std::endl;
-			}
-		}
+    out << "SLB Exception: "
+      << std::endl << "-------------------------------------------------------"
+      << std::endl;
+    out << "Lua Error:" << std::endl << "\t" 
+      <<  lua_tostring(L, -1) << std::endl
+      << "Traceback:" << std::endl;
+    for ( int level = 0; lua_getstack(L, level, &debug ); level++)
+    {
+      if (lua_getinfo(L, "Sln", &debug) )
+      {
+        //TODO use debug.name and debug.namewhat
+        //make this more friendly
+        out << "\t [ " << level << " (" << debug.what << ") ] ";
+        if (debug.currentline > 0 )
+        {
+          out << debug.short_src << ":" << debug.currentline; 
+        }
+        if (debug.name)
+        {
+          out << " @ " << debug.name;
+           if (debug.namewhat) out << "(" << debug.namewhat << ")";
+        }
+        out << std::endl;
+      }
+      else
+      {
+        out << "[ERROR using Lua DEBUG INTERFACE]" << std::endl;
+      }
+    }
 
-		lua_pushstring(L, out.str().c_str()) ;
-		return 1;
-	}
+    lua_pushstring(L, out.str().c_str()) ;
+    return 1;
+  }
 
-	void LuaCallBase::execute(int numArgs, int numOutput, int top)
-	{
-		SLB_DEBUG_CALL;
-		//TODO: Use Manager to retreive a defaultHandler
-		DefaultErrorHandler handler;
+  void LuaCallBase::execute(int numArgs, int numOutput, int top)
+  {
+    SLB_DEBUG_CALL;
+    //TODO: Use Manager to retreive a defaultHandler
+    DefaultErrorHandler handler;
 
-		if(handler.call(_L, numArgs, numOutput))
-		{
-			const char* msg = lua_tostring(_L, -1);
-			throw std::runtime_error( msg ? msg : "Unknown Error" );
-		}
+    if(handler.call(_L, numArgs, numOutput))
+    {
+      const char* msg = lua_tostring(_L, -1);
+      throw std::runtime_error( msg ? msg : "Unknown Error" );
+    }
 
-	}
+  }
 
 }

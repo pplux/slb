@@ -19,9 +19,9 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-	
-	Jose L. Hidalgo (www.pplux.com)
-	pplux@pplux.com
+  
+  Jose L. Hidalgo (www.pplux.com)
+  pplux@pplux.com
 */
 
 #ifndef __SLB_STRING__
@@ -35,26 +35,26 @@
 namespace SLB
 {
 #if 1
-	typedef std::basic_string< char, std::char_traits<char>, Allocator<char> > String;
+  typedef std::basic_string< char, std::char_traits<char>, Allocator<char> > String;
 #else
-	class SLB_EXPORT String : public std::basic_string< char, std::char_traits<char>, Allocator<char> > 
-	{
-	public:
-		typedef std::basic_string< char, std::char_traits<char>, Allocator<char> > Base;
-		String() {}
-		String(const String& s) : Base(s.c_str()) {}
-		String(const char* s) : Base(s) {}
-		String(const Base& b) : Base(b) {}
-		String(const std::string& s) : Base(s.c_str()) {}
+  class SLB_EXPORT String : public std::basic_string< char, std::char_traits<char>, Allocator<char> > 
+  {
+  public:
+    typedef std::basic_string< char, std::char_traits<char>, Allocator<char> > Base;
+    String() {}
+    String(const String& s) : Base(s.c_str()) {}
+    String(const char* s) : Base(s) {}
+    String(const Base& b) : Base(b) {}
+    String(const std::string& s) : Base(s.c_str()) {}
 
-		String& operator=(const String& s) { if (&s != this) { Base::operator=(s.c_str()); } return *this; }
-		String& operator=(const char* c) { Base::operator=(c); return *this; }
+    String& operator=(const String& s) { if (&s != this) { Base::operator=(s.c_str()); } return *this; }
+    String& operator=(const char* c) { Base::operator=(c); return *this; }
 
-		bool operator==(const char *c)   const { return ( (*(Base*)this) == c); }
-		bool operator==(const String& s) const { return ( (*(Base*)this) == s); }
-		bool operator<(const char *c)    const { return ( (*(Base*)this) < c);  }
-		bool operator<(const String &s)  const { return ( (*(Base*)this) < s);  }
-	};
+    bool operator==(const char *c)   const { return ( (*(Base*)this) == c); }
+    bool operator==(const String& s) const { return ( (*(Base*)this) == s); }
+    bool operator<(const char *c)    const { return ( (*(Base*)this) < c);  }
+    bool operator<(const String &s)  const { return ( (*(Base*)this) < s);  }
+  };
 #endif
 
 }

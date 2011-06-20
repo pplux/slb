@@ -19,9 +19,9 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-	
-	Jose L. Hidalgo (www.pplux.com)
-	pplux@pplux.com
+  
+  Jose L. Hidalgo (www.pplux.com)
+  pplux@pplux.com
 */
 
 
@@ -36,64 +36,64 @@
 
 namespace SLB {
 
-	class ErrorHandler; // #include <SLB/Error.hpp>
-	
-	class SLB_EXPORT Script
-	{	
-	public:
-		Script(Manager *m = Manager::defaultManager(), bool loadDefaultLibs = true);
-		virtual ~Script();
+  class ErrorHandler; // #include <SLB/Error.hpp>
+  
+  class SLB_EXPORT Script
+  {  
+  public:
+    Script(Manager *m = Manager::defaultManager(), bool loadDefaultLibs = true);
+    virtual ~Script();
 
-		void doFile(const std::string &filename) throw (std::exception);
+    void doFile(const std::string &filename) throw (std::exception);
 
-		void doString(
-			const std::string &codeChunk,
-			const std::string &where_hint ="[SLB]") throw (std::exception);
+    void doString(
+      const std::string &codeChunk,
+      const std::string &where_hint ="[SLB]") throw (std::exception);
 
-		 /* ************************* WARNING *********************************
-		  * Sometines you need to manually call Garbage Collector(GC), to be sure
-		  * that all objects are destroyed. This is mandatory when using smartPointers
-		  * ,be very carefull. GC operations are really expensive, avoid calling GC
-		  * too frequently.
-		  * ************************* WARNING *********************************/
-		void callGC();
+     /* ************************* WARNING *********************************
+      * Sometines you need to manually call Garbage Collector(GC), to be sure
+      * that all objects are destroyed. This is mandatory when using smartPointers
+      * ,be very carefull. GC operations are really expensive, avoid calling GC
+      * too frequently.
+      * ************************* WARNING *********************************/
+    void callGC();
 
-		/// Returns the number of Kb of memory used by the script
-		size_t memUsage();
+    /// Returns the number of Kb of memory used by the script
+    size_t memUsage();
 
-		/// Pass a new ErrorHandler, the error handler will be part of the object
-		/// and it will be destroyed when the object is destroyed. 
-		void setErrorHandler(ErrorHandler *h);
+    /// Pass a new ErrorHandler, the error handler will be part of the object
+    /// and it will be destroyed when the object is destroyed. 
+    void setErrorHandler(ErrorHandler *h);
 
-		template<class T>
-		void set(const std::string &name, T value)
-		{ SLB::setGlobal<T>(getState(), value, name.c_str());}
+    template<class T>
+    void set(const std::string &name, T value)
+    { SLB::setGlobal<T>(getState(), value, name.c_str());}
 
-		template<class T>
-		T get(const std::string&name)
-		{ return SLB::getGlobal<T>(getState(), name.c_str()); }
+    template<class T>
+    T get(const std::string&name)
+    { return SLB::getGlobal<T>(getState(), name.c_str()); }
 
-		static void* allocator(void *ud, void *ptr, size_t osize, size_t nsize);
+    static void* allocator(void *ud, void *ptr, size_t osize, size_t nsize);
 
-	protected:
-		virtual void onNewState(lua_State *L) {}
-		virtual void onCloseState(lua_State *L) {}
-		virtual void onGC(lua_State *L) {}
-		void setAllocator(lua_Alloc f, void *ud = 0);
+  protected:
+    virtual void onNewState(lua_State *L) {}
+    virtual void onCloseState(lua_State *L) {}
+    virtual void onGC(lua_State *L) {}
+    void setAllocator(lua_Alloc f, void *ud = 0);
 
-		lua_State* getState();
-		void close(); // will close lua_state
+    lua_State* getState();
+    void close(); // will close lua_state
 
-	private:
-		Script(const Script &s);
-		Script& operator=(const Script&);
-		Manager *_manager;
-		lua_State *_L;
-		lua_Alloc _allocator;
-		void *    _allocator_ud;
-		ErrorHandler *_errorHandler;
-		bool _loadDefaultLibs;
-	};
+  private:
+    Script(const Script &s);
+    Script& operator=(const Script&);
+    Manager *_manager;
+    lua_State *_L;
+    lua_Alloc _allocator;
+    void *    _allocator_ud;
+    ErrorHandler *_errorHandler;
+    bool _loadDefaultLibs;
+  };
 
 }
 

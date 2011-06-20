@@ -19,9 +19,9 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-	
-	Jose L. Hidalgo (www.pplux.com)
-	pplux@pplux.com
+  
+  Jose L. Hidalgo (www.pplux.com)
+  pplux@pplux.com
 */
 
 
@@ -41,70 +41,70 @@ struct lua_State;
 
 namespace SLB {
 
-	class SLB_EXPORT BaseProperty: public Object
-	{
-	public:
-		typedef SLB_Map( String, ref_ptr<BaseProperty> ) Map;
+  class SLB_EXPORT BaseProperty: public Object
+  {
+  public:
+    typedef SLB_Map( String, ref_ptr<BaseProperty> ) Map;
 
-		template<class T, class M>
-		static BaseProperty* create(M T::*prop);
+    template<class T, class M>
+    static BaseProperty* create(M T::*prop);
 
-		/** gets the property from the object at index idx */
-		virtual void set(lua_State *, int idx);
-		/** sets the property of the object located at index idx, poping
-		    an element from the stack */
-		virtual void get(lua_State *, int idx);
+    /** gets the property from the object at index idx */
+    virtual void set(lua_State *, int idx);
+    /** sets the property of the object located at index idx, poping
+        an element from the stack */
+    virtual void get(lua_State *, int idx);
 
-	
-	protected:
-		BaseProperty();
-		virtual ~BaseProperty();
+  
+  protected:
+    BaseProperty();
+    virtual ~BaseProperty();
 
-		virtual void pushImplementation(lua_State *);
-	};
+    virtual void pushImplementation(lua_State *);
+  };
 
-	template<class T, class M>
-	class Property: public virtual BaseProperty
-	{
-	public:
-		typedef M T::*MemberPtr;
-		Property( MemberPtr m) : _m(m) 
-		{
-			
-		}
-	protected:
-		virtual ~Property() {}
+  template<class T, class M>
+  class Property: public virtual BaseProperty
+  {
+  public:
+    typedef M T::*MemberPtr;
+    Property( MemberPtr m) : _m(m) 
+    {
+      
+    }
+  protected:
+    virtual ~Property() {}
 
-		virtual void get(lua_State *L, int idx)
-		{
-			// get object at T
-			const T *obj = SLB::get<const T*>(L,idx);
-			if (obj == 0L) luaL_error(L, "Invalid object to get a property from");
-			// push the property
-			SLB::push(L, obj->*_m);
-		}
-		virtual void set(lua_State *L, int idx)
-		{
-			// get object at T
-			T *obj = SLB::get<T*>(L,idx);
-			if (obj == 0L) luaL_error(L, "Invalid object to set a property from");
-			// set the property
-			obj->*_m = SLB::get<M>(L,-1);
+    virtual void get(lua_State *L, int idx)
+    {
+      // get object at T
+      const T *obj = SLB::get<const T*>(L,idx);
+      if (obj == 0L) luaL_error(L, "Invalid object to get a property from");
+      // push the property
+      SLB::push(L, obj->*_m);
+    }
+    virtual void set(lua_State *L, int idx)
+    {
+      // get object at T
+      T *obj = SLB::get<T*>(L,idx);
+      if (obj == 0L) luaL_error(L, "Invalid object to set a property from");
+      // set the property
+      obj->*_m = SLB::get<M>(L,-1);
 
-			lua_pop(L,1); // remove the last element
-		}
-	private:
-		MemberPtr _m;
-	};
+      lua_pop(L,1); // remove the last element
+    }
+  private:
+    MemberPtr _m;
+  };
 
 
-	template<class T, class M>
-	inline BaseProperty* BaseProperty::create(M T::*p)
-	{
-		typedef Property<T,M> Prop;
-		Prop *nprop = new (SLB::Malloc(sizeof(Prop))) Prop(p);
-		return nprop;
-	}
+  template<class T, class M>
+  inline BaseProperty* BaseProperty::create(M T::*p)
+  {
+    typedef Property<T,M> Prop;
+    Prop *nprop = new (SLB::Malloc(sizeof(Prop))) Prop(p);
+    return nprop;
+  }
 
 }
 

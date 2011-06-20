@@ -19,9 +19,9 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-	
-	Jose L. Hidalgo (www.pplux.com)
-	pplux@pplux.com
+  
+  Jose L. Hidalgo (www.pplux.com)
+  pplux@pplux.com
 */
 
 
@@ -30,19 +30,19 @@
 #define __SLB_EXPORT__
 
 #if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
-	#define SLB_WINDOWS 1
-	#  if defined( SLB_STATIC_LIBRARY )
-	#    define SLB_EXPORT
-	#  elif defined( SLB_LIBRARY )
-	#    define SLB_EXPORT   __declspec(dllexport)
+  #define SLB_WINDOWS 1
+  #  if defined( SLB_STATIC_LIBRARY )
+  #    define SLB_EXPORT
+  #  elif defined( SLB_LIBRARY )
+  #    define SLB_EXPORT   __declspec(dllexport)
 
-	#  else
-	#    define SLB_EXPORT   __declspec(dllimport)
-	#  endif /* SLB_LIBRARY */
-	#pragma warning( disable: 4251 )	
-	#pragma warning( disable: 4290 )
+  #  else
+  #    define SLB_EXPORT   __declspec(dllimport)
+  #  endif /* SLB_LIBRARY */
+  #pragma warning( disable: 4251 )  
+  #pragma warning( disable: 4290 )
 #else
-	#  define SLB_EXPORT
+  #  define SLB_EXPORT
 #endif  
 
 #endif

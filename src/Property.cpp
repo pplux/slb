@@ -19,9 +19,9 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-	
-	Jose L. Hidalgo (www.pplux.com)
-	pplux@pplux.com
+  
+  Jose L. Hidalgo (www.pplux.com)
+  pplux@pplux.com
 */
 
 
@@ -44,17 +44,17 @@ BaseProperty::~BaseProperty()
 
 void BaseProperty::pushImplementation(lua_State *L)
 {
-	luaL_error(L, "Properties can not be accessed directly");
+  luaL_error(L, "Properties can not be accessed directly");
 }
 
 void BaseProperty::set(lua_State *L, int idx)
 {
-	luaL_error(L, "Invalid property write");
+  luaL_error(L, "Invalid property write");
 }
 
 void BaseProperty::get(lua_State *L, int idx)
 {
-	luaL_error(L, "Invalid property read");
+  luaL_error(L, "Invalid property read");
 }
 
 

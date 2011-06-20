@@ -19,9 +19,9 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-	
-	Jose L. Hidalgo (www.pplux.com)
-	pplux@pplux.com
+  
+  Jose L. Hidalgo (www.pplux.com)
+  pplux@pplux.com
 */
 
 
@@ -33,24 +33,24 @@
 
 extern "C" {
 #ifdef SLB_EXTERNAL_LUA
-	#include <lua.h>
-	#include <lauxlib.h>
-	#include <lualib.h>
+  #include <lua.h>
+  #include <lauxlib.h>
+  #include <lualib.h>
 #else
-	#if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
-		#ifndef SLB_STATIC_LIBRARY
-			#define LUA_BUILD_AS_DLL
-			#ifdef SLB_LIBRARY
-				#define LUA_LIB
-				#define LUA_CORE
-			#endif
-		#endif // SLB_STATIC_LIBRARY
-	#endif // on windows...
+  #if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
+    #ifndef SLB_STATIC_LIBRARY
+      #define LUA_BUILD_AS_DLL
+      #ifdef SLB_LIBRARY
+        #define LUA_LIB
+        #define LUA_CORE
+      #endif
+    #endif // SLB_STATIC_LIBRARY
+  #endif // on windows...
 
-	// Local (static) lua (v 5.1.3)
-	#include "lua/lua.h"
-	#include "lua/lauxlib.h"
-	#include "lua/lualib.h"
+  // Local (static) lua (v 5.1.3)
+  #include "lua/lua.h"
+  #include "lua/lauxlib.h"
+  #include "lua/lualib.h"
 
 #endif
 }

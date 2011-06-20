@@ -19,9 +19,9 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-	
-	Jose L. Hidalgo (www.pplux.com)
-	pplux@pplux.com
+  
+  Jose L. Hidalgo (www.pplux.com)
+  pplux@pplux.com
 */
 
 
@@ -32,12 +32,12 @@
 
 namespace SLB {
 
-	InstanceBase::InstanceBase(Type t,ClassInfo *ci) : _flags(t), _class(ci)
-	{
-		SLB_DEBUG_CALL;
-	}
+  InstanceBase::InstanceBase(Type t,ClassInfo *ci) : _flags(t), _class(ci)
+  {
+    SLB_DEBUG_CALL;
+  }
 
-	InstanceBase::~InstanceBase() {SLB_DEBUG_CALL;}
+  InstanceBase::~InstanceBase() {SLB_DEBUG_CALL;}
 
-	InstanceFactory::~InstanceFactory() {SLB_DEBUG_CALL;}
+  InstanceFactory::~InstanceFactory() {SLB_DEBUG_CALL;}
 }

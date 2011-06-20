@@ -19,9 +19,9 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-	
-	Jose L. Hidalgo (www.pplux.com)
-	pplux@pplux.com
+  
+  Jose L. Hidalgo (www.pplux.com)
+  pplux@pplux.com
 */
 
 
@@ -31,10 +31,10 @@
 
 namespace SLB {
 
-	template<class T>
-	class ref_ptr
-	{
-	public:
+  template<class T>
+  class ref_ptr
+  {
+  public:
         typedef T element_type;
 
         ref_ptr() :_ptr(0L) {}
@@ -78,15 +78,15 @@ namespace SLB {
         inline const T& operator*() const { return *_ptr; }
         inline T* operator->() { return _ptr; }
         inline const T* operator->() const { return _ptr; }
-		inline bool operator!() const { return _ptr==0L; }
-		inline bool valid() const { return _ptr!=0L; }
+    inline bool operator!() const { return _ptr==0L; }
+    inline bool valid() const { return _ptr!=0L; }
         inline T* get() { return _ptr; }
         inline const T* get() const { return _ptr; }
-		inline T* release() { T* tmp=_ptr; if (_ptr) _ptr->unref_nodelete(); _ptr=0; return tmp;}
+    inline T* release() { T* tmp=_ptr; if (_ptr) _ptr->unref_nodelete(); _ptr=0; return tmp;}
 
-	private:
+  private:
         T* _ptr;
-	};
+  };
 
 }
 
