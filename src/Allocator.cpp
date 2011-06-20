@@ -19,9 +19,9 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-	
-	Jose L. Hidalgo (www.pplux.com)
-	pplux@pplux.com
+  
+  Jose L. Hidalgo (www.pplux.com)
+  pplux@pplux.com
 */
 
 #include <SLB/Allocator.hpp>
@@ -30,48 +30,48 @@
 
 namespace
 {
-	static SLB::MallocFn s_mallocFn = NULL;
-	static SLB::FreeFn s_freeFn = NULL;
+  static SLB::MallocFn s_mallocFn = NULL;
+  static SLB::FreeFn s_freeFn = NULL;
 }
 
 namespace SLB
 {
-	SLB_EXPORT void SetMemoryManagement(MallocFn mallocFn, FreeFn freeFn)
-	{
-		s_mallocFn = mallocFn;
-		s_freeFn = freeFn;
-	}
+  SLB_EXPORT void SetMemoryManagement(MallocFn mallocFn, FreeFn freeFn)
+  {
+    s_mallocFn = mallocFn;
+    s_freeFn = freeFn;
+  }
 
-	SLB_EXPORT void* Malloc(size_t sz)
-	{
-		SLB_DEBUG_CALL;
-		void *result = 0;
-		if (s_mallocFn)
-		{
-			result = (s_mallocFn)(sz);
-			SLB_DEBUG(100, "Allocating memory (allocator=%p) : %lu bytes -> %p", (void*)s_mallocFn, sz, result);
-		}
-		else
-		{
-			result = malloc(sz);
-			SLB_DEBUG(100, "Allocating memory (allocator='default') : %lu bytes -> %p", sz, result);
-		}
+  SLB_EXPORT void* Malloc(size_t sz)
+  {
+    SLB_DEBUG_CALL;
+    void *result = 0;
+    if (s_mallocFn)
+    {
+      result = (s_mallocFn)(sz);
+      SLB_DEBUG(100, "Allocating memory (allocator=%p) : %lu bytes -> %p", (void*)s_mallocFn, sz, result);
+    }
+    else
+    {
+      result = malloc(sz);
+      SLB_DEBUG(100, "Allocating memory (allocator='default') : %lu bytes -> %p", sz, result);
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	SLB_EXPORT void Free(void* ptr)
-	{
-		SLB_DEBUG_CALL;
-		if (s_freeFn)
-		{
-			SLB_DEBUG(100, "Deallocating memory (deallocator=%p) : ptr %p", (void*) s_freeFn, ptr);
-			(s_freeFn)(ptr);
-		}
-		else
-		{
-			SLB_DEBUG(100, "Deallocating memory (deallocator='default') : ptr %p", ptr);
-			free(ptr);
-		}
-	}
+  SLB_EXPORT void Free(void* ptr)
+  {
+    SLB_DEBUG_CALL;
+    if (s_freeFn)
+    {
+      SLB_DEBUG(100, "Deallocating memory (deallocator=%p) : ptr %p", (void*) s_freeFn, ptr);
+      (s_freeFn)(ptr);
+    }
+    else
+    {
+      SLB_DEBUG(100, "Deallocating memory (deallocator='default') : ptr %p", ptr);
+      free(ptr);
+    }
+  }
 }

@@ -19,9 +19,9 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-	
-	Jose L. Hidalgo (www.pplux.com)
-	pplux@pplux.com
+  
+  Jose L. Hidalgo (www.pplux.com)
+  pplux@pplux.com
 */
 
 
@@ -32,77 +32,77 @@
 
 namespace SLB {
 
-	FuncCall::FuncCall() : _Treturn(0)
-	{
-		SLB_DEBUG_CALL;
-		SLB_DEBUG(10, "Create FuncCall (%p)",this);
-	}
+  FuncCall::FuncCall() : _Treturn(0)
+  {
+    SLB_DEBUG_CALL;
+    SLB_DEBUG(10, "Create FuncCall (%p)",this);
+  }
 
-	FuncCall::~FuncCall()
-	{
-		SLB_DEBUG_CALL;
-		SLB_DEBUG(10, "Delete FuncCall (%p)",this);
-	}
+  FuncCall::~FuncCall()
+  {
+    SLB_DEBUG_CALL;
+    SLB_DEBUG(10, "Delete FuncCall (%p)",this);
+  }
 
-	
-	void FuncCall::pushImplementation(lua_State *L)
-	{
-		SLB_DEBUG_CALL;
-		lua_pushlightuserdata(L, (FuncCall*) this);
-		lua_pushcclosure(L,FuncCall::_call, 1);
-	}
-	
-	int FuncCall::_call(lua_State *L)
-	{
-		SLB_DEBUG_CALL;
-		FuncCall *fc = (FuncCall*) lua_touserdata(L,lua_upvalueindex(1));
-		assert("Invalid FuncCall" && fc);
-		try
-		{
-			return fc->call(L);
-		}
-		catch ( std::exception &e )
-		{
-			luaL_error(L, e.what());
-			return 0;
-		}
-	}
-	
-	void FuncCall::setArgComment(size_t p, const String& c)
-	{
-		SLB_DEBUG_CALL;
-		if (p < _Targs.size())
-		{
-			_Targs[p].second = c;
-		}
-		else
-		{
-			//TODO warning or exception here.
-		}
-	}
-	
+  
+  void FuncCall::pushImplementation(lua_State *L)
+  {
+    SLB_DEBUG_CALL;
+    lua_pushlightuserdata(L, (FuncCall*) this);
+    lua_pushcclosure(L,FuncCall::_call, 1);
+  }
+  
+  int FuncCall::_call(lua_State *L)
+  {
+    SLB_DEBUG_CALL;
+    FuncCall *fc = (FuncCall*) lua_touserdata(L,lua_upvalueindex(1));
+    assert("Invalid FuncCall" && fc);
+    try
+    {
+      return fc->call(L);
+    }
+    catch ( std::exception &e )
+    {
+      luaL_error(L, e.what());
+      return 0;
+    }
+  }
+  
+  void FuncCall::setArgComment(size_t p, const String& c)
+  {
+    SLB_DEBUG_CALL;
+    if (p < _Targs.size())
+    {
+      _Targs[p].second = c;
+    }
+    else
+    {
+      //TODO warning or exception here.
+    }
+  }
+  
 
-	/* For lua functions.... */
-	class LuaCFunction : public FuncCall
-	{
-	public:
-		LuaCFunction(lua_CFunction f) : _func(f) { SLB_DEBUG_CALL; }
-	protected:
-		virtual ~LuaCFunction() { SLB_DEBUG_CALL; }
-		void pushImplementation(lua_State *L) {SLB_DEBUG_CALL; lua_pushcfunction(L,_func); }
-		virtual int call(lua_State *L)
-		{
-			SLB_DEBUG_CALL;
-			luaL_error(L, "Code should never be reached %s:%d",__FILE__,__LINE__);
-			return 0;
-		}
-		lua_CFunction _func;
-	};
+  /* For lua functions.... */
+  class LuaCFunction : public FuncCall
+  {
+  public:
+    LuaCFunction(lua_CFunction f) : _func(f) { SLB_DEBUG_CALL; }
+  protected:
+    virtual ~LuaCFunction() { SLB_DEBUG_CALL; }
+    void pushImplementation(lua_State *L) {SLB_DEBUG_CALL; lua_pushcfunction(L,_func); }
+    virtual int call(lua_State *L)
+    {
+      SLB_DEBUG_CALL;
+      luaL_error(L, "Code should never be reached %s:%d",__FILE__,__LINE__);
+      return 0;
+    }
+    lua_CFunction _func;
+  };
 
-	FuncCall* FuncCall::create(lua_CFunction f)
-	{
-		SLB_DEBUG_CALL;
-		return new (Malloc(sizeof(LuaCFunction))) LuaCFunction(f);
-	}
+  FuncCall* FuncCall::create(lua_CFunction f)
+  {
+    SLB_DEBUG_CALL;
+    return new (Malloc(sizeof(LuaCFunction))) LuaCFunction(f);
+  }
 
 }

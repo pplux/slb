@@ -19,9 +19,9 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-	
-	Jose L. Hidalgo (www.pplux.com)
-	pplux@pplux.com
+  
+  Jose L. Hidalgo (www.pplux.com)
+  pplux@pplux.com
 */
 
 
@@ -37,10 +37,10 @@ namespace SLB {
 //----------------------------------------------------------------------------
 //-- Push/Get/Check functions ------------------------------------------------
 //----------------------------------------------------------------------------
-	template<class T> void push(lua_State *L, T v);
-	template<class T> T get(lua_State *L, int pos);
-	template<class T> void setGlobal(lua_State *L, T v, const char *name);
-	template<class T> T getGlobal(lua_State *L, const char *name);
+  template<class T> void push(lua_State *L, T v);
+  template<class T> T get(lua_State *L, int pos);
+  template<class T> void setGlobal(lua_State *L, T v, const char *name);
+  template<class T> T getGlobal(lua_State *L, const char *name);
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
@@ -48,41 +48,41 @@ namespace SLB {
 //----------------------------------------------------------------------------
 
 namespace Private {
-	template<class C>
-	struct Type;
+  template<class C>
+  struct Type;
 }
 
 template<class T>
 inline void push(lua_State *L, T v)
 {
-	SLB_DEBUG_CALL; 
-	Private::Type<T>::push(L,v);
+  SLB_DEBUG_CALL; 
+  Private::Type<T>::push(L,v);
 }
 
 // get function based on Private::Type<class>
 template<class T>
 inline T get(lua_State *L, int pos)
 {
-	SLB_DEBUG_CALL; 
-	return Private::Type<T>::get(L,pos);
+  SLB_DEBUG_CALL; 
+  return Private::Type<T>::get(L,pos);
 }
 
 template<class T> 
 inline void setGlobal(lua_State *L, T v, const char *name)
 {
-	SLB_DEBUG_CALL; 
-	SLB::push(L,v);
-	lua_setglobal(L,name);
+  SLB_DEBUG_CALL; 
+  SLB::push(L,v);
+  lua_setglobal(L,name);
 }
 
 template<class T>
 inline T getGlobal(lua_State *L, const char *name)
 {
-	SLB_DEBUG_CALL; 
-	lua_getglobal(L,name);
-	T value = SLB::get<T>(L, -1);
-	lua_pop(L,1); // remove the value
-	return value;
+  SLB_DEBUG_CALL; 
+  lua_getglobal(L,name);
+  T value = SLB::get<T>(L, -1);
+  lua_pop(L,1); // remove the value
+  return value;
 }
 
 } // end of SLB namespace

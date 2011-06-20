@@ -19,9 +19,9 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-	
-	Jose L. Hidalgo (www.pplux.com)
-	pplux@pplux.com
+  
+  Jose L. Hidalgo (www.pplux.com)
+  pplux@pplux.com
 */
 
 /*
@@ -48,149 +48,149 @@
 
 namespace SLB
 {
-	typedef void* (*MallocFn)(size_t);
-	typedef void (*FreeFn)(void*);
+  typedef void* (*MallocFn)(size_t);
+  typedef void (*FreeFn)(void*);
 
-	SLB_EXPORT void SetMemoryManagement(MallocFn, FreeFn);
+  SLB_EXPORT void SetMemoryManagement(MallocFn, FreeFn);
 
-	SLB_EXPORT void* Malloc(size_t);
-	SLB_EXPORT void Free(void*);
+  SLB_EXPORT void* Malloc(size_t);
+  SLB_EXPORT void Free(void*);
 
-	//Generic stateless allocator that uses the SLB::Malloc and 
-	// SLB::Free functions for memory management
-	template <typename T>
-	class Allocator
-	{
-	public:
-		typedef T * pointer;
-		typedef const T * const_pointer;
-		typedef T& reference;
-		typedef const T& const_reference;
-		typedef T value_type;
-		typedef size_t size_type;
-		typedef ptrdiff_t difference_type;
+  //Generic stateless allocator that uses the SLB::Malloc and 
+  // SLB::Free functions for memory management
+  template <typename T>
+  class Allocator
+  {
+  public:
+    typedef T * pointer;
+    typedef const T * const_pointer;
+    typedef T& reference;
+    typedef const T& const_reference;
+    typedef T value_type;
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
 
-		/*
-		T * address(T& r) const 
-		{
-			return &r;
-		}
-		*/
+    /*
+    T * address(T& r) const 
+    {
+      return &r;
+    }
+    */
 
-		const T * address(const T& s) const 
-		{
-			return &s;
-		}
-
-
-		size_t max_size() const 
-		{
-			// The following has been carefully written to be independent of
-			// the definition of size_t and to avoid signed/unsigned warnings.
-			return (static_cast<size_t>(0) - static_cast<size_t>(1)) / sizeof(T);
-		}
-
-		template <typename U> struct rebind 
-		{
-			typedef Allocator<U> other;
-		};
-
-		bool operator!=(const Allocator& other) const
-		{
-			return !(*this == other);
-		}
-
-		void construct(T * const p, const T& t) const 
-		{
-			void * const pv = static_cast<void *>(p);
-			new (pv) T(t);
-		}
-
-		void destroy(T * const p) const
-		{
-			#ifdef _MSC_VER
-			#pragma warning(push)
-			#pragma warning(disable: 4100) // unreferenced formal parameter
-			#endif
-			p->~T();
-			#ifdef _MSC_VER
-			#pragma warning(pop)
-			#endif
-		}
-
-		bool operator==(const Allocator& other) const 
-		{
-			return true;
-		}
-
-		Allocator() { }
-		Allocator(const Allocator&) { }
-		template <typename U>
-		Allocator(const Allocator<U>&) { }
-		~Allocator() { }
-
-		T * allocate(const size_t n) const
-		{
-			if (n == 0)
-			{
-				return NULL;
-			}
-
-			if (n > max_size())
-			{
-				throw std::length_error("Allocator<T>::allocate() - Integer overflow.");
-			}
-
-			void * const pv = Malloc(n * sizeof(T));
-			if (pv == NULL) 
-			{
-				throw std::bad_alloc();
-			}
-
-			return static_cast<T *>(pv);
-		}
+    const T * address(const T& s) const 
+    {
+      return &s;
+    }
 
 
-		void deallocate(T * const p, const size_t n) const 
-		{
-			Free(p);
-		}
+    size_t max_size() const 
+    {
+      // The following has been carefully written to be independent of
+      // the definition of size_t and to avoid signed/unsigned warnings.
+      return (static_cast<size_t>(0) - static_cast<size_t>(1)) / sizeof(T);
+    }
 
-		template <typename U> T * allocate(const size_t n, const U * /* const hint */) const 
-		{
-			return allocate(n);
-		}
+    template <typename U> struct rebind 
+    {
+      typedef Allocator<U> other;
+    };
 
-	private:
-		Allocator& operator=(const Allocator&);
-	};
+    bool operator!=(const Allocator& other) const
+    {
+      return !(*this == other);
+    }
 
-	
-	template <typename T>
-	void Free_T(T** ptr)
-	{
-		if (ptr && *ptr)
-		{
-			/*#ifdef _MSC_VER
-			#pragma warning(push)
-			#pragma warning(disable: 4100) // unreferenced formal parameter
-			#endif*/
-			(*ptr)->~T();
-			/*#ifdef _MSC_VER
-			#pragma warning(pop)
-			#endif*/
-			SLB::Free(*ptr);
+    void construct(T * const p, const T& t) const 
+    {
+      void * const pv = static_cast<void *>(p);
+      new (pv) T(t);
+    }
 
-			// To clearly identify deleted pointers:
-			*ptr = 0L;
-		}
-	}
+    void destroy(T * const p) const
+    {
+      #ifdef _MSC_VER
+      #pragma warning(push)
+      #pragma warning(disable: 4100) // unreferenced formal parameter
+      #endif
+      p->~T();
+      #ifdef _MSC_VER
+      #pragma warning(pop)
+      #endif
+    }
 
-	template<typename T>
-	void New_T(T **ptr)
-	{
-		if (ptr) *ptr = new (SLB::Malloc(sizeof(T))) T();
-	}
+    bool operator==(const Allocator& other) const 
+    {
+      return true;
+    }
+
+    Allocator() { }
+    Allocator(const Allocator&) { }
+    template <typename U>
+    Allocator(const Allocator<U>&) { }
+    ~Allocator() { }
+
+    T * allocate(const size_t n) const
+    {
+      if (n == 0)
+      {
+        return NULL;
+      }
+
+      if (n > max_size())
+      {
+        throw std::length_error("Allocator<T>::allocate() - Integer overflow.");
+      }
+
+      void * const pv = Malloc(n * sizeof(T));
+      if (pv == NULL) 
+      {
+        throw std::bad_alloc();
+      }
+
+      return static_cast<T *>(pv);
+    }
+
+
+    void deallocate(T * const p, const size_t n) const 
+    {
+      Free(p);
+    }
+
+    template <typename U> T * allocate(const size_t n, const U * /* const hint */) const 
+    {
+      return allocate(n);
+    }
+
+  private:
+    Allocator& operator=(const Allocator&);
+  };
+
+  
+  template <typename T>
+  void Free_T(T** ptr)
+  {
+    if (ptr && *ptr)
+    {
+      /*#ifdef _MSC_VER
+      #pragma warning(push)
+      #pragma warning(disable: 4100) // unreferenced formal parameter
+      #endif*/
+      (*ptr)->~T();
+      /*#ifdef _MSC_VER
+      #pragma warning(pop)
+      #endif*/
+      SLB::Free(*ptr);
+
+      // To clearly identify deleted pointers:
+      *ptr = 0L;
+    }
+  }
+
+  template<typename T>
+  void New_T(T **ptr)
+  {
+    if (ptr) *ptr = new (SLB::Malloc(sizeof(T))) T();
+  }
 
 }
 #endif

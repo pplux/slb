@@ -19,9 +19,9 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-	
-	Jose L. Hidalgo (www.pplux.com)
-	pplux@pplux.com
+  
+  Jose L. Hidalgo (www.pplux.com)
+  pplux@pplux.com
 */
 
 
@@ -31,117 +31,117 @@
 #define __SLB_MUTEX__
 
 #ifdef SLB_NO_THREAD_SAFE
-	namespace SLB { struct MutexData {}; }
+  namespace SLB { struct MutexData {}; }
 #else // SLB_NO_THREAD_SAFE
-	// Win32 Mutex:
-	#ifdef SLB_WINDOWS
-		#include <windows.h>
-		namespace SLB { typedef CRITICAL_SECTION MutexData; }
-	#else // WIN32
-	// Posix Mutex:
-		#include <pthread.h>	
-		namespace SLB { typedef pthread_mutex_t MutexData; }
-	#endif
+  // Win32 Mutex:
+  #ifdef SLB_WINDOWS
+    #include <windows.h>
+    namespace SLB { typedef CRITICAL_SECTION MutexData; }
+  #else // WIN32
+  // Posix Mutex:
+    #include <pthread.h>  
+    namespace SLB { typedef pthread_mutex_t MutexData; }
+  #endif
 #endif //SLB_NO_THREAD_SAFE
 
 namespace SLB
 {
 
-	/// Multiplatform Mutex abstraction, needed to ensure thread safety of
-	/// some algorithms. You can turn off Mutexes by compileing SLB with
-	/// SLB_NO_THREAD_SAFE
+  /// Multiplatform Mutex abstraction, needed to ensure thread safety of
+  /// some algorithms. You can turn off Mutexes by compileing SLB with
+  /// SLB_NO_THREAD_SAFE
 
-	struct Mutex
-	{
-		Mutex();
-		~Mutex();
-		void lock();
-		void unlock();
-		bool trylock();
-	private:
-		MutexData _m;
-	};
+  struct Mutex
+  {
+    Mutex();
+    ~Mutex();
+    void lock();
+    void unlock();
+    bool trylock();
+  private:
+    MutexData _m;
+  };
 
-	struct CriticalSection
-	{
-		CriticalSection(Mutex *m) : _m(m)
-		{
-			if (_m) _m->lock();
-		}
-		~CriticalSection()
-		{
-			if (_m) _m->unlock();
-		}
-	private:
-		Mutex *_m;
-	};
+  struct CriticalSection
+  {
+    CriticalSection(Mutex *m) : _m(m)
+    {
+      if (_m) _m->lock();
+    }
+    ~CriticalSection()
+    {
+      if (_m) _m->unlock();
+    }
+  private:
+    Mutex *_m;
+  };
 
-	struct ActiveWaitCriticalSection
-	{
-		ActiveWaitCriticalSection(Mutex *m) : _m(m)
-		{
-			if (_m) while(_m->trylock() == false) {/*try again*/};
-		}
-		~ActiveWaitCriticalSection()
-		{
-			if (_m) _m->unlock();
-		}
-	private:
-		Mutex *_m;
-	};
+  struct ActiveWaitCriticalSection
+  {
+    ActiveWaitCriticalSection(Mutex *m) : _m(m)
+    {
+      if (_m) while(_m->trylock() == false) {/*try again*/};
+    }
+    ~ActiveWaitCriticalSection()
+    {
+      if (_m) _m->unlock();
+    }
+  private:
+    Mutex *_m;
+  };
 
 
 #ifdef SLB_NO_THREAD_SAFE
-	inline Mutex::Mutex() {}
-	inline Mutex::~Mutex() {}
-	inline void Mutex::lock(){}
-	inline void Mutex::unlock() {}
-	inline bool Mutex::trylock() { return true; }
+  inline Mutex::Mutex() {}
+  inline Mutex::~Mutex() {}
+  inline void Mutex::lock(){}
+  inline void Mutex::unlock() {}
+  inline bool Mutex::trylock() { return true; }
 #else // SLB_NO_THREAD_SAFE
 #ifdef WIN32
-	// Windows implementation...
-	inline Mutex::Mutex()
-	{
-		InitializeCriticalSection(&_m);
-	}
-	inline Mutex::~Mutex()
-	{
-		DeleteCriticalSection(&_m);
-	}
-	inline void Mutex::lock()
-	{
-		EnterCriticalSection(&_m);
-	}
-	inline void Mutex::unlock()
-	{
-		LeaveCriticalSection(&_m);
-	}
-	inline bool Mutex::trylock()
-	{
-		return( TryEnterCriticalSection(&_m) != 0) ;
-	}
+  // Windows implementation...
+  inline Mutex::Mutex()
+  {
+    InitializeCriticalSection(&_m);
+  }
+  inline Mutex::~Mutex()
+  {
+    DeleteCriticalSection(&_m);
+  }
+  inline void Mutex::lock()
+  {
+    EnterCriticalSection(&_m);
+  }
+  inline void Mutex::unlock()
+  {
+    LeaveCriticalSection(&_m);
+  }
+  inline bool Mutex::trylock()
+  {
+    return( TryEnterCriticalSection(&_m) != 0) ;
+  }
 #else
-	// PTHREADS implementation...
-	inline Mutex::Mutex()
-	{
-		pthread_mutex_init(&_m,0);
-	}
-	inline Mutex::~Mutex()
-	{
-		pthread_mutex_destroy(&_m);
-	}
-	inline void Mutex::lock()
-	{
-		pthread_mutex_lock(&_m);
-	}
-	inline void Mutex::unlock()
-	{
-		pthread_mutex_unlock(&_m);
-	}
-	inline bool Mutex::trylock()
-	{
-		return( pthread_mutex_trylock(&_m) == 0) ;
-	}
+  // PTHREADS implementation...
+  inline Mutex::Mutex()
+  {
+    pthread_mutex_init(&_m,0);
+  }
+  inline Mutex::~Mutex()
+  {
+    pthread_mutex_destroy(&_m);
+  }
+  inline void Mutex::lock()
+  {
+    pthread_mutex_lock(&_m);
+  }
+  inline void Mutex::unlock()
+  {
+    pthread_mutex_unlock(&_m);
+  }
+  inline bool Mutex::trylock()
+  {
+    return( pthread_mutex_trylock(&_m) == 0) ;
+  }
 #endif // WIN32
 
 

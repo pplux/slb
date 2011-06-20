@@ -19,9 +19,9 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-	
-	Jose L. Hidalgo (www.pplux.com)
-	pplux@pplux.com
+  
+  Jose L. Hidalgo (www.pplux.com)
+  pplux@pplux.com
 */
 
 
@@ -43,10 +43,10 @@
 
 // just for help....
 #define SLB_ON_LOAD( FuncName ) \
-	SPP_STATIC_BLOCK( FuncName(); )
+  SPP_STATIC_BLOCK( FuncName(); )
 
 #define SLB_abs_index(L, i)     ((i) > 0 || (i) <= LUA_REGISTRYINDEX ? (i) : \
-		                    lua_gettop(L) + (i) + 1)
+                        lua_gettop(L) + (i) + 1)
 
 #define __SLB_TODO__ 0
 
