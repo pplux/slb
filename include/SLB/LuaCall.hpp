@@ -99,7 +99,7 @@ namespace SLB
     { \
       LuaCall(lua_State *L, int index) : LuaCallBase(L,index) {} \
       LuaCall(lua_State *L, const char *func) : LuaCallBase(L,func) {} \
-      void operator()( SPP_REPEAT( N, SLB_ARG) char dummyARG = 0) /*TODO: REMOVE dummyARG */\
+      void operator()( SPP_REPEAT( N, SLB_ARG) char /*dummyARG*/ = 0) /*TODO: REMOVE dummyARG */\
       { \
         int top = lua_gettop(_L); \
         lua_rawgeti(_L, LUA_REGISTRYINDEX,_ref); \

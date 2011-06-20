@@ -47,7 +47,7 @@ namespace SLB {
     int call(lua_State *L, int nargs, int nresults);
 
     /// first function to be called with the main error
-    virtual void begin(const char *error) {}
+    virtual void begin(const char* /*error*/) {}
 
     /** Last function that will be called at the end, should
         return the string of the computed error. */
@@ -55,7 +55,7 @@ namespace SLB {
 
     /// Called on each stack element, here you can call SE_*
     /// functions. 
-    virtual void stackElement(int level) {}
+    virtual void stackElement(int /*level*/) {}
 
   protected:
 

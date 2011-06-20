@@ -47,12 +47,12 @@ void BaseProperty::pushImplementation(lua_State *L)
   luaL_error(L, "Properties can not be accessed directly");
 }
 
-void BaseProperty::set(lua_State *L, int idx)
+void BaseProperty::set(lua_State *L, int /*idx*/)
 {
   luaL_error(L, "Invalid property write");
 }
 
-void BaseProperty::get(lua_State *L, int idx)
+void BaseProperty::get(lua_State *L, int /*idx*/)
 {
   luaL_error(L, "Invalid property read");
 }
