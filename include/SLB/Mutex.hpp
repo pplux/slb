@@ -25,6 +25,7 @@
 */
 
 
+#include "Export.hpp"
 
 #ifndef __SLB_MUTEX__
 #define __SLB_MUTEX__
@@ -33,7 +34,7 @@
 	namespace SLB { struct MutexData {}; }
 #else // SLB_NO_THREAD_SAFE
 	// Win32 Mutex:
-	#ifdef WIN32
+	#ifdef SLB_WINDOWS
 		#include <windows.h>
 		namespace SLB { typedef CRITICAL_SECTION MutexData; }
 	#else // WIN32
