@@ -67,8 +67,8 @@ namespace SLB {
     {
       const char *name = Name();
       static const unsigned long hbits = 31;
-      static const unsigned long hprime = 16777619;
-      static const unsigned long hmod = 1 << hbits;
+      static const unsigned long hprime = (unsigned long) 16777619;
+      static const unsigned long hmod = (unsigned long) 1 << hbits;
       while (*name != '\0')
       {
         hash_ = (hash_*hprime) % hmod;

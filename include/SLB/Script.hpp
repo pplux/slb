@@ -76,9 +76,9 @@ namespace SLB {
     static void* allocator(void *ud, void *ptr, size_t osize, size_t nsize);
 
   protected:
-    virtual void onNewState(lua_State *L) {}
-    virtual void onCloseState(lua_State *L) {}
-    virtual void onGC(lua_State *L) {}
+    virtual void onNewState(lua_State * /*L*/) {}
+    virtual void onCloseState(lua_State * /*L*/) {}
+    virtual void onGC(lua_State * /*L*/) {}
     void setAllocator(lua_Alloc f, void *ud = 0);
 
     lua_State* getState();

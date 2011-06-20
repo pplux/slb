@@ -179,7 +179,7 @@ namespace SLB {
     _errorHandler = e;
   }
 
-  void *Script::allocator(void *ud, void *ptr, size_t osize, size_t nsize)
+  void *Script::allocator(void * /*ud*/, void *ptr, size_t osize, size_t nsize)
   {
     if (nsize == 0)
     {

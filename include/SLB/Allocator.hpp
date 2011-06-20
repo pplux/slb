@@ -106,19 +106,19 @@ namespace SLB
       new (pv) T(t);
     }
 
+    #if defined(_MSC_VER)
+    #pragma warning(push)
+    #pragma warning(disable: 4100) // unreferenced formal parameter
+    #endif
     void destroy(T * const p) const
     {
-      #ifdef _MSC_VER
-      #pragma warning(push)
-      #pragma warning(disable: 4100) // unreferenced formal parameter
-      #endif
       p->~T();
-      #ifdef _MSC_VER
-      #pragma warning(pop)
-      #endif
     }
+    #if defined(_MSC_VER)
+    #pragma warning(pop)
+    #endif
 
-    bool operator==(const Allocator& other) const 
+    bool operator==(const Allocator& /*other*/) const 
     {
       return true;
     }
@@ -151,7 +151,7 @@ namespace SLB
     }
 
 
-    void deallocate(T * const p, const size_t n) const 
+    void deallocate(T * const p, const size_t /* n */) const 
     {
       Free(p);
     }

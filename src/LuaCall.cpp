@@ -100,7 +100,7 @@ namespace SLB {
     return 1;
   }
 
-  void LuaCallBase::execute(int numArgs, int numOutput, int top)
+  void LuaCallBase::execute(int numArgs, int numOutput, int /*top*/)
   {
     SLB_DEBUG_CALL;
     //TODO: Use Manager to retreive a defaultHandler
