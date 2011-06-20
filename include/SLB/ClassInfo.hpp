@@ -60,7 +60,7 @@ namespace SLB {
 
 
 
-    const TypeInfoWrapper &getTypeid() const { return _typeid; }
+    const TypeInfoWrapper &getTypeid() const { return __TIW; }
     const String &getName() const      { return _name; }
     void setName(const String&);
 
@@ -148,7 +148,7 @@ namespace SLB {
     virtual int __eq(lua_State *L);
 
     Manager          *_manager;
-    TypeInfoWrapper   _typeid;
+    TypeInfoWrapper   __TIW;
     String            _name;
     InstanceFactory  *_instanceFactory;
     BaseClassMap      _baseClasses;

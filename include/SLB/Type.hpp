@@ -46,23 +46,23 @@ namespace Private {
     static ClassInfo *getClass(lua_State *L)
     {
       SLB_DEBUG_CALL; 
-      SLB_DEBUG(10,"getClass '%s'", typeid(T).name());
+      SLB_DEBUG(10,"getClass '%s'", _TIW(T).name());
       ClassInfo *c = SLB::Manager::getInstance(L)->getClass(_TIW(T));
-      if (c == 0) luaL_error(L, "Unknown class %s", typeid(T).name());
+      if (c == 0) luaL_error(L, "Unknown class %s", _TIW(T).name());
       return c;
     }
 
     static void push(lua_State *L,const T &obj)
     {
       SLB_DEBUG_CALL; 
-      SLB_DEBUG(8,"Push<T=%s>(L=%p, obj =%p)", typeid(T).name(), L, &obj);
+      SLB_DEBUG(8,"Push<T=%s>(L=%p, obj =%p)", _TIW(T).name(), L, &obj);
       getClass(L)->push_copy(L, (void*) &obj);
     }
 
     static T get(lua_State *L, int pos)
     {
       SLB_DEBUG_CALL; 
-      SLB_DEBUG(8,"Get<T=%s>(L=%p, pos = %i)", typeid(T).name(), L, pos);
+      SLB_DEBUG(8,"Get<T=%s>(L=%p, pos = %i)", _TIW(T).name(), L, pos);
       T* obj = reinterpret_cast<T*>( getClass(L)->get_ptr(L, pos) );  
       SLB_DEBUG(9,"obj = %p", obj);
       return *obj;
@@ -76,9 +76,9 @@ namespace Private {
     static ClassInfo *getClass(lua_State *L)
     {
       SLB_DEBUG_CALL; 
-      SLB_DEBUG(10,"getClass '%s'", typeid(T).name());
+      SLB_DEBUG(10,"getClass '%s'", _TIW(T).name());
       ClassInfo *c = SLB::Manager::getInstance(L)->getClass(_TIW(T));
-      if (c == 0) luaL_error(L, "Unknown class %s", typeid(T).name());
+      if (c == 0) luaL_error(L, "Unknown class %s", _TIW(T).name());
       return c;
     }
 
@@ -86,7 +86,7 @@ namespace Private {
     {
       SLB_DEBUG_CALL; 
       SLB_DEBUG(10,"push '%s' of %p (from constructor=%s)",
-          typeid(T).name(),
+          _TIW(T).name(),
           obj,
           fromConstructor? "true" : "false" );
 
@@ -96,9 +96,9 @@ namespace Private {
         return;
       }
 
-      //TODO Change this for TypeInfoWrapper?
-      const std::type_info &t_T = typeid(T);
-      const std::type_info &t_obj = typeid(*obj);
+      /*TODO Change this for TypeInfoWrapper?
+      const std::type_info &t_T = _TIW(T);
+      const std::type_info &t_obj = _TIW(*obj);
       
       assert("Invalid typeinfo!!! (type)" && (&t_T) );
       assert("Invalid typeinfo!!! (object)" && (&t_obj) );
@@ -120,7 +120,7 @@ namespace Private {
           c->push_ptr(L, real_obj, fromConstructor);
           return;
         }
-      }
+      }*/
       // use this class...  
       getClass(L)->push_ptr(L, (void*) obj, fromConstructor);
 
@@ -130,7 +130,7 @@ namespace Private {
     static T* get(lua_State *L, int pos)
     {
       SLB_DEBUG_CALL; 
-      SLB_DEBUG(10,"get '%s' at pos %d", typeid(T).name(), pos);
+      SLB_DEBUG(10,"get '%s' at pos %d", _TIW(T).name(), pos);
       return reinterpret_cast<T*>( getClass(L)->get_ptr(L, pos) );
     }
 
@@ -142,22 +142,23 @@ namespace Private {
     static ClassInfo *getClass(lua_State *L)
     {
       SLB_DEBUG_CALL; 
-      SLB_DEBUG(10,"getClass '%s'", typeid(T).name());
+      SLB_DEBUG(10,"getClass '%s'", _TIW(T).name());
       ClassInfo *c = SLB::Manager::getInstance(L)->getClass(_TIW(T));
-      if (c == 0) luaL_error(L, "Unknown class %s", typeid(T).name());
+      if (c == 0) luaL_error(L, "Unknown class %s", _TIW(T).name());
       return c;
     }
 
     static void push(lua_State *L,const T *obj)
     {
       SLB_DEBUG_CALL; 
-      SLB_DEBUG(10,"push '%s' of %p", typeid(T).name(), obj);
+      SLB_DEBUG(10,"push '%s' of %p", _TIW(T).name(), obj);
       if (obj == 0)
       {
         lua_pushnil(L);
         return;
       }
-      if (typeid(*obj) != typeid(T))
+      /*
+      if (_TIW(*obj) != _TIW(T))
       {
         //Create TIW
         TypeInfoWrapper wt_T = _TIW(T);
@@ -168,20 +169,21 @@ namespace Private {
         {
           SLB_DEBUG(8,"Push<const T*=%s> with conversion from "
             "T(%p)->T(%p) (L=%p, obj =%p)",
-            c->getName().c_str(), typeid(*obj).name(), typeid(T).name(),L, obj);
+            c->getName().c_str(), typeid(*obj).name(), _TIW(T).name(),L, obj);
           // covert the object to the internal class...
           const void *real_obj = SLB::Manager::getInstance(L)->convert( wt_T, wt_obj, obj );
           c->push_const_ptr(L, real_obj);
           return;
         }
       }
+      */
       getClass(L)->push_const_ptr(L, (const void*) obj);
     }
 
     static const T* get(lua_State *L, int pos)
     {
       SLB_DEBUG_CALL; 
-      SLB_DEBUG(10,"get '%s' at pos %d", typeid(T).name(), pos);
+      SLB_DEBUG(10,"get '%s' at pos %d", _TIW(T).name(), pos);
       return reinterpret_cast<const T*>( getClass(L)->get_const_ptr(L, pos) );
     }
 
@@ -193,17 +195,17 @@ namespace Private {
     static void push(lua_State *L,const T &obj)
     {
       SLB_DEBUG_CALL; 
-      SLB_DEBUG(10,"push '%s' of %p(const ref)", typeid(T).name(), &obj);
+      SLB_DEBUG(10,"push '%s' of %p(const ref)", _TIW(T).name(), &obj);
       Type<const T*>::push(L, &obj);
     }
 
     static const T& get(lua_State *L, int pos)
     {
       SLB_DEBUG_CALL; 
-      SLB_DEBUG(10,"get '%s' at pos %d", typeid(T).name(), pos);
+      SLB_DEBUG(10,"get '%s' at pos %d", _TIW(T).name(), pos);
       const T* obj = Type<const T*>::get(L,pos);
-      //TODO: remove the typeid(T).getName() and use classInfo :)
-      if (obj == 0L) luaL_error(L, "Can not get a reference of class %s", typeid(T).name());
+      //TODO: remove the _TIW(T).getName() and use classInfo :)
+      if (obj == 0L) luaL_error(L, "Can not get a reference of class %s", _TIW(T).name());
       return *(obj);
     }
 
@@ -215,23 +217,23 @@ namespace Private {
     static ClassInfo *getClass(lua_State *L)
     {
       SLB_DEBUG_CALL; 
-      SLB_DEBUG(10,"getClass '%s'", typeid(T).name());
+      SLB_DEBUG(10,"getClass '%s'", _TIW(T).name());
       ClassInfo *c = SLB::Manager::getInstance(L)->getClass(_TIW(T));
-      if (c == 0) luaL_error(L, "Unknown class %s", typeid(T).name());
+      if (c == 0) luaL_error(L, "Unknown class %s", _TIW(T).name());
       return c;
     }
 
     static void push(lua_State *L,T &obj)
     {
       SLB_DEBUG_CALL; 
-      SLB_DEBUG(10,"push '%s' of %p (reference)", typeid(T).name(), &obj);
+      SLB_DEBUG(10,"push '%s' of %p (reference)", _TIW(T).name(), &obj);
       getClass(L)->push_ref(L, (void*) &obj);
     }
 
     static T& get(lua_State *L, int pos)
     {
       SLB_DEBUG_CALL; 
-      SLB_DEBUG(10,"get '%s' at pos %d", typeid(T).name(), pos);
+      SLB_DEBUG(10,"get '%s' at pos %d", _TIW(T).name(), pos);
       return *(Type<T*>::get(L,pos));
     }
 

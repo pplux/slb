@@ -277,7 +277,7 @@ namespace SLB {
     SLB_DEBUG_CALL;
     NameMap::const_iterator i = _names.find(name);
     if ( i != _names.end() )
-      return getClass( i->second.type() );
+      return getClass( i->second );
     return 0;
   }
 
@@ -304,7 +304,7 @@ namespace SLB {
   {
     SLB_DEBUG_CALL;
     NameMap::iterator i = _names.find(name);
-    if ( i != _names.end() ) return getClass( i->second.type() );
+    if ( i != _names.end() ) return getClass( i->second );
     return 0;
   }
 

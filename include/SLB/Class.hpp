@@ -325,11 +325,11 @@ namespace SLB {
     SLB_DEBUG_CALL;
     // we expect to have a template "Implementation" inside W
     typedef typename W::template Implementation<T> Adapter;
-    _class = m->getOrCreateClass( typeid(T) );
+    _class = m->getOrCreateClass( _TIW(T) );
     _class->setName( name );
     typedef InstanceFactoryAdapter< T, Adapter > t_IFA;
     _class->setInstanceFactory( new (Malloc(sizeof(t_IFA))) t_IFA );
-    SLB_DEBUG(1, "Class declaration for %s[%s]", name, typeid(T).name());
+    SLB_DEBUG(1, "Class declaration for %s[%s]", name, _TIW(T).name());
   }
 
   template<typename T, typename W>
@@ -366,7 +366,7 @@ namespace SLB {
   inline Class<T,W> &Class<T,W>::enumValue(const char *name, TEnum obj)
   {
     // "fake" Declaration of TEnum...
-    ClassInfo *c = _mgr->getOrCreateClass( typeid(TEnum) );
+    ClassInfo *c = _mgr->getOrCreateClass( _TIW(TEnum) );
     if (!c->initialized())
     {
       struct Aux
@@ -430,13 +430,13 @@ namespace SLB {
     template<typename T, typename W>\
     template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
     inline Class<T,W> &Class<T,W>::set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) ){ \
-      if (typeid(T) != typeid(C)) static_inherits<C>();\
+      if (_TIW(T) != _TIW(C)) static_inherits<C>();\
       return rawSet(name, FuncCall::create(func)); \
     } \
     template<typename T, typename W>\
     template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
     inline Class<T,W> &Class<T,W>::nonconst_set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) ){ \
-      if (typeid(T) != typeid(C)) static_inherits<C>();\
+      if (_TIW(T) != _TIW(C)) static_inherits<C>();\
       return rawSet(name, FuncCall::create(func)); \
     } \
   \
@@ -444,13 +444,13 @@ namespace SLB {
     template<typename T, typename W>\
     template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
     inline Class<T,W> &Class<T,W>::set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) const ){ \
-      if (typeid(T) != typeid(C)) static_inherits<C>();\
+      if (_TIW(T) != _TIW(C)) static_inherits<C>();\
       return rawSet(name, FuncCall::create(func)); \
     } \
     template<typename T, typename W>\
     template<class C, class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
     inline Class<T,W> &Class<T,W>::const_set(const char *name, R (C::*func)(SPP_ENUM_D(N,T)) const ){ \
-      if (typeid(T) != typeid(C)) static_inherits<C>();\
+      if (_TIW(T) != _TIW(C)) static_inherits<C>();\
       return rawSet(name, FuncCall::create(func)); \
     } \
   \

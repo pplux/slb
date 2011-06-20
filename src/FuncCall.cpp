@@ -32,7 +32,7 @@
 
 namespace SLB {
 
-  FuncCall::FuncCall() : _Treturn(0)
+  FuncCall::FuncCall() : _Treturn()
   {
     SLB_DEBUG_CALL;
     SLB_DEBUG(10, "Create FuncCall (%p)",this);

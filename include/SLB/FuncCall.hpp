@@ -35,6 +35,7 @@
 #include "String.hpp"
 #include "SPP.hpp"
 #include "lua.hpp"
+#include "TypeInfoWrapper.hpp"
 
 #include <vector>
 #include <typeinfo>
@@ -78,9 +79,9 @@ namespace SLB
     static FuncCall* create(lua_CFunction f);
 
     size_t getNumArguments() const { return _Targs.size(); }
-    const std::type_info* getArgType(size_t p) const { return _Targs[p].first; }
+    const TypeInfoWrapper& getArgType(size_t p) const { return _Targs[p].first; }
     const String& getArgComment(size_t p) const { return _Targs[p].second; }
-    const std::type_info* getReturnedType() const { return _Treturn; }
+    const TypeInfoWrapper& getReturnedType() const { return _Treturn; }
     void setArgComment(size_t p, const String& c);
 
   protected:
@@ -90,9 +91,9 @@ namespace SLB
     void pushImplementation(lua_State *L);
     virtual int call(lua_State *L) = 0;
 
-    typedef std::pair<const std::type_info*, SLB::String> TypeInfoStringPair;
+    typedef std::pair<TypeInfoWrapper, SLB::String> TypeInfoStringPair;
     std::vector< TypeInfoStringPair, Allocator<TypeInfoStringPair> > _Targs;
-    const std::type_info* _Treturn;
+    TypeInfoWrapper _Treturn;
   private:
     static int _call(lua_State *L);
 

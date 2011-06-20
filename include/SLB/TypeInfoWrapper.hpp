@@ -33,55 +33,93 @@
 
 namespace SLB {
 
+  template<class T>
+  class TypeID
+  {
+  public:
+    static const char *Name();
+    static unsigned long Hash();
+  private:
+    TypeID();
+    static unsigned long hash_;
+  };
+
+  template<class T>
+  unsigned long TypeID<T>::hash_ = 0;
+
+  template<class T>
+  const char *TypeID<T>::Name()
+  {
+    #if defined(_MSC_VER)
+      return __FUNCTION__ ;
+    #elif defined(__GNUC__)
+      return __PRETTY_FUNCTION__;
+    #else
+      #error "NO method to identify object!"
+      return "ERROR";
+    #endif
+  }
+  
+  template<class T>
+  inline unsigned long TypeID<T>::Hash()
+  {
+    if (hash_ == 0)
+    {
+      const char *name = Name();
+      static const unsigned long hbits = 31;
+      static const unsigned long hprime = 16777619;
+      static const unsigned long hmod = 1 << hbits;
+      while (*name != '\0')
+      {
+        hash_ = (hash_*hprime) % hmod;
+        hash_ = hash_ ^ ((unsigned long) *name);
+        name++;
+      }
+    }
+    return hash_;
+  }
+  
+
   class TypeInfoWrapper
   {
   public:
 
     TypeInfoWrapper() :
-      _ID(0), _type( &typeid(TypeInfoWrapper) )
+      _ID(0), _name("Invalid")
     {
     }
 
-    TypeInfoWrapper(const std::type_info &t) :
-      _ID(0), _type(&t)
+    TypeInfoWrapper(unsigned long hash, const char *name) :
+      _ID(hash), _name(name)
     {
-    #ifndef __GNUC__
-      // a hash function based on type's name
-      for (const char *__s = name() ; *__s; ++__s)
-        _ID = 5 * _ID + *__s;
-    #else
-      _ID = (unsigned long) _type;
-    #endif
+    
     }
 
-    const std::type_info& type() const { return *_type; }
+    unsigned long type() const { return _ID; }
 
-    const char *name() const { return _type->name(); }
+    const char *name() const { return _name; }
 
     bool operator<(const TypeInfoWrapper &o) const
     {
-    #ifndef __GNUC__
-      // very probable:
-      if (_ID != o._ID) return _ID < o._ID;
-      if (*_type == *o._type) return false;
-      // Highly unprobable:
-      return strcmp(_type->name(), o._type->name()) < 0;
-    #else
-      return _type < o._type;
-    #endif
+      return _ID < o._ID;
     }
 
     bool operator==(const TypeInfoWrapper &o) const
     {
-      return *_type == *o._type;
+      return _ID == o._ID;
+    }
+
+    bool operator!=(const TypeInfoWrapper &o) const
+    {
+      return _ID != o._ID;
     }
     
   private:
     unsigned long _ID;
-    const std::type_info *_type;
+    const char *_name;
   };
 
-#define _TIW(x) TypeInfoWrapper(typeid(x))
+#define _TIW(x) ::SLB::TypeInfoWrapper(::SLB::TypeID<x>::Hash(), ::SLB::TypeID<x>::Name())
 
 } // end of SLB Namespace
 
