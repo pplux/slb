@@ -42,13 +42,13 @@ namespace Unit_004 {
 		SLB::Class<Duck>("Unit_004::Duck")
 			.constructor<bool>()
 			.set("canFly", &Duck::canFly)
-			.inherits<Animal>()
+			.dynamic_inherits<Animal>()
 		;
 
 		SLB::Class<Dog>("Unit_004::Dog")
 			.constructor<bool>()
 			.set("bites", &Dog::bites)
-			.inherits<Animal>()
+			.dynamic_inherits<Animal>()
 		;
 
 		SLB::Class<Poodle>("Unit_004::Poodle")
@@ -59,7 +59,7 @@ namespace Unit_004 {
 		SLB::Class<Dalmation>("Unit_004::Dalmation")
 			.constructor<bool>()
 			.inherits<Dog>()
-			.inherits<Animal>() //Optional: Makes conversion between Animal and Dalmation faster
+			.dynamic_inherits<Animal>() //Optional: Makes conversion between Animal and Dalmation faster
 		;
 
 		

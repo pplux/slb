@@ -94,18 +94,22 @@ namespace SLB {
      * Hybrid::registerAsHybrid */
     __Self &hybrid()
     {
-      inherits<HybridBase>();
+      dynamic_inherits<HybridBase>();
       HybridBase::registerAsHybrid( _class );
       return *this;
     }
 
     template<typename TBase>
-    __Self &inherits()
-    { _class->inheritsFrom<T,TBase>(); return *this;}
+    __Self &dynamic_inherits()
+    { _class->dynamicInheritsFrom<T,TBase>(); return *this;}
 
     template<typename TBase>
     __Self &static_inherits()
     { _class->staticInheritsFrom<T,TBase>(); return *this;}
+
+    template<typename TBase>
+    __Self &inherits()
+    { return static_inherits<TBase>(); }
 
     template<typename T_to>
     __Self &convertibleTo( T_to* (*func)(T*)  = &(ClassConversor<T,T_to>::defaultConvert) )
