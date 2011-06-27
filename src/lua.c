@@ -62,7 +62,6 @@
 /* core -- used by all */
 #include "lua/lapi.c"
 #include "lua/lcode.c"
-#include "lua/lctype.c"
 #include "lua/ldebug.c"
 #include "lua/ldo.c"
 #include "lua/ldump.c"

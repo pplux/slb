@@ -47,7 +47,7 @@ extern "C" {
     #endif // SLB_STATIC_LIBRARY
   #endif // on windows...
 
-  // Local (static) lua (v 5.2.0-alpha)
+  // Local (static) lua (v 5.2.0-beta-rc2)
   #include "lua/lua.h"
   #include "lua/lauxlib.h"
   #include "lua/lualib.h"
