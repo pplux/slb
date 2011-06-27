@@ -451,7 +451,7 @@ namespace SLB {
     SLB_DEBUG_CALL;
     void *raw_ptr = lua_touserdata(L,1);
   
-    if (raw_ptr != 0) luaL_error(L, "SLB check ERROR: __garbageCollector called on a no-instance value");
+    if (raw_ptr == 0) luaL_error(L, "SLB check ERROR: __garbageCollector called on a no-instance value");
     InstanceBase* instance = 
       *reinterpret_cast<InstanceBase**>(raw_ptr);
     
