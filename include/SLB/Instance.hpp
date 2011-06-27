@@ -35,6 +35,9 @@
 #include "Export.hpp"
 #include "Allocator.hpp"
 
+#define SLB_INSTANCE \
+  virtual const void *memoryRawPointer() const { return this; }
+
 namespace SLB {
 
   class SLB_EXPORT InstanceBase
@@ -52,6 +55,7 @@ namespace SLB {
     // functions to override:
     virtual void* get_ptr() = 0;
     virtual const void* get_const_ptr() = 0;
+    virtual const void *memoryRawPointer() const = 0;
 
     // constructor:
     InstanceBase(Type , ClassInfo *c);
@@ -109,6 +113,7 @@ namespace SLB {
           T *_ptr;
           const T *_const_ptr;
         };
+        SLB_INSTANCE;
       };
     };
 
@@ -147,6 +152,7 @@ namespace SLB {
           T *_ptr;
           const T *_const_ptr;
         };
+        SLB_INSTANCE;
       };
     };
 
@@ -189,6 +195,7 @@ namespace SLB {
           T *_ptr;
           const T *_const_ptr;
         };
+        SLB_INSTANCE;
       };
     };
 
@@ -227,6 +234,7 @@ namespace SLB {
       protected:
         T_SmartPtr<T> _sm_ptr;
         const T *_const_ptr;
+        SLB_INSTANCE;
       };
     };
 
@@ -264,6 +272,7 @@ namespace SLB {
       protected:
         T_SmartPtr<T> _sm_ptr;
         const T *_const_ptr;
+        SLB_INSTANCE;
       };
     };
 
@@ -302,6 +311,7 @@ namespace SLB {
       protected:
         T_SmartPtr<T> _sm_ptr;
         const T *_const_ptr;
+        SLB_INSTANCE;
       };
     };
 

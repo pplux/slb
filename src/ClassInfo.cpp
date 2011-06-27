@@ -457,9 +457,9 @@ namespace SLB {
     
     //Compiler pointer shifts from the virtual inheritance, must
     // put pointer back to allocation address before deleting it.
-    void* addr = dynamic_cast<void*>(instance);
+    const void* addr = instance->memoryRawPointer();
     instance->~InstanceBase();
-    Free(addr);
+    Free(const_cast<void*>(addr));
 
     return 0;
   }
