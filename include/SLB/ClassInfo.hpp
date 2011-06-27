@@ -72,7 +72,7 @@ namespace SLB {
 
     // Uses dynamic_cast to convert from Base to Derived
     template<class This, class Base>
-    void inheritsFrom();
+    void dynamicInheritsFrom();
 
     // This version uses static cast instead of dynamic_cast
     template<class This, class Base>
@@ -173,7 +173,7 @@ namespace SLB {
   
     
   template<class D, class B>
-  inline void ClassInfo::inheritsFrom()
+  inline void ClassInfo::dynamicInheritsFrom()
   {
     _manager->template addConversor<D,B>();
     ClassInfo *ci = _manager->getOrCreateClass(_TIW(B));
