@@ -66,12 +66,12 @@ namespace SLB {
     void setErrorHandler(ErrorHandler *h);
 
     template<class T>
-    void set(const std::string &name, T value)
-    { SLB::setGlobal<T>(getState(), value, name.c_str());}
+    void set(const char *name, T value)
+    { SLB::setGlobal<T>(getState(), value, name);}
 
     template<class T>
-    T get(const std::string&name)
-    { return SLB::getGlobal<T>(getState(), name.c_str()); }
+    T get(const char *name)
+    { return SLB::getGlobal<T>(getState(), name); }
 
     static void* allocator(void *ud, void *ptr, size_t osize, size_t nsize);
 
