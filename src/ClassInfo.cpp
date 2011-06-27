@@ -495,7 +495,7 @@ namespace SLB {
     for(Elements::iterator i = _elements.begin(); i != _elements.end(); ++i)
     {
       Object *obj = i->second.get();
-      FuncCall *fc = dynamic_cast<FuncCall*>(obj);
+      FuncCall *fc = slb_dynamic_cast<FuncCall>(obj);
       if (fc)
       {
         lua_pushfstring(L, "\n\tfunction (%s) [%s]",i->first.c_str(), obj->getInfo().c_str() );
@@ -510,7 +510,7 @@ namespace SLB {
       }
       else
       {
-        lua_pushfstring(L, "\n\t%s -> %p [%s] [%s]",i->first.c_str(), obj, "TODO:_TIW(*obj).name()", obj->getInfo().c_str() );
+        lua_pushfstring(L, "\n\t%s -> %p [%s] [%s]",i->first.c_str(), obj, obj->typeInfo().name(), obj->getInfo().c_str() );
       }
     }
     lua_concat(L, lua_gettop(L) - top);

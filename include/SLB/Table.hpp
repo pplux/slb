@@ -100,6 +100,7 @@ namespace SLB {
 
     Table(const Table&);
     Table& operator=(const Table&);
+    SLB_CLASS(Table, Object);
   };
 
   //--------------------------------------------------------------------

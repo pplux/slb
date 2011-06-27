@@ -138,7 +138,7 @@ namespace SLB {
       const String &base = key.substr(0, pos);
       const String &next = key.substr(pos+_separator.length());
 
-      Table* subtable = dynamic_cast<Table*>(rawGet(base));
+      Table* subtable = slb_dynamic_cast<Table>(rawGet(base));
       
       if (subtable == 0)
       {
@@ -234,10 +234,10 @@ namespace SLB {
     SLB_DEBUG_CALL;
     SLB_DEBUG_STACK(10,L,"Table::__tostring (%p)",this);
     int top = lua_gettop(L);
-    lua_pushfstring(L, "Table(%p) [%s] with keys:", this, "TODO::_TIW(*this).name()");
+    lua_pushfstring(L, "Table(%p) [%s] with keys:", this, typeInfo().name());
     for(Elements::iterator i = _elements.begin(); i != _elements.end(); ++i)
     {
-      lua_pushfstring(L, "\n\t%s -> %p [%s]",i->first.c_str(), i->second.get(), "TODO::_TIW(*(i->second.get())).name()");
+      lua_pushfstring(L, "\n\t%s -> %p [%s]",i->first.c_str(), i->second.get(), i->second->typeInfo().name());
     }
     lua_concat(L, lua_gettop(L) - top);
     return 1;

@@ -58,6 +58,7 @@ namespace SLB
     IteratorBase *_iterator;
     Iterator( const Iterator &slbo);
     Iterator& operator=( const Iterator &slbo);
+    SLB_CLASS(Iterator, Object)
   };
 
 

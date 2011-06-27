@@ -397,7 +397,7 @@ namespace SLB {
     //TODO: This should also work for constructors, and so on.
     if (_lastObj)
     {
-      FuncCall *fc = dynamic_cast<FuncCall*>(_lastObj);
+      FuncCall *fc = slb_dynamic_cast<FuncCall>(_lastObj);
       if (fc)
       {
         size_t max_param = fc->getNumArguments();

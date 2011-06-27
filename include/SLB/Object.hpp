@@ -33,11 +33,21 @@
 #include "Export.hpp"
 #include "Allocator.hpp"
 #include "String.hpp"
+#include "TypeInfoWrapper.hpp"
 
 struct lua_State;
 
+#define SLB_CLASS(T, Parent_T) \
+  public:\
+  SLB::TypeInfoWrapper typeInfo() const { return _TIW(T); } \
+  const void * convertTo(const TypeInfoWrapper &tiw) const {\
+    if (tiw == _TIW(T)) return this; \
+    else return Parent_T::convertTo(tiw); \
+  }\
+
 namespace SLB
 {
+
   class SLB_EXPORT Object 
   {
   public:
@@ -48,6 +58,9 @@ namespace SLB
     void push(lua_State *L);
     void setInfo(const String&);
     const String& getInfo() const;
+
+    virtual TypeInfoWrapper typeInfo() const = 0;
+    virtual const void* convertTo(const TypeInfoWrapper &tiw) const { return 0L; }
 
   protected:
     Object();
@@ -67,6 +80,29 @@ namespace SLB
     Object& operator=( const Object &slbo);
   };
 
+  template<class T, class X>
+  inline T* slb_dynamic_cast(X *obj) {
+    T* result = 0L;
+    if (obj)  { result = static_cast<T*>(const_cast<void*>(obj->convertTo(_TIW(T)))); }
+#ifdef SLB_DEBUG
+    // check the result is the same that dynamic_cast
+    assert(result == dynamic_cast<T*>(obj) && "Invalid cast");
+#endif
+    return result;
+  }
+
+  template<class T, class X>
+  inline const T* slb_dynamic_cast(const X *obj) {
+    const T* result = 0L;
+    if (obj)  { result = static_cast<const T*>(obj->convertTo(_TIW(T))); }
+#ifdef SLB_DEBUG
+    // check the result is the same that dynamic_cast
+    assert(result == dynamic_cast<T*>(obj) && "Invalid cast");
+#endif
+    return result;
+  }
+
+  
   // ------------------------------------------------------------
   // ------------------------------------------------------------
   // ------------------------------------------------------------

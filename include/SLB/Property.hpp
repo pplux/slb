@@ -61,6 +61,7 @@ namespace SLB {
     virtual ~BaseProperty();
 
     virtual void pushImplementation(lua_State *);
+    SLB_CLASS(BaseProperty, Object);
   };
 
   template<class T, class M>
@@ -95,6 +96,8 @@ namespace SLB {
     }
   private:
     MemberPtr _m;
+    typedef Property<T,M> T_This;
+    SLB_CLASS(T_This, BaseProperty);
   };
 
 
