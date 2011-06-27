@@ -51,15 +51,14 @@ namespace SLB {
     Namespace( bool cacheable = true ) : Table("::", cacheable) {}
   protected:
     virtual ~Namespace() {}
+    SLB_CLASS(Namespace, Table);
   };
 
   class SLB_EXPORT ClassInfo : public Namespace
   {
   public:
     typedef SLB_Map(TypeInfoWrapper, ClassInfo* ) BaseClassMap;
-
-
-
+    
     const TypeInfoWrapper &getTypeid() const { return __TIW; }
     const String &getName() const      { return _name; }
     void setName(const String&);
@@ -164,6 +163,7 @@ namespace SLB {
     InstanceBase* getInstance(lua_State *L, int pos) const;
 
     friend class Manager;
+    SLB_CLASS(ClassInfo, Namespace);
   };
 
 

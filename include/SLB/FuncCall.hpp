@@ -98,7 +98,8 @@ namespace SLB
     static int _call(lua_State *L);
 
   friend class Manager;  
-  friend class ClassInfo;  
+  friend class ClassInfo;
+  SLB_CLASS(FuncCall, Object);
   };
 
 } //end of SLB namespace

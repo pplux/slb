@@ -87,6 +87,7 @@ namespace SLB {
       const T* _constObj;
     };
     bool _isConst;
+    SLB_CLASS(RefValue<T>, Object)
   };
 
   template<class T>
@@ -98,6 +99,7 @@ namespace SLB {
     void pushImplementation(lua_State *L);
   private:
     T _obj;
+    SLB_CLASS(RefValue<T>, Object)
   };
 
   template<class T>
@@ -109,7 +111,7 @@ namespace SLB {
     void pushImplementation(lua_State *L);
   private:
     T *_obj;
-
+    SLB_CLASS(AutoDeleteValue<T>, Object)
   };
 
   //--------------------------------------------------------------------
