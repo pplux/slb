@@ -44,6 +44,7 @@ struct lua_State;
     if (tiw == _TIW(T)) return this; \
     else return Parent_T::convertTo(tiw); \
   }\
+  const void *memoryRawPointer() const { return this; } \
 
 namespace SLB
 {
@@ -61,6 +62,7 @@ namespace SLB
 
     virtual TypeInfoWrapper typeInfo() const = 0;
     virtual const void* convertTo(const TypeInfoWrapper &tiw) const { return 0L; }
+    virtual const void *memoryRawPointer() const = 0;
 
   protected:
     Object();
@@ -118,9 +120,9 @@ namespace SLB
     --_refCounter; 
     if (_refCounter == 0) 
     {
-      void *ptr = dynamic_cast<void*>(this);
+      const void *ptr = memoryRawPointer();
       this->~Object();
-      Free( ptr );
+      Free( const_cast<void*>(ptr) );
     }
   }
 
