@@ -77,6 +77,7 @@
 #include "lua/ltable.c"
 #include "lua/ltm.c"
 #include "lua/lundump.c"
+#include "lua/lctype.c"
 #define pushclosure pushclosure2
 #include "lua/lvm.c"
 #include "lua/lzio.c"
