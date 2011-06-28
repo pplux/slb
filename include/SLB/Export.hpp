@@ -39,11 +39,16 @@
   #  else
   #    define SLB_EXPORT   __declspec(dllimport)
   #  endif /* SLB_LIBRARY */
-  #pragma warning( disable: 4251 )  
-  #pragma warning( disable: 4290 )
-  #pragma warning( disable: 4127 ) // constant expressions
+
 #else
   #  define SLB_EXPORT
 #endif  
+
+// Specific MSC pragma's
+#if defined(_MSC_VER)
+#pragma warning( disable: 4251 )
+#pragma warning( disable: 4290 )
+#pragma warning( disable: 4127 ) // constant expressions
+#endif
 
 #endif
