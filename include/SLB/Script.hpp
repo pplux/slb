@@ -65,6 +65,10 @@ namespace SLB {
     /// and it will be destroyed when the object is destroyed. 
     void setErrorHandler(ErrorHandler *h);
 
+    /// Returns the manager that this Script is using
+    Manager* getManager() { return _manager; }
+    const Manager* getManager() const { return _manager; }
+
     template<class T>
     void set(const char *name, T value)
     { SLB::setGlobal<T>(getState(), value, name);}
