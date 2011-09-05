@@ -23,5 +23,3 @@
 	Jose L. Hidalgo (www.pplux.com)
 	pplux@pplux.com
 */
-
-

@@ -103,56 +103,6 @@ namespace SLB
   };
 
 } //end of SLB namespace
-
-  //--------------------------------------------------------------------
-  // Inline implementations:
-  //--------------------------------------------------------------------
   
-  #include "Private_FuncCall.hpp"
-  
-  #define SLB_REPEAT(N) \
-  \
-  template<class C,class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-  inline FuncCall* FuncCall::create(R (C::*func)(SPP_ENUM_D(N,T)) ) \
-  { \
-    return createNonConst(func); \
-  } \
-  \
-  template<class C,class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-  inline FuncCall* FuncCall::create(R (C::*func)(SPP_ENUM_D(N,T)) const ) \
-  { \
-    return createConst(func); \
-  } \
-  \
-  template<class C,class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-  inline FuncCall* FuncCall::createConst(R (C::*func)(SPP_ENUM_D(N,T)) const ) \
-  { \
-    typedef Private::FC_ConstMethod<C,R(SPP_ENUM_D(N,T))> _type_;\
-    return new (Malloc(sizeof(_type_))) _type_(func); \
-  } \
-  template<class C,class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-  inline FuncCall* FuncCall::createNonConst(R (C::*func)(SPP_ENUM_D(N,T)) ) \
-  { \
-    typedef Private::FC_Method<C,R(SPP_ENUM_D(N,T))> _type_;\
-    return new (Malloc(sizeof(_type_))) _type_(func); \
-  } \
-  \
-  template<class R SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-  inline FuncCall* FuncCall::create(R (*func)(SPP_ENUM_D(N,T)) ) \
-  { \
-    typedef Private::FC_Function<R(SPP_ENUM_D(N,T))> _type_;\
-    return new (Malloc(sizeof(_type_))) _type_(func); \
-  } \
-  \
-  template<class C SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-  inline FuncCall* FuncCall::classConstructor() \
-  { \
-    typedef Private::FC_ClassConstructor<C(SPP_ENUM_D(N,T))> _type_;\
-    return new (Malloc(sizeof(_type_))) _type_; \
-  } \
-  
-  SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
-  #undef SLB_REPEAT
-
-}
+#include "FuncCall_inline.hpp"
 #endif
