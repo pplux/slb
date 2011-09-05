@@ -232,6 +232,6 @@ namespace Private {
   #undef SLB_GET_PARAMS
 
 
-} // end of SLB::Private namespace  
+}} // end of SLB::Private namespace  
 
 #endif

@@ -2,7 +2,7 @@
  inspired by one.c -- Lua core, libraries, and interpreter in a single file
 
     SLB - Simple Lua Binder
-    Copyright (C) 2007-2010 Jose L. Hidalgo Valiño (PpluX)
+    Copyright (C) 2007-2011 Jose L. Hidalgo Valiño (PpluX)
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -58,6 +58,31 @@
 #define LUA_ANSI
 #endif
 
+/* Headers sorted by dependency */
+#define LUA_CORE
+#include "lua/lua.h"
+#include "lua/llimits.h"
+#include "lua/lobject.h"
+#include "lua/ltm.h"
+#include "lua/lualib.h"
+#include "lua/lmem.h"
+#include "lua/lzio.h"
+#include "lua/lparser.h"
+#include "lua/lstate.h"
+#include "lua/lgc.h"
+#include "lua/lstring.h"
+#include "lua/ldebug.h"
+#include "lua/llex.h"
+#include "lua/lopcodes.h"
+#include "lua/lcode.h"
+#include "lua/ldo.h"
+#include "lua/ltable.h"
+#include "lua/lapi.h"
+#include "lua/lfunc.h"
+#include "lua/lvm.h"
+#include "lua/lundump.h"
+#include "lua/lauxlib.h"
+#include "lua/lctype.h"
 
 /* core -- used by all */
 #include "lua/lapi.c"
@@ -101,15 +126,4 @@
 #include "lua/lstrlib.c"
 #include "lua/ltablib.c"
 #include "lua/linit.c"
-#endif
-
-/* lua */
-#ifdef MAKE_LUA
-#include "lua/lua.c"
-#endif
-
-/* luac */
-#ifdef MAKE_LUAC
-#include "lua/print.c"
-#include "lua/luac.c"
 #endif
