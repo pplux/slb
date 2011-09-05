@@ -41,7 +41,7 @@ or, if you're creating your own lua_States then:
     // Register SLB inside the lua_State, calling the SLB::Manager
     // that handles bindings, default functions, default values...
     SLB::Manager::getInstance().registerSLB(L);
-    // No call lua API to execute the same code as above
+    // Now call lua API to execute the same code as above
     luaL_dostring(L, lua_code); // execute code
 
 Once, SLB is registered on the lua_State, you can start using your wrapped
