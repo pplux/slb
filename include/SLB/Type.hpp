@@ -266,6 +266,50 @@ namespace Private {
 
   };
 
+  // Type specialization for <short>
+  template<>
+  struct Type<short>
+  {
+    static void push(lua_State *L, short v)
+    {
+      SLB_DEBUG_CALL; 
+      SLB_DEBUG(6, "Push short = %d",v);
+      lua_pushinteger(L,v);
+    }
+    static short get(lua_State *L, int p)
+    {
+      SLB_DEBUG_CALL; 
+      short v = (short) lua_tointeger(L,p);
+      SLB_DEBUG(6,"Get short (pos %d) = %d",p,v);
+      return v;
+    }
+  };
+
+  template<> struct Type<short&> : public Type<short> {};
+  template<> struct Type<const short&> : public Type<short> {};
+
+  // Type specialization for <unsigned short>
+  template<>
+  struct Type<unsigned short>
+  {
+    static void push(lua_State *L, unsigned short v)
+    {
+      SLB_DEBUG_CALL; 
+      SLB_DEBUG(6, "Push unsigned short = %d",v);
+      lua_pushinteger(L,v);
+    }
+    static unsigned short get(lua_State *L, int p)
+    {
+      SLB_DEBUG_CALL; 
+      unsigned short v = (unsigned short) lua_tointeger(L,p);
+      SLB_DEBUG(6,"Get unsigned short (pos %d) = %d",p,v);
+      return v;
+    }
+  };
+
+  template<> struct Type<unsigned short&> : public Type<unsigned short> {};
+  template<> struct Type<const unsigned short&> : public Type<unsigned short> {};
+
   // Type specialization for <int>
   template<>
   struct Type<int>
