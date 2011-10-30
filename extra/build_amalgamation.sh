@@ -53,6 +53,7 @@ cp License.txt output/SLB.hpp
 echo '#include "SLB.hpp"' >> output/SLB.cpp
 strip_cpp output/SLB.cpp ../src/*.cpp
 strip_hpp output/SLB.hpp \
+  ../include/SLB/Config.hpp\
   ../include/SLB/SPP.hpp\
   ../include/SLB/Export.hpp\
   ../include/SLB/Debug.hpp\
@@ -66,7 +67,6 @@ strip_hpp output/SLB.hpp \
   ../include/SLB/ref_ptr.hpp\
   ../include/SLB/Table.hpp\
   ../include/SLB/Conversor.hpp\
-  ../include/SLB/util.hpp\
   ../include/SLB/Error.hpp\
   ../include/SLB/Iterator.hpp\
   ../include/SLB/LuaCall.hpp\
