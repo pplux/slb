@@ -86,7 +86,7 @@ namespace SLB
   inline T* slb_dynamic_cast(X *obj) {
     T* result = 0L;
     if (obj)  { result = static_cast<T*>(const_cast<void*>(obj->convertTo(_TIW(T)))); }
-#ifdef SLB_DEBUG
+#ifdef SLB_USE_EXCEPTIONS // we asume exceptions means you can also use dynamic_cast
     // check the result is the same that dynamic_cast
     assert(result == dynamic_cast<T*>(obj) && "Invalid cast");
 #endif
@@ -97,7 +97,7 @@ namespace SLB
   inline const T* slb_dynamic_cast(const X *obj) {
     const T* result = 0L;
     if (obj)  { result = static_cast<const T*>(obj->convertTo(_TIW(T))); }
-#ifdef SLB_DEBUG
+#if SLB_USE_EXCEPTIONS // we asume exceptions means you can also use dynamic_cast
     // check the result is the same that dynamic_cast
     assert(result == dynamic_cast<T*>(obj) && "Invalid cast");
 #endif

@@ -30,7 +30,6 @@
 #include <SLB/Manager.hpp>
 #include <SLB/Hybrid.hpp>
 #include <SLB/Debug.hpp>
-#include <SLB/util.hpp>
 
 namespace SLB {
 
@@ -171,7 +170,7 @@ namespace SLB {
   void *ClassInfo::get_ptr(lua_State *L, int pos) const
   {
     SLB_DEBUG_CALL;
-    pos = L_abs_index(L,pos);
+    pos = lua_absindex(L,pos);
     void *obj = 0;
     InstanceBase *i = getInstance(L, pos);
     if (i)
@@ -191,7 +190,7 @@ namespace SLB {
   const void* ClassInfo::get_const_ptr(lua_State *L, int pos) const
   {
     SLB_DEBUG_CALL;
-    pos = L_abs_index(L,pos);
+    pos = lua_absindex(L,pos);
     const void *obj = 0;
     InstanceBase *i = getInstance(L, pos);
     if (i)
@@ -210,8 +209,8 @@ namespace SLB {
   InstanceBase* ClassInfo::getInstance(lua_State *L, int pos) const
   {
     SLB_DEBUG_CALL;
-    SLB_DEBUG(10, "L=%p; Pos = %i (abs = %i)",L, pos, L_abs_index(L,pos) );
-    pos = L_abs_index(L,pos);
+    SLB_DEBUG(10, "L=%p; Pos = %i (abs = %i)",L, pos, lua_absindex(L,pos) );
+    pos = lua_absindex(L,pos);
     InstanceBase *instance = 0;
     int top = lua_gettop(L);
     if (lua_getmetatable(L, pos))

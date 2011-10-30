@@ -25,28 +25,11 @@
 */
 
 
+#include "Config.hpp"
 
 #ifndef __SLB_DEBUG__
 #define __SLB_DEBUG__
 
-#ifndef SLB_DEBUG_OUTPUT
-  #define SLB_DEBUG_OUTPUT stderr
-#endif
-
-// you can redefine the function to be used to debug, should have a 
-// printf-like interface.
-#ifndef SLB_DEBUG_FUNC
-  #include <cstdio>
-  #include <cstring>
-  #define SLB_DEBUG_FUNC(...) fprintf(SLB_DEBUG_OUTPUT, __VA_ARGS__);
-#endif
-
-//----------------------------------------------------------------------------
-//-- Simple Debug (dissabled by default) -------------------------------------
-//----------------------------------------------------------------------------
-#ifndef SLB_DEBUG_LEVEL
-#define SLB_DEBUG_LEVEL 0
-#endif
   
 #if SLB_DEBUG_LEVEL != 0
   #include "SPP.hpp"
@@ -110,7 +93,8 @@
           std::ostringstream out;
           out << where << ":" << line << " -> ";
           out << "Invalid Stack Check. current = " << lua_gettop(L) << " expected = " << top + delta << std::endl;
-          throw std::runtime_error(out.str());
+          SLB_THROW(std::runtime_error(out.str()));
+          SLB_CRITICAL_ERROR(out.str());
         }
       }
 

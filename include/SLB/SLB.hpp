@@ -39,14 +39,10 @@
 #include "Hybrid.hpp"
 #include "StatefulHybrid.hpp"
 #include "Script.hpp"
-#include "SPP.hpp"
 
 // just for help....
 #define SLB_ON_LOAD( FuncName ) \
   SPP_STATIC_BLOCK( FuncName(); )
-
-#define SLB_abs_index(L, i)     ((i) > 0 || (i) <= LUA_REGISTRYINDEX ? (i) : \
-                        lua_gettop(L) + (i) + 1)
 
 #define __SLB_TODO__ 0
 

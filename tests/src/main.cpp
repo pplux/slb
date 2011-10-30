@@ -39,12 +39,12 @@ int main(int argc, char **argv)
 	SLB_DEBUG(0, "Start test...");
 	SLB::Script *s = new SLB::Script();
 	SLB_DEBUG(0, "Open SLB...");
-
+  SLB_DEBUG(0, "Loading script...");
+#if SLB_USE_EXCEPTIONS
 	try
 	{
 		if (argc == 2)
 		{
-			SLB_DEBUG(0, "Loading script...");
 			s->doFile(argv[1]);
 		}
 	}
@@ -53,6 +53,12 @@ int main(int argc, char **argv)
 		std::cerr << "SLB_test -> EXCEPTION: " << e.what() << std::endl;
 		result = 1;
 	}
+#else
+  if (argc == 2)
+	{
+		s->doFile(argv[1]);
+	}
+#endif
 
 	SLB_DEBUG(0, "Closing script...");
 	delete s;

@@ -30,9 +30,9 @@
 #ifndef __SLB_MUTEX__
 #define __SLB_MUTEX__
 
-#ifdef SLB_NO_THREAD_SAFE
+#if SLB_THREAD_SAFE
   namespace SLB { struct MutexData {}; }
-#else // SLB_NO_THREAD_SAFE
+#else // SLB_THREAD_SAFE
   // Win32 Mutex:
   #ifdef SLB_WINDOWS
     #include <windows.h>
@@ -42,14 +42,14 @@
     #include <pthread.h>  
     namespace SLB { typedef pthread_mutex_t MutexData; }
   #endif
-#endif //SLB_NO_THREAD_SAFE
+#endif //SLB_THREAD_SAFE
 
 namespace SLB
 {
 
   /// Multiplatform Mutex abstraction, needed to ensure thread safety of
-  /// some algorithms. You can turn off Mutexes by compileing SLB with
-  /// SLB_NO_THREAD_SAFE
+  /// some algorithms. You can turn on Mutexes by compileing SLB with
+  /// SLB_THREAD_SAFE
 
   struct Mutex
   {
@@ -91,13 +91,13 @@ namespace SLB
   };
 
 
-#ifdef SLB_NO_THREAD_SAFE
+#if SLB_THREAD_SAFE
   inline Mutex::Mutex() {}
   inline Mutex::~Mutex() {}
   inline void Mutex::lock(){}
   inline void Mutex::unlock() {}
   inline bool Mutex::trylock() { return true; }
-#else // SLB_NO_THREAD_SAFE
+#else // SLB_THREAD_SAFE
 #ifdef WIN32
   // Windows implementation...
   inline Mutex::Mutex()
@@ -145,7 +145,7 @@ namespace SLB
 #endif // WIN32
 
 
-#endif // SLB_NO_THREAD_SAFE
+#endif // SLB_THREAD_SAFE
 
 
 } // end of SLB's namespace
