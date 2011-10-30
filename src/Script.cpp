@@ -25,7 +25,7 @@
 */
 
 
-
+#include<SLB/Config.hpp>
 #include<SLB/Script.hpp>
 #include<SLB/Debug.hpp>
 #include<SLB/Error.hpp>
@@ -131,7 +131,7 @@ namespace SLB {
     return result;
   }
 
-  void Script::doFile(const std::string &filename) throw (std::exception)
+  void Script::doFile(const std::string &filename) SLB_THROW((std::exception))
   {
     SLB_DEBUG_CALL;
     lua_State *L = getState();
@@ -141,21 +141,28 @@ namespace SLB {
     switch(luaL_loadfile(L,filename.c_str()))
     {
       case LUA_ERRFILE:
-      case LUA_ERRSYNTAX: throw std::runtime_error(lua_tostring(_L, -1)); break;
-      case LUA_ERRMEM:    throw std::runtime_error("Error allocating memory"); break;
+      case LUA_ERRSYNTAX:
+        SLB_THROW(std::runtime_error(lua_tostring(_L, -1)));
+        SLB_CRITICAL_ERROR(lua_tostring(_L, -1));
+        break;
+      case LUA_ERRMEM: 
+        SLB_THROW(std::runtime_error("Error allocating memory"));
+        SLB_CRITICAL_ERROR("Error allocating memory");
+        break;
     }
 
     // otherwise...
     if( _errorHandler->call(_L, 0, 0))
     {
       const char *s = lua_tostring(L,-1);
-      throw std::runtime_error( s );
+      SLB_THROW(std::runtime_error(s));
+      SLB_CRITICAL_ERROR(s);
     }
 
     lua_settop(L,top);
   }
 
-  void Script::doString(const std::string &o_code, const std::string &hint) throw (std::exception)
+  void Script::doString(const std::string &o_code, const std::string &hint)  SLB_THROW((std::exception))
   {
     SLB_DEBUG_CALL;
     lua_State *L = getState();
@@ -167,7 +174,8 @@ namespace SLB {
     if(luaL_loadstring(L,code.str().c_str()) || _errorHandler->call(_L, 0, 0))
     {
       const char *s = lua_tostring(L,-1);
-      throw std::runtime_error( s );
+      SLB_THROW(std::runtime_error( s ));
+      SLB_CRITICAL_ERROR(s);
     }
 
     lua_settop(L,top);

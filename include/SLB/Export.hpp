@@ -24,13 +24,12 @@
   pplux@pplux.com
 */
 
-
+#include "Config.hpp"
 
 #ifndef __SLB_EXPORT__
 #define __SLB_EXPORT__
 
-#if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
-  #define SLB_WINDOWS 1
+#if defined(SLB_WINDOWS)
   #  if defined( SLB_STATIC_LIBRARY )
   #    define SLB_EXPORT
   #  elif defined( SLB_LIBRARY )
@@ -39,16 +38,8 @@
   #  else
   #    define SLB_EXPORT   __declspec(dllimport)
   #  endif /* SLB_LIBRARY */
-
 #else
   #  define SLB_EXPORT
 #endif  
-
-// Specific MSC pragma's
-#if defined(_MSC_VER)
-#pragma warning( disable: 4251 )
-#pragma warning( disable: 4290 )
-#pragma warning( disable: 4127 ) // constant expressions
-#endif
 
 #endif

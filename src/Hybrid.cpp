@@ -121,7 +121,10 @@ namespace SLB {
   {
     SLB_DEBUG_CALL;
     //TODO allow reattaching...
-    if (_L != 0 && _L != L) throw std::runtime_error("Trying to reattach an Hybrid instance");
+    if (_L != 0 && _L != L) {
+      SLB_THROW(std::runtime_error("Trying to reattach an Hybrid instance"));
+      SLB_CRITICAL_ERROR("Trying to reattach an Hybrid instance");
+    }
 
     if (L)
     {
@@ -161,7 +164,10 @@ namespace SLB {
   bool HybridBase::getMethod(const char *name) const
   {
     SLB_DEBUG_CALL;
-    if (_L == 0) throw std::runtime_error("Hybrid instance not attached");\
+    if (_L == 0) {
+      SLB_THROW(std::runtime_error("Hybrid instance not attached"));
+      SLB_CRITICAL_ERROR("Hybrid instance not attached")
+    }
     SLB_DEBUG_STACK(5,_L, "HybridBase(%p)::getMethod '%s' (_L = %p)", this, name, _L); 
     int top = lua_gettop(_L);
 

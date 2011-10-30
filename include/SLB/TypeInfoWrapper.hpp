@@ -52,11 +52,10 @@ namespace SLB {
   {
     #if defined(_MSC_VER)
       return __FUNCTION__ ;
-    #elif defined(__GNUC__)
+    #elif defined(__GNUC__) or defined(__SNC__)
       return __PRETTY_FUNCTION__;
     #else
-      #error "NO method to identify object!"
-      return "ERROR";
+      return __func__
     #endif
   }
   

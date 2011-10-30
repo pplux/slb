@@ -55,7 +55,8 @@ namespace SLB {
     lua_pushvalue(_L,index);
     if (lua_type(_L, -1) != LUA_TFUNCTION)
     {
-      throw std::runtime_error( "No Lua function was found at the index you provided." );
+      SLB_THROW(std::runtime_error( "No Lua function was found at the index you provided." ));
+      SLB_CRITICAL_ERROR("No Lua function was found at the index you provided.");
     }
     _ref = luaL_ref(_L, LUA_REGISTRYINDEX);
   }
@@ -109,7 +110,8 @@ namespace SLB {
     if(handler.call(_L, numArgs, numOutput))
     {
       const char* msg = lua_tostring(_L, -1);
-      throw std::runtime_error( msg ? msg : "Unknown Error" );
+      SLB_THROW(std::runtime_error( msg ? msg : "Unknown Error" ));
+      SLB_CRITICAL_ERROR(std::runtime_error( msg ? msg : "Unknown Error" ));
     }
 
   }

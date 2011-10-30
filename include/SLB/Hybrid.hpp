@@ -52,8 +52,8 @@ namespace SLB {
   struct SLB_EXPORT InvalidMethod : public std::exception
   {  
     InvalidMethod(const HybridBase*, const char *c);
-    ~InvalidMethod() throw() {}
-    const char* what() const throw() { return _what.c_str(); }
+    ~InvalidMethod() SLB_THROW(()) {}
+    const char* what() const SLB_THROW(()) { return _what.c_str(); }
     std::string _what;
   };
 
@@ -177,7 +177,10 @@ namespace SLB {
             SLB_DEBUG(2,"method [%s] found in lua [FAIL!]", name)\
           }\
         }\
-        if (!method) throw InvalidMethod(this, name);\
+        if (!method) {\
+          SLB_THROW(InvalidMethod(this, name));\
+          SLB_CRITICAL_ERROR("Invalid method")\
+        }\
       }\
 
   #define SLB_REPEAT(N) \

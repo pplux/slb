@@ -28,7 +28,6 @@
 
 #include <SLB/Property.hpp>
 #include <SLB/Debug.hpp>
-#include <SLB/util.hpp>
 #include <iostream>
 
 namespace SLB {

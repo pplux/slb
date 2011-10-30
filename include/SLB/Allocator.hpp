@@ -138,13 +138,15 @@ namespace SLB
 
       if (n > max_size())
       {
-        throw std::length_error("Allocator<T>::allocate() - Integer overflow.");
+        SLB_THROW(std::length_error("Allocator<T>::allocate() - Integer overflow."));
+        SLB_CRITICAL_ERROR("Allocator<T>::allocate() - Integer overflow.");
       }
 
       void * const pv = Malloc(n * sizeof(T));
       if (pv == NULL) 
       {
-        throw std::bad_alloc();
+        SLB_THROW(std::bad_alloc());
+        SLB_CRITICAL_ERROR("Out of memory");
       }
 
       return static_cast<T *>(pv);

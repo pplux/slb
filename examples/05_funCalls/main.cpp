@@ -62,23 +62,29 @@ void doWrappers()
 		;
 };
 
+void example() {
+  MyScript s;
+	Circle circle;
+	Square square;
+	s.invokeFooMethod(&circle);
+	s.invokeFooMethod(&square);
+}
+
 int main(int, char**)
 {
-
 	doWrappers();
-
+#if SLB_USE_EXCEPTIONS
 	try
 	{
-		MyScript s;
-		Circle circle;
-		Square square;
-		s.invokeFooMethod(&circle);
-		s.invokeFooMethod(&square);
+	  example();
 	}
 	catch(std::exception &e)
 	{
 		std::cerr << "ERROR:" << e.what();
 	}
+#else
+  example();
+#endif
 
 	return 0;
 }

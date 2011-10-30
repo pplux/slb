@@ -30,7 +30,6 @@
 #include <SLB/ClassInfo.hpp>
 #include <SLB/lua.hpp>
 #include <SLB/Debug.hpp>
-#include <SLB/util.hpp>
 #include <SLB/Hybrid.hpp>
 #include <SLB/Mutex.hpp>
 #include <SLB/Allocator.hpp>
@@ -284,7 +283,7 @@ namespace SLB {
   ClassInfo *Manager::getClass(lua_State *L, int pos) const
   {
     SLB_DEBUG_CALL;
-    pos = L_abs_index(L,pos);
+    pos = lua_absindex(L,pos);
     int top = lua_gettop(L);
     ClassInfo* ci = 0L;
     if (lua_getmetatable(L,pos))
