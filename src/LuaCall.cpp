@@ -111,7 +111,7 @@ namespace SLB {
     {
       const char* msg = lua_tostring(_L, -1);
       SLB_THROW(std::runtime_error( msg ? msg : "Unknown Error" ));
-      SLB_CRITICAL_ERROR(std::runtime_error( msg ? msg : "Unknown Error" ));
+      SLB_CRITICAL_ERROR(msg ? msg : "Unknown Error" );
     }
 
   }
