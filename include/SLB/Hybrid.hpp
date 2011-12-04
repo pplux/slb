@@ -52,8 +52,8 @@ namespace SLB {
   struct SLB_EXPORT InvalidMethod : public std::exception
   {  
     InvalidMethod(const HybridBase*, const char *c);
-    ~InvalidMethod() SLB_THROW(()) {}
-    const char* what() const SLB_THROW(()) { return _what.c_str(); }
+    ~InvalidMethod() throw() {}
+    const char* what() const throw() { return _what.c_str(); }
     std::string _what;
   };
 
