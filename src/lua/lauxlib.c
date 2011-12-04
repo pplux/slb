@@ -1,5 +1,5 @@
 /*
-** $Id: lauxlib.c,v 1.233 2011/06/16 14:11:04 roberto Exp $
+** $Id: lauxlib.c,v 1.238 2011/11/30 12:58:57 roberto Exp $
 ** Auxiliary functions for building Lua libraries
 ** See Copyright Notice in lua.h
 */
@@ -41,11 +41,10 @@
 ** return 1 + string at top if find a good name.
 */
 static int findfield (lua_State *L, int objidx, int level) {
-  int found = 0;
   if (level == 0 || !lua_istable(L, -1))
     return 0;  /* not found */
   lua_pushnil(L);  /* start 'next' loop */
-  while (!found && lua_next(L, -2)) {  /* for each pair in table */
+  while (lua_next(L, -2)) {  /* for each pair in table */
     if (lua_type(L, -2) == LUA_TSTRING) {  /* ignore non-string keys */
       if (lua_rawequal(L, objidx, -1)) {  /* found object? */
         lua_pop(L, 1);  /* remove value (but keep name) */
@@ -86,7 +85,7 @@ static void pushfuncname (lua_State *L, lua_Debug *ar) {
     lua_pushfstring(L, "function " LUA_QS, ar->name);
   else if (*ar->what == 'm')  /* main? */
       lua_pushfstring(L, "main chunk");
-  else if (*ar->what == 'C' || *ar->what == 't') {
+  else if (*ar->what == 'C') {
     if (pushglobalfuncname(L, ar)) {
       lua_pushfstring(L, "function " LUA_QS, lua_tostring(L, -1));
       lua_remove(L, -2);  /* remove name */
@@ -331,7 +330,9 @@ LUALIB_API int luaL_checkoption (lua_State *L, int narg, const char *def,
 
 
 LUALIB_API void luaL_checkstack (lua_State *L, int space, const char *msg) {
-  if (!lua_checkstack(L, space)) {
+  /* keep some extra space to run error routines, if needed */
+  const int extra = LUA_MINSTACK;
+  if (!lua_checkstack(L, space + extra)) {
     if (msg)
       luaL_error(L, "stack overflow (%s)", msg);
     else
@@ -566,7 +567,7 @@ typedef struct LoadF {
 
 static const char *getF (lua_State *L, void *ud, size_t *size) {
   LoadF *lf = (LoadF *)ud;
-  (void)L;
+  (void)L;  /* not used */
   if (lf->n > 0) {  /* are there pre-read characters to be read? */
     *size = lf->n;  /* return them (chars already in buffer) */
     lf->n = 0;  /* no more pre-read characters */
@@ -623,7 +624,8 @@ static int skipcomment (LoadF *lf, int *cp) {
 }
 
 
-LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
+LUALIB_API int luaL_loadfilex (lua_State *L, const char *filename,
+                                             const char *mode) {
   LoadF lf;
   int status, readstatus;
   int c;
@@ -646,7 +648,7 @@ LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
   }
   if (c != EOF)
     lf.buff[lf.n++] = c;  /* 'c' is the first character of the stream */
-  status = lua_load(L, getF, &lf, lua_tostring(L, -1));
+  status = lua_load(L, getF, &lf, lua_tostring(L, -1), mode);
   readstatus = ferror(lf.f);
   if (filename) fclose(lf.f);  /* close file (even in case of errors) */
   if (readstatus) {
@@ -666,7 +668,7 @@ typedef struct LoadS {
 
 static const char *getS (lua_State *L, void *ud, size_t *size) {
   LoadS *ls = (LoadS *)ud;
-  (void)L;
+  (void)L;  /* not used */
   if (ls->size == 0) return NULL;
   *size = ls->size;
   ls->size = 0;
@@ -674,12 +676,12 @@ static const char *getS (lua_State *L, void *ud, size_t *size) {
 }
 
 
-LUALIB_API int luaL_loadbuffer (lua_State *L, const char *buff, size_t size,
-                                const char *name) {
+LUALIB_API int luaL_loadbufferx (lua_State *L, const char *buff, size_t size,
+                                 const char *name, const char *mode) {
   LoadS ls;
   ls.s = buff;
   ls.size = size;
-  return lua_load(L, getS, &ls, name);
+  return lua_load(L, getS, &ls, name, mode);
 }
 
 
@@ -913,8 +915,7 @@ LUALIB_API const char *luaL_gsub (lua_State *L, const char *s, const char *p,
 
 
 static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
-  (void)ud;
-  (void)osize;
+  (void)ud; (void)osize;  /* not used */
   if (nsize == 0) {
     free(ptr);
     return NULL;
