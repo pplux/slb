@@ -45,13 +45,13 @@
 
 // -- EXCEPTIONS -----------------------------------------------------------------
 #if SLB_USE_EXCEPTIONS
+  #define SLB_CRITICAL_ERROR(...) /*nothing*/
+  #define SLB_THROW(...) throw __VA_ARGS__
+#else
   #define SLB_CRITICAL_ERROR(msg) \
     {fprintf(stderr, "SLB Critical Error (%s:%d) -> %s", __FILE__, __LINE__, msg); \
     exit(129);}
-  #define SLB_THROW(t_class) /*nothing*/
-#else
-  #define SLB_CRITICAL_ERROR(...) /*nothing*/
-  #define SLB_THROW(...) throw __VA_ARGS__
+  #define SLB_THROW(...) /*nothing*/
 #endif // SLB_USE_EXCEPTIONS
 // ------------------------------------------------------------------------------
 
