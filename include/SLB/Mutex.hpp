@@ -30,7 +30,7 @@
 #ifndef __SLB_MUTEX__
 #define __SLB_MUTEX__
 
-#ifndef SLB_THREAD_SAFE
+#if SLB_THREAD_SAFE == 0
   namespace SLB { struct MutexData {}; }
 #else // SLB_THREAD_SAFE
   // Win32 Mutex:
@@ -91,7 +91,7 @@ namespace SLB
   };
 
 
-#ifndef SLB_THREAD_SAFE
+#if SLB_THREAD_SAFE == 0
   inline Mutex::Mutex() {}
   inline Mutex::~Mutex() {}
   inline void Mutex::lock(){}
