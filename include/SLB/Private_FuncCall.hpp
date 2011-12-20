@@ -75,7 +75,7 @@ namespace Private {
   //                n>0   start at top+n (i.e. with objects first parameter is the object)
   //
   //    For each paramter a param_n variable is generated with type Tn
-  #define SLB_GET_PARAMS(N, START) T##N param_##N = SLB::Private::Type<T##N>::get(L,N + (START) );
+  #define SLB_GET_PARAMS(N, START) typename SLB::Private::Type<T##N>::GetType param_##N = SLB::Private::Type<T##N>::get(L,N + (START) );
   #define SLB_GET(N,START) \
     if (lua_gettop(L) != N + (START) ) \
     { \

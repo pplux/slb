@@ -94,7 +94,7 @@
           out << where << ":" << line << " -> ";
           out << "Invalid Stack Check. current = " << lua_gettop(L) << " expected = " << top + delta << std::endl;
           SLB_THROW(std::runtime_error(out.str()));
-          SLB_CRITICAL_ERROR(out.str());
+          SLB_CRITICAL_ERROR(out.str().c_str());
         }
       }
 

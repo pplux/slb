@@ -1,5 +1,5 @@
 /*
-** $Id: lauxlib.c,v 1.238 2011/11/30 12:58:57 roberto Exp $
+** $Id: lauxlib.c,v 1.240 2011/12/06 16:33:55 roberto Exp $
 ** Auxiliary functions for building Lua libraries
 ** See Copyright Notice in lua.h
 */
@@ -269,7 +269,7 @@ LUALIB_API int luaL_execresult (lua_State *L, int stat) {
 */
 
 LUALIB_API int luaL_newmetatable (lua_State *L, const char *tname) {
-  lua_getfield(L, LUA_REGISTRYINDEX, tname);  /* get registry.name */
+  luaL_getmetatable(L, tname);  /* try to get metatable */
   if (!lua_isnil(L, -1))  /* name already in use? */
     return 0;  /* leave previous value on top, but return 0 */
   lua_pop(L, 1);
@@ -290,7 +290,7 @@ LUALIB_API void *luaL_testudata (lua_State *L, int ud, const char *tname) {
   void *p = lua_touserdata(L, ud);
   if (p != NULL) {  /* value is a userdata? */
     if (lua_getmetatable(L, ud)) {  /* does it have a metatable? */
-      lua_getfield(L, LUA_REGISTRYINDEX, tname);  /* get correct metatable */
+      luaL_getmetatable(L, tname);  /* get correct metatable */
       if (!lua_rawequal(L, -1, -2))  /* not the same? */
         p = NULL;  /* value is a userdata with wrong metatable */
       lua_pop(L, 2);  /* remove both metatables */
@@ -944,7 +944,7 @@ LUALIB_API void luaL_checkversion_ (lua_State *L, lua_Number ver) {
   if (v != lua_version(NULL))
     luaL_error(L, "multiple Lua VMs detected");
   else if (*v != ver)
-    luaL_error(L, "version mismatch: app. needs %d, Lua core provides %f",
+    luaL_error(L, "version mismatch: app. needs %f, Lua core provides %f",
                   ver, *v);
   /* check conversions number -> integer types */
   lua_pushnumber(L, -(lua_Number)0x1234);

@@ -43,6 +43,8 @@ namespace Private {
   template<class T>
   struct Type
   {
+    typedef T GetType;
+
     static ClassInfo *getClass(lua_State *L)
     {
       SLB_DEBUG_CALL; 
@@ -73,6 +75,7 @@ namespace Private {
   template<class T>
   struct Type<T*>
   {
+    typedef T* GetType;
     static ClassInfo *getClass(lua_State *L)
     {
       SLB_DEBUG_CALL; 
@@ -139,6 +142,7 @@ namespace Private {
   template<class T>
   struct Type<const T*>
   {
+    typedef const T* GetType;
     static ClassInfo *getClass(lua_State *L)
     {
       SLB_DEBUG_CALL; 
@@ -192,6 +196,7 @@ namespace Private {
   template<class T>
   struct Type<const T&>
   {
+    typedef const T& GetType;
     static void push(lua_State *L,const T &obj)
     {
       SLB_DEBUG_CALL; 
@@ -214,6 +219,7 @@ namespace Private {
   template<class T>
   struct Type<T&>
   {
+    typedef T& GetType;
     static ClassInfo *getClass(lua_State *L)
     {
       SLB_DEBUG_CALL; 
@@ -244,6 +250,7 @@ namespace Private {
   template<>
   struct Type<void*>
   {
+    typedef void* GetType;
     static void push(lua_State *L,void* obj)
     {
       SLB_DEBUG_CALL; 
@@ -314,6 +321,7 @@ namespace Private {
   template<>
   struct Type<int>
   {
+    typedef int GetType;
     static void push(lua_State *L, int v)
     {
       SLB_DEBUG_CALL; 
@@ -336,6 +344,7 @@ namespace Private {
   template<>
   struct Type<unsigned int>
   {
+    typedef unsigned int GetType;
     static void push(lua_State *L, unsigned int v)
     {
       SLB_DEBUG_CALL; 
@@ -359,6 +368,7 @@ namespace Private {
   template<>
   struct Type<long>
   {
+    typedef long GetType;
     static void push(lua_State *L, long v)
     {
       SLB_DEBUG_CALL; 
@@ -383,6 +393,7 @@ namespace Private {
   template<>
   struct Type<unsigned long>
   {
+    typedef unsigned long GetType;
     static void push(lua_State *L, unsigned long v)
     {
       SLB_DEBUG_CALL; 
@@ -407,6 +418,7 @@ namespace Private {
   template<>
   struct Type<unsigned long long>
   {
+    typedef unsigned long long GetType;
     static void push(lua_State *L, unsigned long long v)
     {
       SLB_DEBUG_CALL; 
@@ -430,6 +442,7 @@ namespace Private {
   template<>
   struct Type<double>
   {
+    typedef double GetType;
     static void push(lua_State *L, double v)
     {
       SLB_DEBUG_CALL; 
@@ -453,6 +466,7 @@ namespace Private {
   template<>
   struct Type<float>
   {
+    typedef float GetType;
     static void push(lua_State *L, float v)
     {
       SLB_DEBUG_CALL; 
@@ -478,6 +492,7 @@ namespace Private {
   template<>
   struct Type<bool>
   {
+    typedef bool GetType;
     static void push(lua_State *L, bool v)
     {
       SLB_DEBUG_CALL; 
@@ -500,6 +515,7 @@ namespace Private {
   template<>
   struct Type<std::string>
   {
+    typedef std::string GetType;
     static void push(lua_State *L, const std::string &v)
     {
       SLB_DEBUG_CALL; 
@@ -520,6 +536,7 @@ namespace Private {
   template<>
   struct Type<const std::string &>
   {
+    typedef const std::string GetType;
     static void push(lua_State *L, const std::string &v)
     {
       SLB_DEBUG_CALL; 
@@ -543,6 +560,7 @@ namespace Private {
   template<>
   struct Type<const char*>
   {
+    typedef const char* GetType;
     static void push(lua_State *L, const char* v)
     {
       SLB_DEBUG_CALL; 
@@ -563,6 +581,7 @@ namespace Private {
   template<>
   struct Type<const unsigned char*>
   {
+    typedef const unsigned char* GetType;
     static void push(lua_State *L, const unsigned char* v)
     {
       SLB_DEBUG_CALL; 
