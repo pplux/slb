@@ -92,7 +92,7 @@ namespace SLB {
     Script(const Script &s);
     Script& operator=(const Script&);
     Manager *_manager;
-    lua_State *_L;
+    lua_State *_lua_state;
     lua_Alloc _allocator;
     void *    _allocator_ud;
     ErrorHandler *_errorHandler;
