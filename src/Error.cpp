@@ -59,55 +59,55 @@ int ErrorHandler::call(lua_State *L, int nargs, int nresults)
 
 const char *ErrorHandler::SE_name()
 {
-  if (_L) return _debug.name;
+  if (_lua_state) return _debug.name;
   return NULL;
 }
 
 const char *ErrorHandler::SE_nameWhat()
 {
-  if (_L) return _debug.namewhat;
+  if (_lua_state) return _debug.namewhat;
   return NULL;
 }
 
 const char *ErrorHandler::SE_what()
 {
-  if (_L) return _debug.what;
+  if (_lua_state) return _debug.what;
   return NULL;
 }
 
 const char *ErrorHandler::SE_source()
 {
-  if (_L) return _debug.source;
+  if (_lua_state) return _debug.source;
   return NULL;
 }
 
 const char *ErrorHandler::SE_shortSource()
 {
-  if (_L) return _debug.short_src;
+  if (_lua_state) return _debug.short_src;
   return NULL;
 }
 
 int ErrorHandler::SE_currentLine()
 {
-  if (_L) return _debug.currentline;
+  if (_lua_state) return _debug.currentline;
   return -1;
 }
 
 int ErrorHandler::SE_numberOfUpvalues()
 {
-  if (_L) return _debug.nups;
+  if (_lua_state) return _debug.nups;
   return -1;
 }
 
 int ErrorHandler::SE_lineDefined()
 {
-  if (_L) return _debug.linedefined;
+  if (_lua_state) return _debug.linedefined;
   return -1;
 }
 
 int ErrorHandler::SE_lastLineDefined()
 {
-  if (_L) return _debug.lastlinedefined;
+  if (_lua_state) return _debug.lastlinedefined;
   return -1;
 }
 
@@ -120,11 +120,11 @@ int ErrorHandler::_slb_stackHandler(lua_State *L)
 
 void ErrorHandler::process(lua_State *L)
 {
-  _L = L;
-  assert("Invalid state" && _L != 0);
-  const char *error = lua_tostring(_L, -1);
+  _lua_state = L;
+  assert("Invalid state" && _lua_state != 0);
+  const char *error = lua_tostring(_lua_state, -1);
   begin(error);
-  for ( int level = 0; lua_getstack(_L, level, &_debug ); level++)
+  for ( int level = 0; lua_getstack(_lua_state, level, &_debug ); level++)
   {
     if (lua_getinfo(L, "Slnu", &_debug) )
     {
@@ -137,8 +137,8 @@ void ErrorHandler::process(lua_State *L)
     }
   }
   const char *msg = end();
-  lua_pushstring(_L, msg);
-  _L = 0;
+  lua_pushstring(_lua_state, msg);
+  _lua_state = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

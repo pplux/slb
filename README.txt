@@ -82,13 +82,7 @@ More advanced use of SLB is exposed in the examples and wiki docs (under constru
 INSTALLATION
 ------------
 
-SLB uses cmake, but it is mainly used for the SLB's development. You are encouraged to use SLB as part of your own library/program for the sake of simplicity, but it is ready to be used as a dynamic library.  
+SLB uses premake, but it is mainly used for the SLB's development. You are encouraged to use SLB as part of your own library/program for the sake of simplicity, but it is ready to be used as a dynamic library.  
 
 To include SLB as part of your own project, grab the src/ and include/ directories and compile all the .cpp/c files under src/. If SLB is going to be part of a dll on Windows , or a dll itself, then enable the macro declaration SLB_LIBRARY that will properly adjust the SLB_EXPORT macro. 
-
-To compile SLB using cmake, use cmake as with any other project. Right now
-SLB doesn't have installation rules, but in the bin directory it will generate
-dynamic and static versions of the current configuration (Debug|Release). 
-
-
 

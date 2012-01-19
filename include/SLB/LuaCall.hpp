@@ -29,12 +29,12 @@
 #ifndef __SLB_LUACALL__
 #define __SLB_LUACALL__
 
+#include "lua.hpp"
 #include "Export.hpp"
 #include "SPP.hpp"
 #include "Object.hpp"
 #include "PushGet.hpp"
 #include "Type.hpp"
-#include "lua.hpp"
 
 #include <vector>
 #include <typeinfo>
@@ -55,7 +55,7 @@ namespace SLB
     LuaCallBase(lua_State *L, const char *func);
     void execute(int numArgs, int numOutput, int top);
 
-    lua_State *_L;
+    lua_State *_lua_state;
     int _ref; 
   private:
     void getFunc(int index);
@@ -66,7 +66,7 @@ namespace SLB
   struct LuaCall;
 
   #define SLB_ARG(N) T##N arg_##N, 
-  #define SLB_PUSH_ARGS(N) push<T##N>(_L, arg_##N );
+  #define SLB_PUSH_ARGS(N) push<T##N>(_lua_state, arg_##N );
 
   #define SLB_REPEAT(N) \
   \
@@ -78,15 +78,15 @@ namespace SLB
       LuaCall(lua_State *L, const char *func) : LuaCallBase(L,func) {} \
       R operator()( SPP_REPEAT( N, SLB_ARG) char dummyARG = 0) /*TODO: REMOVE dummyARG */\
       { \
-        int top = lua_gettop(_L); \
-        lua_rawgeti(_L, LUA_REGISTRYINDEX,_ref); \
+        int top = lua_gettop(_lua_state); \
+        lua_rawgeti(_lua_state, LUA_REGISTRYINDEX,_ref); \
         SPP_REPEAT( N, SLB_PUSH_ARGS ); \
         execute(N, 1, top); \
-        R result = get<R>(_L, -1); \
-        lua_settop(_L,top); \
+        R result = get<R>(_lua_state, -1); \
+        lua_settop(_lua_state,top); \
         return result; \
       } \
-      bool operator==(const LuaCall& lc) { return (_L == lc._L && _ref == lc._ref); }\
+      bool operator==(const LuaCall& lc) { return (_lua_state == lc._lua_state && _ref == lc._ref); }\
     };
   SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
   #undef SLB_REPEAT
@@ -101,13 +101,13 @@ namespace SLB
       LuaCall(lua_State *L, const char *func) : LuaCallBase(L,func) {} \
       void operator()( SPP_REPEAT( N, SLB_ARG) char /*dummyARG*/ = 0) /*TODO: REMOVE dummyARG */\
       { \
-        int top = lua_gettop(_L); \
-        lua_rawgeti(_L, LUA_REGISTRYINDEX,_ref); \
+        int top = lua_gettop(_lua_state); \
+        lua_rawgeti(_lua_state, LUA_REGISTRYINDEX,_ref); \
         SPP_REPEAT( N, SLB_PUSH_ARGS ); \
         execute(N, 0, top); \
-        lua_settop(_L,top); \
+        lua_settop(_lua_state,top); \
       } \
-      bool operator==(const LuaCall& lc) { return (_L == lc._L && _ref == lc._ref); }\
+      bool operator==(const LuaCall& lc) { return (_lua_state == lc._lua_state && _ref == lc._ref); }\
     }; \
 
   SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)

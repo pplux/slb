@@ -26,19 +26,20 @@
   pplux@pplux.com
 */
 
-#define MAKE_LIB  1
+#define MAKE_LIB 1
 
 #if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
-       #ifndef SLB_STATIC_LIBRARY
-               #define LUA_BUILD_AS_DLL
-               #ifdef SLB_LIBRARY
-                       #define LUA_LIB
-                       #define LUA_CORE
-               #endif
-       #endif
+  #if SLB_STATIC_LIBRARY
+    #define LUA_BUILD_AS_DLL
+    #ifdef SLB_LIBRARY
+      #define LUA_LIB
+      #define LUA_CORE
+      #endif
+    #endif
+  #define _CRT_SECURE_NO_WARNINGS 1
 #endif
 
-#define lobject_c
+#define luaall_c
 
 /* default is to build the full interpreter */
 #ifndef MAKE_LIB

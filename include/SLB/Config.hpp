@@ -37,9 +37,21 @@
   #define SLB_USE_EXCEPTIONS 0
 #endif
 
+// To compile SLB as a dynamic library
+// You also need to define SLB_LIBRARY macro when compiling SLB's cpp's
+#ifndef SLB_DYNAMIC_LIBRARY
+  #define SLB_DYNAMIC_LIBRARY 0
+#endif
+
+// use SLB's internal lua (latest lua version available)
+// or use lua from your own project.
+#ifndef SLB_EXTERNAL_LUA
+  #define SLB_EXTERNAL_LUA 0
+#endif
+
 
 #if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
-  #define SLB_WINDOWS 1
+  #define SLB_WINDOWS
 #endif
 
 
@@ -48,6 +60,7 @@
   #define SLB_CRITICAL_ERROR(...) /*nothing*/
   #define SLB_THROW(...) throw __VA_ARGS__
 #else
+  #include <stdlib.h>
   #define SLB_CRITICAL_ERROR(msg) \
     {fprintf(stderr, "SLB Critical Error (%s:%d) -> %s", __FILE__, __LINE__, msg); \
     exit(129);}

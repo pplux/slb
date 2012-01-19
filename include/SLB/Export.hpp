@@ -30,15 +30,16 @@
 #define __SLB_EXPORT__
 
 #if defined(SLB_WINDOWS)
-  #  if defined( SLB_STATIC_LIBRARY )
-  #    define SLB_EXPORT
-  #  elif defined( SLB_LIBRARY )
-  #    define SLB_EXPORT   __declspec(dllexport)
-
-  #  else
-  #    define SLB_EXPORT   __declspec(dllimport)
-  #  endif /* SLB_LIBRARY */
-#else
+  #if SLB_DYNAMIC_LIBRARY
+    #if defined(SLB_LIBRARY)
+      #define SLB_EXPORT   __declspec(dllexport)
+    #else
+      #define SLB_EXPORT   __declspec(dllimport)
+    #endif /* SLB_LIBRARY */
+  #else
+    #define SLB_EXPORT
+  #endif
+#else /* not windows */
   #  define SLB_EXPORT
 #endif  
 
