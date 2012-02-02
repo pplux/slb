@@ -27,39 +27,12 @@
 */
 
 #define MAKE_LIB  1
-
-#if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
-       #ifndef SLB_STATIC_LIBRARY
-               #define LUA_BUILD_AS_DLL
-               #ifdef SLB_LIBRARY
-                       #define LUA_LIB
-                       #define LUA_CORE
-               #endif
-       #endif
-#endif
+#define LUA_LIB   1
+#define LUA_CORE  1
 
 #define lobject_c
 
-/* default is to build the full interpreter */
-#ifndef MAKE_LIB
-#ifndef MAKE_LUAC
-#ifndef MAKE_LUA
-#define MAKE_LUA
-#endif
-#endif
-#endif
-
-/* choose suitable platform-specific features */
-/* some of these may need extra libraries such as -ldl -lreadline -lncurses */
-#if 0
-#define LUA_USE_LINUX
-#define LUA_USE_MACOSX
-#define LUA_USE_POSIX
-#define LUA_ANSI
-#endif
-
 /* Headers sorted by dependency */
-#define LUA_CORE
 #include "lua/lua.h"
 #include "lua/llimits.h"
 #include "lua/lobject.h"
@@ -85,6 +58,7 @@
 #include "lua/lctype.h"
 
 /* core -- used by all */
+#undef LUA_CORE
 #include "lua/lapi.c"
 #include "lua/lcode.c"
 #include "lua/ldebug.c"
@@ -103,14 +77,12 @@
 #include "lua/ltm.c"
 #include "lua/lundump.c"
 #include "lua/lctype.c"
-#define pushclosure pushclosure2
 #include "lua/lvm.c"
 #include "lua/lzio.c"
-#undef pushclosure
 
 /* auxiliary library -- used by all */
 
-
+#undef LUA_LIB
 #include "lua/lauxlib.c"
 
 /* standard library  -- not used by luac */
