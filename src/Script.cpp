@@ -45,13 +45,13 @@ namespace SLB {
   }
 #endif
 
-  Script::Script(Manager *m, bool default_libs) : 
+  Script::Script(Manager *m) : 
     _manager(m), 
     _L(0),
     _allocator(&Script::allocator),
     _allocator_ud(0),
     _errorHandler(0),
-    _loadDefaultLibs(default_libs)
+    _loadDefaultLibs(true)
   {
     SLB_DEBUG_CALL;
     
@@ -131,54 +131,72 @@ namespace SLB {
     return result;
   }
 
-  void Script::doFile(const std::string &filename) SLB_THROW((std::exception))
+  void Script::doFile(const char *filename) SLB_THROW((std::exception))
+  { 
+    if (!safeDoFile(filename)) {
+      SLB_THROW(std::runtime_error( getLastError() ));
+      SLB_CRITICAL_ERROR( getLastError() )
+    };
+  }
+
+  bool Script::safeDoFile(const char *filename)
   {
     SLB_DEBUG_CALL;
     lua_State *L = getState();
     int top = lua_gettop(L);
     SLB_DEBUG(10, "filename %s = ", filename.c_str());
+    bool result = true;
 
-    switch(luaL_loadfile(L,filename.c_str()))
+    switch(luaL_loadfile(L,filename))
     {
       case LUA_ERRFILE:
       case LUA_ERRSYNTAX:
-        SLB_THROW(std::runtime_error(lua_tostring(_L, -1)));
-        SLB_CRITICAL_ERROR(lua_tostring(_L, -1));
+        _last_error = lua_tostring(_L, -1);
+        result = false;
         break;
       case LUA_ERRMEM: 
-        SLB_THROW(std::runtime_error("Error allocating memory"));
-        SLB_CRITICAL_ERROR("Error allocating memory");
+        _last_error = "Error allocating memory";
+        result = false;
         break;
     }
 
     // otherwise...
     if( _errorHandler->call(_L, 0, 0))
     {
-      const char *s = lua_tostring(L,-1);
-      SLB_THROW(std::runtime_error(s));
-      SLB_CRITICAL_ERROR(s);
+      _last_error = lua_tostring(L,-1);
+      result = false;
     }
 
     lua_settop(L,top);
+    return result;
   }
 
-  void Script::doString(const std::string &o_code, const std::string &hint)  SLB_THROW((std::exception))
+  void Script::doString(const char *o_code, const char *hint)  SLB_THROW((std::exception))
+  {
+    if (!safeDoString(o_code, hint)) {
+      SLB_THROW(std::runtime_error( getLastError() ));
+      SLB_CRITICAL_ERROR( getLastError() )
+    };
+  }
+
+  bool Script::safeDoString(const char *o_code, const char *hint)
   {
     SLB_DEBUG_CALL;
     lua_State *L = getState();
     int top = lua_gettop(L);
-    SLB_DEBUG(10, "code = %10s, hint = %s", o_code.c_str(), hint.c_str()); 
+    SLB_DEBUG(10, "code = %10s, hint = %s", o_code, hint); 
     std::stringstream code;
     code << "--" << hint << std::endl << o_code;
+    bool result = true;
 
     if(luaL_loadstring(L,code.str().c_str()) || _errorHandler->call(_L, 0, 0))
     {
       const char *s = lua_tostring(L,-1);
-      SLB_THROW(std::runtime_error( s ));
-      SLB_CRITICAL_ERROR(s);
+      _last_error = lua_tostring(L,-1);
     }
 
     lua_settop(L,top);
+    return result;
   }
 
   void Script::setErrorHandler( ErrorHandler *e )

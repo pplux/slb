@@ -41,14 +41,44 @@ namespace SLB {
   class SLB_EXPORT Script
   {  
   public:
-    Script(Manager *m = Manager::defaultManager(), bool loadDefaultLibs = true);
+    explicit Script(Manager *m = Manager::defaultManager());
     virtual ~Script();
 
-    void doFile(const std::string &filename) SLB_THROW((std::exception));
+    // changes if the created lua_state will load default libraries when
+    // it is created. This change only takes effect when the lua_State is 
+    // created (when getState() method is called the first time). You can 
+    // always call resetState() to make sure the next created state will
+    // have or wont have default libraries loaded
+    void loadDefaultLibs(bool b) { _loadDefaultLibs = b; }
 
+    // Tries to load-and-execute the given file, it can throw an exception
+    // If SLB was compiled with Exception support or can exit the program
+    // with an error code. See safeDoFile for a safe call that doesn't fail.
+    void doFile(const char *filename) SLB_THROW((std::exception));
+
+    // Executes the content of the given file, returns true if the call
+    // was successful, false otherwise. It never throws, or exits the program,
+    // If you need error control use a custom ErrorHandler
+    bool safeDoFile(const char *filename);
+
+    // Tries to load and execute the given chunk of code. This method can
+    // throw exceptions or exit the program (depends on SLB_USE_EXCEPTIONS 
+    // definition). If you ned a safe call that doesn't fail use safeDoString
+    // method instead.
     void doString(
-      const std::string &codeChunk,
-      const std::string &where_hint ="[SLB]") SLB_THROW((std::exception));
+      const char *codeChunk,
+      const char *where_hint ="[SLB]") SLB_THROW((std::exception));
+
+    // Executs the given code chunk and returns true if successful, false
+    // otherwise. It never throws, or exits the program, if you need error
+    // control use a custom ErrorHandler.
+    bool safeDoString(
+      const char *codeChunk,
+      const char *where_hint ="[SLB]");
+
+    // closes the current state, and will create a new state on the next
+    // getState() call.
+    void resetState() { close(); }
 
      /* ************************* WARNING *********************************
       * Sometines you need to manually call Garbage Collector(GC), to be sure
@@ -79,6 +109,7 @@ namespace SLB {
 
     static void* allocator(void *ud, void *ptr, size_t osize, size_t nsize);
 
+    const char *getLastError() const { return _last_error.c_str(); }
   protected:
     virtual void onNewState(lua_State * /*L*/) {}
     virtual void onCloseState(lua_State * /*L*/) {}
@@ -94,7 +125,8 @@ namespace SLB {
     Manager *_manager;
     lua_State *_L;
     lua_Alloc _allocator;
-    void *    _allocator_ud;
+    void*     _allocator_ud;
+    std::string _last_error;
     ErrorHandler *_errorHandler;
     bool _loadDefaultLibs;
   };

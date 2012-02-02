@@ -148,6 +148,7 @@ void ErrorHandler::process(lua_State *L)
 void DefaultErrorHandler::begin(const char *error)
 {
   _out.clear();
+  _out.str("");
   _out << "SLB Exception: "
     << std::endl << "-------------------------------------------------------"
     << std::endl;
