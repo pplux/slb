@@ -45,9 +45,14 @@ namespace SLB {
   }
 #endif
 
+  static void DefaultPrintCallback(Script *s, const char *str, size_t length) {
+    std::cout.write(str,length);
+  }
+
   Script::Script(Manager *m) : 
     _manager(m), 
     _L(0),
+    _printCallback(DefaultPrintCallback),
     _allocator(&Script::allocator),
     _allocator_ud(0),
     _errorHandler(0),
@@ -84,6 +89,11 @@ namespace SLB {
       if (_loadDefaultLibs) luaL_openlibs(_L);
       _manager->registerSLB(_L);
     
+      // replace print method
+      lua_pushlightuserdata(_L, this);
+      lua_pushcclosure(_L,PrintHook,1);
+      lua_setglobal(_L, "print");
+
       //TODO: Promote that functionality to a higher interface to allow proper
       //      debugging
       //
@@ -151,11 +161,11 @@ namespace SLB {
     {
       case LUA_ERRFILE:
       case LUA_ERRSYNTAX:
-        _last_error = lua_tostring(_L, -1);
+        _lastError = lua_tostring(_L, -1);
         result = false;
         break;
       case LUA_ERRMEM: 
-        _last_error = "Error allocating memory";
+        _lastError = "Error allocating memory";
         result = false;
         break;
     }
@@ -163,7 +173,7 @@ namespace SLB {
     // otherwise...
     if( _errorHandler->call(_L, 0, 0))
     {
-      _last_error = lua_tostring(L,-1);
+      _lastError = lua_tostring(L,-1);
       result = false;
     }
 
@@ -192,7 +202,7 @@ namespace SLB {
     if(luaL_loadstring(L,code.str().c_str()) || _errorHandler->call(_L, 0, 0))
     {
       const char *s = lua_tostring(L,-1);
-      _last_error = lua_tostring(L,-1);
+      _lastError = lua_tostring(L,-1);
     }
 
     lua_settop(L,top);
@@ -221,6 +231,29 @@ namespace SLB {
       SLB::Free(ptr);
       return newpos;
     }
+  }
+
+  int Script::PrintHook(lua_State *L) {
+    Script *script = reinterpret_cast<Script*>(lua_touserdata(L,lua_upvalueindex(1)));
+    int n = lua_gettop(L);  /* number of arguments */
+    int i;
+    lua_getglobal(L, "tostring");
+    for (i=1; i<=n; i++) {
+      const char *s;
+      size_t l;
+      lua_pushvalue(L, -1);  /* function to be called */
+      lua_pushvalue(L, i);   /* value to print */
+      lua_call(L, 1, 1);
+      s = lua_tolstring(L, -1, &l);  /* get result */
+      if (s == NULL)
+        return luaL_error(L,
+           LUA_QL("tostring") " must return a string to " LUA_QL("print"));
+      if (i>1) script->_printCallback(script,"\t", 1);
+      script->_printCallback(script,s, l);
+      lua_pop(L, 1);  /* pop result */
+    }
+    script->_printCallback(script,"\n",1);
+    return 0;
   }
 
 } /* SLB */
