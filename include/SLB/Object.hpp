@@ -61,7 +61,7 @@ namespace SLB
     const String& getInfo() const;
 
     virtual TypeInfoWrapper typeInfo() const = 0;
-    virtual const void* convertTo(const TypeInfoWrapper &tiw) const { return 0L; }
+    virtual const void* convertTo(const TypeInfoWrapper &) const { return 0L; }
     virtual const void *memoryRawPointer() const = 0;
 
   protected:

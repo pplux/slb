@@ -41,6 +41,12 @@ namespace SLB {
   class SLB_EXPORT Script
   {  
   public:
+    typedef void (*PrintCallback)(
+        Script *,     // Script that produced the print call
+        const char *, // string to print
+        size_t        // size of the string to print
+    );
+
     explicit Script(Manager *m = Manager::defaultManager());
     virtual ~Script();
 
@@ -109,7 +115,12 @@ namespace SLB {
 
     static void* allocator(void *ud, void *ptr, size_t osize, size_t nsize);
 
-    const char *getLastError() const { return _last_error.c_str(); }
+    const char *getLastError() const { return _lastError.c_str(); }
+
+    // Changes the print callback. This callback will be called by the internal
+    // print function from the scripts in order t
+    void setPrintCallback( PrintCallback );
+
   protected:
     virtual void onNewState(lua_State * /*L*/) {}
     virtual void onCloseState(lua_State * /*L*/) {}
@@ -122,11 +133,14 @@ namespace SLB {
   private:
     Script(const Script &s);
     Script& operator=(const Script&);
+    static int PrintHook(lua_State *);
+
     Manager *_manager;
     lua_State *_L;
+    PrintCallback _printCallback;
     lua_Alloc _allocator;
     void*     _allocator_ud;
-    std::string _last_error;
+    std::string _lastError;
     ErrorHandler *_errorHandler;
     bool _loadDefaultLibs;
   };
