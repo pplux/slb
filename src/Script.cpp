@@ -51,7 +51,7 @@ namespace SLB {
 
   Script::Script(Manager *m) : 
     _manager(m), 
-    _L(0),
+    _lua_state(0),
     _printCallback(DefaultPrintCallback),
     _allocator(&Script::allocator),
     _allocator_ud(0),
@@ -81,51 +81,51 @@ namespace SLB {
   lua_State* Script::getState()
   {
     SLB_DEBUG_CALL;
-    if (!_L)
+    if (!_lua_state)
     {
       SLB_DEBUG(10, "Open default libs = %s", _loadDefaultLibs ? " true": " false");
-      _L = lua_newstate(_allocator, _allocator_ud);
-      assert("Can not create more lua_states" && (_L != 0L));
-      if (_loadDefaultLibs) luaL_openlibs(_L);
-      _manager->registerSLB(_L);
+      _lua_state = lua_newstate(_allocator, _allocator_ud);
+      assert("Can not create more lua_states" && (_lua_state != 0L));
+      if (_loadDefaultLibs) luaL_openlibs(_lua_state);
+      _manager->registerSLB(_lua_state);
     
       // replace print method
-      lua_pushlightuserdata(_L, this);
-      lua_pushcclosure(_L,PrintHook,1);
-      lua_setglobal(_L, "print");
+      lua_pushlightuserdata(_lua_state, this);
+      lua_pushcclosure(_lua_state,PrintHook,1);
+      lua_setglobal(_lua_state, "print");
 
       //TODO: Promote that functionality to a higher interface to allow proper
       //      debugging
       //
       /* if debug_level > 0 ........ */
       #if SLB_DEBUG_LEVEL != 0
-      lua_sethook(_L, ScriptHook, LUA_MASKLINE, 0);
+      lua_sethook(_lua_state, ScriptHook, LUA_MASKLINE, 0);
       #endif
       /* end debug */
 
-      onNewState(_L);
+      onNewState(_lua_state);
     }
-    return _L;
+    return _lua_state;
   }
 
   void Script::close()
   {
     SLB_DEBUG_CALL;
-    if (_L)
+    if (_lua_state)
     {
-      onCloseState(_L);
-      lua_close(_L);
-      _L = 0;
+      onCloseState(_lua_state);
+      lua_close(_lua_state);
+      _lua_state = 0;
     }
   }
 
   void Script::callGC()
   {
     SLB_DEBUG_CALL;
-    if (_L)
+    if (_lua_state)
     {
-      onGC(_L);
-      lua_gc(_L, LUA_GCCOLLECT, 0);
+      onGC(_lua_state);
+      lua_gc(_lua_state, LUA_GCCOLLECT, 0);
     }
   }
   
@@ -133,9 +133,9 @@ namespace SLB {
   {
     SLB_DEBUG_CALL;
     size_t result  = 0;
-    if (_L)
+    if (_lua_state)
     {
-      int r = lua_gc(_L, LUA_GCCOUNT, 0);
+      int r = lua_gc(_lua_state, LUA_GCCOUNT, 0);
       result = r;
     }
     return result;
@@ -161,7 +161,7 @@ namespace SLB {
     {
       case LUA_ERRFILE:
       case LUA_ERRSYNTAX:
-        _lastError = lua_tostring(_L, -1);
+        _lastError = lua_tostring(L, -1);
         result = false;
         break;
       case LUA_ERRMEM: 
@@ -171,7 +171,7 @@ namespace SLB {
     }
 
     // otherwise...
-    if( _errorHandler->call(_L, 0, 0))
+    if( _errorHandler->call(_lua_state, 0, 0))
     {
       _lastError = lua_tostring(L,-1);
       result = false;
@@ -199,7 +199,7 @@ namespace SLB {
     code << "--" << hint << std::endl << o_code;
     bool result = true;
 
-    if(luaL_loadstring(L,code.str().c_str()) || _errorHandler->call(_L, 0, 0))
+    if(luaL_loadstring(L,code.str().c_str()) || _errorHandler->call(_lua_state, 0, 0))
     {
       const char *s = lua_tostring(L,-1);
       _lastError = lua_tostring(L,-1);

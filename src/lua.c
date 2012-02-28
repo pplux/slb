@@ -26,9 +26,13 @@
   pplux@pplux.com
 */
 
-#define MAKE_LIB  1
+#define MAKE_LIB 1
 #define LUA_LIB   1
 #define LUA_CORE  1
+
+#if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
+  #define _CRT_SECURE_NO_WARNINGS 1
+#endif
 
 #define lobject_c
 
