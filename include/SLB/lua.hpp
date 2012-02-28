@@ -32,22 +32,22 @@
 #include "Export.hpp"
 
 extern "C" {
-#ifdef SLB_EXTERNAL_LUA
+#if SLB_EXTERNAL_LUA
   #include <lua.h>
   #include <lauxlib.h>
   #include <lualib.h>
 #else
-  #if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
-    #ifndef SLB_STATIC_LIBRARY
+  #if defined(POWERUP_WINDOWS)
+    #if SLB_DYNAMIC_LIBRARY
       #define LUA_BUILD_AS_DLL
       #ifdef SLB_LIBRARY
         #define LUA_LIB
         #define LUA_CORE
       #endif
-    #endif // SLB_STATIC_LIBRARY
+    #endif // SLB_DYNAMIC_LIBRARY
   #endif // on windows...
 
-  // Local (static) lua (v 5.2.0-beta-rc3)
+  // Local (static) lua (v 5.2.0)
   #include "lua/lua.h"
   #include "lua/lauxlib.h"
   #include "lua/lualib.h"

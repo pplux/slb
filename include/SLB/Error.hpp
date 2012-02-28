@@ -104,7 +104,7 @@ namespace SLB {
   private:
     static int _slb_stackHandler(lua_State *L);
     lua_Debug _debug;
-    lua_State *_L;
+    lua_State *_lua_state;
   };
 
 

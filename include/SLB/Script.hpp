@@ -136,7 +136,7 @@ namespace SLB {
     static int PrintHook(lua_State *);
 
     Manager *_manager;
-    lua_State *_L;
+    lua_State *_lua_state;
     PrintCallback _printCallback;
     lua_Alloc _allocator;
     void*     _allocator_ud;

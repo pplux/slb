@@ -33,9 +33,9 @@
 
 namespace SLB {
 
-  LuaCallBase::LuaCallBase(lua_State *L, int index) : _L(L) { SLB_DEBUG_CALL; getFunc(index); } 
+  LuaCallBase::LuaCallBase(lua_State *L, int index) : _lua_state(L) { SLB_DEBUG_CALL; getFunc(index); } 
 
-  LuaCallBase::LuaCallBase(lua_State *L, const char *func) : _L(L) 
+  LuaCallBase::LuaCallBase(lua_State *L, const char *func) : _lua_state(L) 
   {
     SLB_DEBUG_CALL;
     lua_getglobal(L,func);
@@ -46,19 +46,19 @@ namespace SLB {
   LuaCallBase::~LuaCallBase()
   {
     SLB_DEBUG_CALL;
-    luaL_unref(_L, LUA_REGISTRYINDEX, _ref); 
+    luaL_unref(_lua_state, LUA_REGISTRYINDEX, _ref); 
   }
 
   void LuaCallBase::getFunc(int index)
   {
     SLB_DEBUG_CALL;
-    lua_pushvalue(_L,index);
-    if (lua_type(_L, -1) != LUA_TFUNCTION)
+    lua_pushvalue(_lua_state,index);
+    if (lua_type(_lua_state, -1) != LUA_TFUNCTION)
     {
       SLB_THROW(std::runtime_error( "No Lua function was found at the index you provided." ));
       SLB_CRITICAL_ERROR("No Lua function was found at the index you provided.");
     }
-    _ref = luaL_ref(_L, LUA_REGISTRYINDEX);
+    _ref = luaL_ref(_lua_state, LUA_REGISTRYINDEX);
   }
 
   int LuaCallBase::errorHandler(lua_State *L)
@@ -107,9 +107,9 @@ namespace SLB {
     //TODO: Use Manager to retreive a defaultHandler
     DefaultErrorHandler handler;
 
-    if(handler.call(_L, numArgs, numOutput))
+    if(handler.call(_lua_state, numArgs, numOutput))
     {
-      const char* msg = lua_tostring(_L, -1);
+      const char* msg = lua_tostring(_lua_state, -1);
       SLB_THROW(std::runtime_error( msg ? msg : "Unknown Error" ));
       SLB_CRITICAL_ERROR(msg ? msg : "Unknown Error" );
     }

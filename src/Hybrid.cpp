@@ -105,7 +105,7 @@ namespace SLB {
   /*--- Internal Hybrid Subclasses ----------------------------------------------*/
 
 
-  HybridBase::HybridBase() : _L(0),
+  HybridBase::HybridBase() : _lua_state(0),
     _data(0)
   {
     SLB_DEBUG_CALL;
@@ -121,7 +121,7 @@ namespace SLB {
   {
     SLB_DEBUG_CALL;
     //TODO allow reattaching...
-    if (_L != 0 && _L != L) {
+    if (_lua_state != 0 && _lua_state != L) {
       SLB_THROW(std::runtime_error("Trying to reattach an Hybrid instance"));
       SLB_CRITICAL_ERROR("Trying to reattach an Hybrid instance");
     }
@@ -129,10 +129,10 @@ namespace SLB {
     if (L)
     {
       SLB_DEBUG_CLEAN_STACK(L,0);
-      _L = L;
+      _lua_state = L;
       // create a table to store internal data
-      lua_newtable(_L);
-      _data = luaL_ref(_L, LUA_REGISTRYINDEX);
+      lua_newtable(_lua_state);
+      _data = luaL_ref(_lua_state, LUA_REGISTRYINDEX);
     }
   }
 
@@ -141,11 +141,11 @@ namespace SLB {
     SLB_DEBUG_CALL;
     clearMethodMap();
     _subclassMethods = 0;
-    if (_L && _data )
+    if (_lua_state && _data )
     {
-      luaL_unref(_L, LUA_REGISTRYINDEX, _data);
+      luaL_unref(_lua_state, LUA_REGISTRYINDEX, _data);
       _data = 0;
-      _L = 0;
+      _lua_state = 0;
     }
   }
 
@@ -164,12 +164,12 @@ namespace SLB {
   bool HybridBase::getMethod(const char *name) const
   {
     SLB_DEBUG_CALL;
-    if (_L == 0) {
+    if (_lua_state == 0) {
       SLB_THROW(std::runtime_error("Hybrid instance not attached"));
       SLB_CRITICAL_ERROR("Hybrid instance not attached")
     }
-    SLB_DEBUG_STACK(5,_L, "HybridBase(%p)::getMethod '%s' (_L = %p)", this, name, _L); 
-    int top = lua_gettop(_L);
+    SLB_DEBUG_STACK(5,_lua_state, "HybridBase(%p)::getMethod '%s' (_lua_state = %p)", this, name, _lua_state); 
+    int top = lua_gettop(_lua_state);
 
     // first try to find in _subclassMethods
     if (_subclassMethods.valid())
@@ -185,42 +185,42 @@ namespace SLB {
       // }
       // else SLB_DEBUG(5, "Hybrid subclassed instance, looking for '%s' method [FAIL!]", key);
       // ---- instead of: (even though this is quicker) but code above should work
-      lua_pushstring(_L,name); // [+1]
-      _subclassMethods->getCache(_L); // [-1, +1] will pop key's copy and return the cache 
-      if (!lua_isnil(_L,-1))
+      lua_pushstring(_lua_state,name); // [+1]
+      _subclassMethods->getCache(_lua_state); // [-1, +1] will pop key's copy and return the cache 
+      if (!lua_isnil(_lua_state,-1))
       {
-        assert("Invalid Stack" && (lua_gettop(_L) == top+1));
+        assert("Invalid Stack" && (lua_gettop(_lua_state) == top+1));
         return true;
       }
-      lua_pop(_L,1); // [-1] remove nil
-      assert("Invalid Stack" && (lua_gettop(_L) == top));
+      lua_pop(_lua_state,1); // [-1] remove nil
+      assert("Invalid Stack" && (lua_gettop(_lua_state) == top));
       //end TODO-------------------------------------------------------------------------------
     }
 
     ClassInfo *ci = getClassInfo();
-    ci->push(_L);
-    lua_getmetatable(_L,-1);
-    lua_getfield(_L,-1, "__hybrid");
-    if (!lua_isnil(_L,-1))
+    ci->push(_lua_state);
+    lua_getmetatable(_lua_state,-1);
+    lua_getfield(_lua_state,-1, "__hybrid");
+    if (!lua_isnil(_lua_state,-1))
     {
-      lua_pushstring(_L,name);
-      lua_rawget(_L,-2);
-      if (!lua_isnil(_L,-1))
+      lua_pushstring(_lua_state,name);
+      lua_rawget(_lua_state,-2);
+      if (!lua_isnil(_lua_state,-1))
       {
-        lua_replace(_L,top+1);
-        lua_settop(_L,top+1);
-        SLB_DEBUG(6, "HybridBase(%p-%s)::getMethod '%s' (_L = %p) -> FOUND",
-            this, ci->getName().c_str(),name, _L); 
-        assert("Invalid Stack" && (lua_gettop(_L) == top+1));
+        lua_replace(_lua_state,top+1);
+        lua_settop(_lua_state,top+1);
+        SLB_DEBUG(6, "HybridBase(%p-%s)::getMethod '%s' (_lua_state = %p) -> FOUND",
+            this, ci->getName().c_str(),name, _lua_state); 
+        assert("Invalid Stack" && (lua_gettop(_lua_state) == top+1));
         return true;
       }
-      else SLB_DEBUG(6, "HybridBase(%p-%s)::getMethod '%s' (_L = %p) -> *NOT* FOUND",
-        this,ci->getName().c_str(), name, _L); 
+      else SLB_DEBUG(6, "HybridBase(%p-%s)::getMethod '%s' (_lua_state = %p) -> *NOT* FOUND",
+        this,ci->getName().c_str(), name, _lua_state); 
     }
     else SLB_DEBUG(4, "HybridBase(%p-%s) do not have any hybrid methods", this, ci->getName().c_str());
 
     // anyway... if not found:
-    lua_settop(_L,top);
+    lua_settop(_lua_state,top);
     return false;
   }
   
@@ -303,8 +303,8 @@ namespace SLB {
   {
     SLB_DEBUG_CALL;
     const HybridBase *hb = get_hybrid( L, 1 );
-    if (hb->_L == 0) luaL_error(L, "Instance(%p) not attached to any lua_State...", hb);
-    if (hb->_L != L) luaL_error(L, "This instance(%p) is attached to another lua_State(%p)", hb, hb->_L);
+    if (hb->_lua_state == 0) luaL_error(L, "Instance(%p) not attached to any lua_State...", hb);
+    if (hb->_lua_state != L) luaL_error(L, "This instance(%p) is attached to another lua_State(%p)", hb, hb->_lua_state);
     
     // get the real function to call
     lua_pushvalue(L, lua_upvalueindex(1));
@@ -354,8 +354,8 @@ namespace SLB {
     // 1 - obj (table with classInfo)
     HybridBase* obj = get<HybridBase*>(L,1);
     if (obj == 0) luaL_error(L, "Invalid instance at #1");
-    if (!obj->_L) luaL_error(L, "Hybrid instance not attached or invalid method");
-    if (obj->_L != L) luaL_error(L, "Can not use that object outside its lua_state(%p)", obj->_L);
+    if (!obj->_lua_state) luaL_error(L, "Hybrid instance not attached or invalid method");
+    if (obj->_lua_state != L) luaL_error(L, "Can not use that object outside its lua_state(%p)", obj->_lua_state);
 
     // 2 - key (string) (at top)
     const char *key = lua_tostring(L,2);
@@ -389,8 +389,8 @@ namespace SLB {
     // 1 - obj (table with classInfo)
     HybridBase* obj = get<HybridBase*>(L,1);
     if (obj == 0) luaL_error(L, "Invalid instance at #1");
-    if (!obj->_L) luaL_error(L, "Hybrid instance not attached or invalid method");
-    if (obj->_L != L) luaL_error(L, "Can not use that object outside its lua_state(%p)", obj->_L);
+    if (!obj->_lua_state) luaL_error(L, "Hybrid instance not attached or invalid method");
+    if (obj->_lua_state != L) luaL_error(L, "Can not use that object outside its lua_state(%p)", obj->_lua_state);
 
     // 2 - key (string)
     // 3 - value (top)
