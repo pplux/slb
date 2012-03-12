@@ -28,8 +28,19 @@ or, if you want to manage your lua_States manually, doing it like this::
     m.registerSLB(L);
     luaL_dostring(L, "print 'hello from lua'");
 
-Binding your first class
-========================
+Binding C functions
+===================
+
+**TODO**
+
+I think it could be good to talk about C functions here, as it's possibly the
+simplest example, and it's useful on its own :)
+
+Binding C++ classes
+===================
+
+Your first class
+----------------
 
 For the purposes of this section, let's consider a simple class like this one:
 
@@ -134,5 +145,88 @@ previous example with docstrings would look like this::
             .param("the int to copy")
     ;
 
+
+Dealing with inheritance
+------------------------
+
+**TODO**
+
+- .inherits() etc, we can probably put an example without abstract classes here to
+avoid introducing policies so soon (we probably want abstract classes to be
+NoCopy like in 05_funcalls.
+
+- try to show polymorphism in the example
+
+- multiple inheritance?
+
+
+Binding static methods
+----------------------
+
+**TODO**
+
+Just elaborate a bit on the static part in 04_static_and_C example.
+
+Policies
+========
+
+Let's consider now a class like ``FirstClass`` in the previous section, but
+without a copy constructor::
+
+    class FirstClass
+    {
+    public:
+        FirstClass() : _string(), _int(0)
+        {
+            std::cout << "FirstClass constructor "<< (void*) this << std::endl;
+        }
+
+        ~FirstClass()
+        {
+            std::cout << "FirstClass destructor " << (void*) this << std::endl;
+        }
+
+        int getInt() const { return _int; }
+        const std::string& getString() const { return _string; }
+        void setInt(int i) { _int = i; }
+        void setString(const std::string &s) { _string = s; }
+
+    private:
+        std::string _string;
+        int _int;
+    };
+
+
+If we try to bind this class as in the previous example, we will find out that
+SLB tries to bind the copy constructor so that ``SLB.copy`` works. Therefore, we
+need a way to tell SLB that a class is non-copyable, which we can do passing a
+*policy* as a template argument to ``SLB::Class``, like this::
+
+
+    // same binding as before, but with a NoCopy policy
+    SLB::Class< MyClass, SLB::Instance::NoCopy >("MyClass",m)
+        .constructor<const std::string&, int>()
+        .set("getString", &MyClass::getString)
+        .set("setString", &MyClass::setString)
+        .set("getInt", &MyClass::getInt)
+        .set("setInt", &MyClass::setInt)
+    ;
+
+
+Other possible policies are briefly described in the list below. Please go to
+the reference section for a more in-depth description:
+
+``SLB::Instance::NoCopyNoDestroy``
+    Objects of the class are non-copyable. SLB doesn't call any destructors.
+
+``SLB::Instance::SmartPtr<T_sm>``
+    Typical SmartPointer based object, where  T_sm<T> can be instantiated (like
+    auto_ptr).
+
+``SLB::Instance::SmartPtrNoCopy<T_sm>``
+    SmartPointer, with disabled copy.
+
+``SLB::Instance::SmartPtrSharedCopy<T_sm>``
+    SmartPointer, but the copy is based on the copy of T_sm itself.
 
 
