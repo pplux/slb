@@ -68,4 +68,8 @@ running::
 would generate a Visual Studio 2010 solution, with the two aforementioned
 projects.
 
+After your library is compiled, just add the ``include/`` directory to your
+project's include path, and the library to your project's "libraries-to-link"
+settings.
+
 
