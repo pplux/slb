@@ -26,15 +26,82 @@ or, if you want to manage your lua_States manually, doing it like this::
     lua_State *L = luaL_newstate();
     luaL_openlibs(L);
     m.registerSLB(L);
-    luaL_dostring(L, "print 'hello from lua'");
+    luaL_dostring(L, "print 'Hello from lua!'");
+
+From now on, we will use the first, simpler, approach. Now let's turn it into a
+complete program. There is actually little more to do: just include
+``SLB/SLB.hpp`` and put the previous chunk of code somewhere useful::
+
+    #include "SLB/SLB.hpp"
+
+    int main() {
+        SLB::Manager m;
+        SLB::Script s(&m);
+        s.doString("print 'hello from lua'");
+        return 0;
+    }
+
+If you build and run this last snippet, you will see Lua greeting you on the
+standard output :). Note how ``SLB::Script::doString()`` takes a C string and
+executes it as Lua. This is the simplest way to get SLB running code. For more
+complex uses there is also ``SLB::Script::doFile()``, which takes the path of a
+Lua source file and runs it, and the "safe" variants of both ``safeDoString()``
+and ``safeDoFile()``, which are guaranteed to never throw exceptions or end your
+program.
+
 
 Binding C functions
 ===================
 
-**TODO**
+Now that we can run Lua code, it's time we get started on interaction between
+Lua and C. The simplest thing you can probably think in this regard is exposing
+a C function to Lua code, and thus it should be easy with SLB. Let's try::
 
-I think it could be good to talk about C functions here, as it's possibly the
-simplest example, and it's useful on its own :)
+    #include "SLB/SLB.hpp"
+    #include <cstdio>
+
+    void hello() {
+        printf("Hello from C!\n");
+    }
+
+    int main() {
+        SLB::Manager m;
+        SLB::Script s(&m);
+        m.set("c_hello", SLB::FuncCall::create(hello));
+        s.doString("SLB.c_hello()");
+        return 0;
+    }
+
+What we are doing here is creating a ``SLB::FuncCall`` object, which represents
+the Lua binding for a C function (in this case ``hello``), and then calling
+``SLB::Manager::set()``, which assigns the name ``c_hello`` to the newly created
+function. It's important to remember that SLB exports everything to Lua inside a
+table called SLB. That is the reason why the Lua code says ``SLB.c_hello()``
+instead of simply ``hello()``.
+
+The cool thing about ``SLB::FuncCall`` is that works whatever the signature of
+the function you are binding is, as long as you register the types of the
+parameters before. Let's see it in action with different built-in types for the
+parameters and the return value::
+
+    #include "SLB/SLB.hpp"
+    #include <cstdio>
+
+    float example(const char *message, int i) {
+        printf("message=%s\n", message);
+        return i/2.0f;
+    }
+
+    int main() {
+        SLB::Manager m;
+        SLB::Script s(&m);
+        m.set("example", SLB::FuncCall::create(example));
+        s.doString("print( SLB.example('this is a message', 9) )");
+        return 0;
+    }
+
+As you can see, it works as expected :)
+
 
 Binding C++ classes
 ===================
@@ -46,21 +113,17 @@ For the purposes of this section, let's consider a simple class like this one:
 
 .. code-block:: c++
 
-    class FirstClass
-    {
+    class FirstClass {
     public:
-        FirstClass() : _string(), _int(0)
-        {
+        FirstClass() : _string(), _int(0) {
             std::cout << "FirstClass constructor "<< (void*) this << std::endl;
         }
 
-        ~FirstClass()
-        {
+        ~FirstClass() {
             std::cout << "FirstClass destructor " << (void*) this << std::endl;
         }
 
-        FirstClass(const FirstClass &m) : _string(m._string), _int(m._int)
-        {
+        FirstClass(const FirstClass &m) : _string(m._string), _int(m._int) {
             std::cout << "FirstClass copy constructor from " << (void*) &m << " -> " << (void*) this << std::endl;
         }
 
@@ -152,8 +215,8 @@ Dealing with inheritance
 **TODO**
 
 - .inherits() etc, we can probably put an example without abstract classes here to
-avoid introducing policies so soon (we probably want abstract classes to be
-NoCopy like in 05_funcalls.
+  avoid introducing policies so soon (we probably want abstract classes to be
+  NoCopy like in 05_funcalls.
 
 - try to show polymorphism in the example
 
@@ -168,21 +231,18 @@ Binding static methods
 Just elaborate a bit on the static part in 04_static_and_C example.
 
 Policies
-========
+--------
 
 Let's consider now a class like ``FirstClass`` in the previous section, but
 without a copy constructor::
 
-    class FirstClass
-    {
+    class FirstClass {
     public:
-        FirstClass() : _string(), _int(0)
-        {
+        FirstClass() : _string(), _int(0) {
             std::cout << "FirstClass constructor "<< (void*) this << std::endl;
         }
 
-        ~FirstClass()
-        {
+        ~FirstClass() {
             std::cout << "FirstClass destructor " << (void*) this << std::endl;
         }
 
@@ -228,5 +288,17 @@ the reference section for a more in-depth description:
 
 ``SLB::Instance::SmartPtrSharedCopy<T_sm>``
     SmartPointer, but the copy is based on the copy of T_sm itself.
+
+
+Calling Lua from C++
+====================
+
+
+
+Manipulating Lua Variables
+==========================
+
+
+
 
 
