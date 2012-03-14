@@ -109,6 +109,12 @@ Binding C++ classes
 Your first class
 ----------------
 
+So, we have seen how to run simple C functions from Lua, but if you are using
+SLB, which is a C++ library, chances are you have many classes in your project,
+and you want to access some of them from Lua. SLB provides facilities to expose
+your classes to Lua so you can create objects, copy them, call their methods,
+and pass them from C to Lua and back.
+
 For the purposes of this section, let's consider a simple class like this one:
 
 .. code-block:: c++
@@ -185,9 +191,18 @@ After the class has been bound, it can be instanced and used in Lua code:
     print('c3',c3:getString())
     
 
-Some interesting things to note about this snippet: the use of
-``SLB.using(SLB)`` to avoid qualifying each appearance of ``FirstClass`` and the
-use of ``SLB.copy()`` to invoke the copy constructor of the C++ class.
+Some interesting things to note about this snippet:
+
+* C++ objects are created by means of a function with the same name as our
+  class (in this case ``FirstClass``, which wraps the C++ constructor.
+
+* Methods from our C++ class are called using the usual colon notation 
+  ``object:method()`` for Lua objects.
+
+* ``SLB.using(SLB)`` can be used to avoid qualifying each appearance of
+  ``FirstClass``.
+
+* ``SLB.copy()`` is used to invoke the copy constructor of a class.
 
 You can also add documentation strings for the class, for each method, and for
 each parameter of each method using ``.comment()`` and ``.param()``. The
@@ -208,6 +223,8 @@ previous example with docstrings would look like this::
             .param("the int to copy")
     ;
 
+
+**TODO**: What can we do with documentation strings?
 
 Dealing with inheritance
 ------------------------
