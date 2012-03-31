@@ -36,13 +36,11 @@ namespace SLB {
   
   /* S -> Requires to have a method "getState" and "close" */
   template<class T, class S = SLB::Script>
-  class StatefulHybrid :
-    public S, public Hybrid< T >
+  class StatefulHybrid : public S, public Hybrid< T >
   {  
   public:
-    StatefulHybrid(Manager *m = Manager::defaultManager(), bool loadDefaultLibs = true) :
-      S(m,loadDefaultLibs),
-      Hybrid<T>(m)
+    StatefulHybrid(Manager *m = Manager::defaultManager()) :
+      S(m), Hybrid<T>(m)
     {
     }
     virtual ~StatefulHybrid() { S::close(); }
