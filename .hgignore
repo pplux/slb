@@ -2,5 +2,7 @@
 ^.*.swp
 ^.DS_*
 ^src/include
+^doc/_build
+^extra/output
 .orig$
 relre:~$

@@ -154,7 +154,7 @@ namespace SLB {
     SLB_DEBUG_CALL;
     lua_State *L = getState();
     int top = lua_gettop(L);
-    SLB_DEBUG(10, "filename %s = ", filename.c_str());
+    SLB_DEBUG(10, "filename %s = ", filename);
     bool result = true;
 
     switch(luaL_loadfile(L,filename))

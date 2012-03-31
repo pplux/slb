@@ -5,10 +5,33 @@
 config = {
     location = "build/",
     target = "build/bin/",
-    debug_level = 0,
+    debug_level = 100,
 }
 
 if _ACTION == "test" then
+    print("RUNNING TESTS...........")
+    local count, failed = 0,0
+    for k,v in pairs(os.matchfiles("tests/scripts/*.lua")) do
+        count = count +1
+        print("\n")
+        print("_______________________________________________________________")
+        print("***************************************************************")
+        print("** Running Test: ("..k..")",v)
+        print("***************************************************************")
+        if os.execute("build/bin/SLB-test "..v) ~= 0 then 
+            print("***************************************************************")
+            print("** FAIL:", v)
+            print("***************************************************************")
+            print("_______________________________________________________________")
+            failed = failed +1
+        else
+            print("***************************************************************")
+            print("** OK:", v)
+            print("***************************************************************")
+            print("_______________________________________________________________")
+        end 
+    end
+    print("RESULTS: total tests:",count," failed: ", failed)
     os.exit(0)
 end
 
@@ -20,7 +43,6 @@ solution "SLB"
     targetdir(config.target)
     configuration "Debug"
         flags { "Symbols" }
-        defines { "SLB_DEBUGL_LEVEL="..config.debug_level }
     configuration "Release"
         flags { "Optimize" }
 
@@ -38,6 +60,21 @@ project "SLB-dynamic"
     kind "SharedLib" 
     files { "src/*.c*" , "include/SLB/*.hpp" }
 
+project "SLB-static-verbose"
+    targetname("SLB")
+    targetdir(config.target.."static/")
+    defines { "SLB_LIBRARY", "SLB_DYNAMIC_LIBRARY=0" }
+    kind "StaticLib" 
+    defines { "SLB_DEBUG_LEVEL="..config.debug_level }
+    files { "src/*.c*" , "include/SLB/*.hpp" }
+
+
+project "SLB-test"
+    kind "ConsoleApp"
+    files { "tests/src/*.cpp", "tests/src/*.h" }
+    defines { "SLB_DEBUG_LEVEL="..config.debug_level }
+    links "SLB-static-verbose"
+
 -- examples
 do
     for _, example in pairs(os.matchdirs("examples/*")) do
@@ -47,6 +84,7 @@ do
         links "SLB-static"
     end
 end
+
 
 
 
