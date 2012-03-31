@@ -48,8 +48,10 @@ strip_hpp() {
 rm -rf output
 mkdir  output
 cp -R ../include/SLB/lua output
-cp License.txt output/SLB.cpp
-cp License.txt output/SLB.hpp
+echo "//$(hg log -l 1 |head -n1)" > output/SLB.cpp
+echo "//$(hg log -l 1 |head -n1)" > output/SLB.hpp
+cat License.txt >>output/SLB.cpp
+cat License.txt >>output/SLB.hpp
 echo '#include "SLB.hpp"' >> output/SLB.cpp
 strip_cpp output/SLB.cpp ../src/*.cpp
 strip_hpp output/SLB.hpp \
