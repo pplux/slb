@@ -175,10 +175,9 @@ namespace SLB {
   {
     SLB_DEBUG_CALL;
     SLB_DEBUG_STACK(10,L,"Table::__index (%p)",this);
-    int result = -1;
+    int result = 0;
     
-    if (_cacheable)
-    {
+    { // Always tries to look in the cache first
       lua_pushvalue(L,2);
       lua_rawget(L, cacheTableIndex());
       if (lua_isnil(L,-1)) lua_pop(L,1); // remove nil
@@ -189,7 +188,7 @@ namespace SLB {
       }
     }
 
-    if (result < 0)
+    if (result == 0)
     {
       if (lua_type(L, 2) == LUA_TSTRING)
       {
