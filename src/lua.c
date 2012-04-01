@@ -61,25 +61,7 @@
 #include "lua/lauxlib.h"
 #include "lua/lctype.h"
 
-/* auxiliary library -- used by all */
 
-#undef LUA_LIB
-#include "lua/lauxlib.c"
-
-/* standard library  -- not used by luac */
-#ifndef MAKE_LUAC
-#include "lua/lbaselib.c"
-#include "lua/lbitlib.c"
-#include "lua/lcorolib.c"
-#include "lua/ldblib.c"
-#include "lua/liolib.c"
-#include "lua/lmathlib.c"
-#include "lua/loadlib.c"
-#include "lua/loslib.c"
-#include "lua/lstrlib.c"
-#include "lua/ltablib.c"
-#include "lua/linit.c"
-#endif
 
 /* core -- used by all */
 #undef LUA_CORE
@@ -119,3 +101,21 @@
 #include "lua/ltable.c"
 //---------------------------------------------------------------------------
 
+/* auxiliary library -- used by all */
+#undef LUA_LIB
+#include "lua/lauxlib.c"
+
+/* standard library  -- not used by luac */
+#ifndef MAKE_LUAC
+#include "lua/lbaselib.c"
+#include "lua/lbitlib.c"
+#include "lua/lcorolib.c"
+#include "lua/ldblib.c"
+#include "lua/liolib.c"
+#include "lua/lmathlib.c"
+#include "lua/loadlib.c"
+#include "lua/loslib.c"
+#include "lua/lstrlib.c"
+#include "lua/ltablib.c"
+#include "lua/linit.c"
+#endif

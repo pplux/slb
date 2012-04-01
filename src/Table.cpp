@@ -254,8 +254,8 @@ namespace SLB {
   {
     SLB_DEBUG_CALL;
     SLB_DEBUG_STACK(10,L,"Table::__eq (%p)",this);
-    lua_pushboolean(L, false);
-    return 1;
+    luaL_error(L, "__eq metamethod called but no implementation was given");
+    return 0;
   }
 
   void Table::pushImplementation(lua_State *L)

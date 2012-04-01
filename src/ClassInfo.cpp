@@ -114,6 +114,14 @@ namespace SLB {
     Table::pushImplementation(L);
     lua_getmetatable(L, -1);
     
+    // To a void GC collect the ClassInfo we need to make
+    // a reference back to it's metatable. Objects will only use
+    // the METATABLe and not this TABLE... but the metatable its
+    // linked to this table...
+    lua_pushstring(L,"__back_reference");
+    lua_pushvalue(L,-3);
+    lua_rawset(L,-3);
+
     /*
     lua_pushstring(L, "__objects");
     lua_newtable(L);
