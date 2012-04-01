@@ -1,6 +1,6 @@
 SLB.using(SLB.Unit_006)
 
-
+collectgarbage()
 t = Test()
 print("---------------------------------------")
 print("---------------------------------------")
@@ -10,6 +10,7 @@ print("---------------------------------------")
 print("---------------------------------------")
 print("---------------------------------------")
 print("---------------------------------------")
+collectgarbage()
 if not t:equal(Test.Enum.A) then error("Invalid initialization") end
 if not t:isA() then error("invalid initialization(2)") end
 
@@ -48,7 +49,19 @@ collectgarbage()
 -- comparisons in lua
 if Test.Enum.C ~= Test.Enum.C then error("Invalid Test.Enum.C == Test.Enum.C") end
 if Test.Enum.A == Test.Enum.C then error("Invalid Test.Enum.C == Test.Enum.C") end
-if Test.Enum.A ~= t:create(0) then error("Invalid Test.Enum.A == Test.create(0) <- returns A") end
+-- BUG? -----
+local kk = Test.Enum.A
+probe("show_all_classes")
+local res = t:create(0)
+print("CHECK-----")
+print(Test.Enum.A)
+print("-----------")
+print(res)
+print("-----------")
+if res ~= Test.Enum.A then
+    error("Invalid Test.Enum.A == Test.create(0) <- returns A")
+end
+------------------------
 if Test.Enum.B ~= t:create(1) then error("Invalid Test.Enum.B == Test.create(1) <- returns B") end
 if Test.Enum.C ~= t:create(2) then error("Invalid Test.Enum.C == Test.create(2) <- returns C") end
 

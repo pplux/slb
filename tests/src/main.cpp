@@ -32,12 +32,40 @@
 #include <valgrind/memcheck.h>
 #endif
 
+struct TestScript : public SLB::Script {
+  virtual void onNewState(lua_State *L) {
+    lua_register(L, "probe", TestScript::script_probe);
+  }
+
+  static int script_probe(lua_State *L)
+  {
+    const char *arg = lua_tostring(L,1);
+
+    if (strcmp(arg, "show_all_classes") == 0) {
+      std::cout << "SHOW ALL CLASSES" << std::endl;
+      const SLB::Manager *m = SLB::Manager::getInstance(L);
+      const SLB::Manager::ClassMap *map = m->getClasses();
+      for(SLB::Manager::ClassMap::const_iterator i = map->begin(); i != map->end(); ++i) 
+      {
+        std::cout << "Class TIW=|" << i->first.name() << "|" << std::endl;
+        std::cout << "\t realname |" << i->second->getName() <<"|"<< std::endl;
+      }
+      return 0;
+    }
+
+    luaL_error(L, "Invalid call to probe, valid arguments are"
+      "\n\tshow_all_classes"
+      );
+    return 0;
+  }
+};
+
 int main(int argc, char **argv)
 {
 	int result = 0;
 	SLB_DEBUG_CALL;
 	SLB_DEBUG(0, "Start test...");
-	SLB::Script *s = new SLB::Script();
+	TestScript *s = new TestScript();
 	SLB_DEBUG(0, "Open SLB...");
   SLB_DEBUG(0, "Loading script...");
 #if SLB_USE_EXCEPTIONS

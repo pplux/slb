@@ -102,6 +102,10 @@ namespace SLB {
     const void* convert( const TypeInfoWrapper &C1, const TypeInfoWrapper &C2, const void *obj);
 
     Namespace* getGlobals() { return _global.get(); }
+
+    /** Returns the classMap with all defined classes */
+    const ClassMap* getClasses() const { return &_classes; }
+
   protected:
 
     void rename(ClassInfo *c, const String &new_name);
