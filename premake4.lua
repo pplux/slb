@@ -5,7 +5,7 @@
 config = {
     location = "build/",
     target = "build/bin/",
-    debug_level = 100,
+    debug_level = 5,
 }
 
 if _ACTION == "test" then
