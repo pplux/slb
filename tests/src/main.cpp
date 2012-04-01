@@ -56,7 +56,10 @@ int main(int argc, char **argv)
 #else
   if (argc == 2)
 	{
-		s->doFile(argv[1]);
+    if(!s->safeDoFile(argv[1])) {
+      std::cerr << "ERROR:" << s->getLastError() << std::endl;
+      result = 1;
+    }
 	}
 #endif
 
