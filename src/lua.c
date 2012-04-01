@@ -77,7 +77,21 @@
 #include "lua/lparser.c"
 #include "lua/lstate.c"
 #include "lua/lstring.c"
+
+//---------------------------------------------------------------------------
+// Simulate limits.h for ltable:
+//   - See llimits.h (line 272)
+#include <float.h>
+#include <math.h>
+#define luai_hashnum(i,n) { int e;  \
+  n = frexp(n, &e) * (lua_Number)(INT_MAX - DBL_MAX_EXP);  \
+  lua_number2int(i, n); i += e; }
+
 #include "lua/ltable.c"
+#undef luai_hashnum
+//---------------------------------------------------------------------------
+
+
 #include "lua/ltm.c"
 #include "lua/lundump.c"
 #include "lua/lctype.c"

@@ -33,7 +33,16 @@
 
 namespace SLB {
 
-  Table::Table(const String &sep, bool c) : _cacheable(c), _separator(sep) {SLB_DEBUG_CALL;}
+  
+  // BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG
+  //------------->8------------------->8------------------>8--------------
+  // BUG: cacheable Tables doesn't work, this is a temporal fix:
+  //
+  Table::Table(const String &sep, bool c) : _cacheable(false), _separator(sep) {SLB_DEBUG_CALL;}
+  //Table::Table(const String &sep, bool c) : _cacheable(c), _separator(sep) {SLB_DEBUG_CALL;}
+  //----------8<-----------------8<---------------------8<----------------
+  // BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG
+
   Table::~Table() {SLB_DEBUG_CALL;}
     
   Object* Table::rawGet(const String &name)
@@ -175,8 +184,7 @@ namespace SLB {
       if (lua_isnil(L,-1)) lua_pop(L,1); // remove nil
       else
       {
-        //TODO tostring modifies the object, use a ifdef endif block here
-        SLB_DEBUG(10, "Access Table(%p) [%s] (In CACHE)", this, lua_tostring(L,2));
+        SLB_DEBUG(10, "Access Table(%p) (In CACHE)", this);
         result = 1; // we found it
       }
     }

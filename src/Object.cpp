@@ -154,10 +154,12 @@ namespace SLB {
   int Object::GC_callback(lua_State *L)
   {
     SLB_DEBUG_CALL;
-    Object *obj = *reinterpret_cast<Object**>(lua_touserdata(L, 1));
+    Object **ptr_obj = reinterpret_cast<Object**>(lua_touserdata(L, 1));
+    Object *obj = *ptr_obj;
     SLB_DEBUG(2, "(L %p) GC object %p (refcount %d - 1) [%s]", L, obj, obj->referenceCount(), typeid(*obj).name());
     obj->onGarbageCollection(L);
     obj->unref(); // manual unref
+    *ptr_obj = 0L;
     return 0;
   }
 
