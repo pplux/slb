@@ -38,7 +38,7 @@ namespace SLB {
   //------------->8------------------->8------------------>8--------------
   // BUG: cacheable Tables doesn't work, this is a temporal fix:
   //
-  Table::Table(const String &sep, bool c) : _cacheable(false), _separator(sep) {SLB_DEBUG_CALL;}
+  Table::Table(const String &sep, bool c) : _cacheable(true), _separator(sep) {SLB_DEBUG_CALL;}
   //Table::Table(const String &sep, bool c) : _cacheable(c), _separator(sep) {SLB_DEBUG_CALL;}
   //----------8<-----------------8<---------------------8<----------------
   // BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG BUG
@@ -175,7 +175,7 @@ namespace SLB {
   {
     SLB_DEBUG_CALL;
     SLB_DEBUG_STACK(10,L,"Table::__index (%p)",this);
-    int result = 0;
+    int result = -1;
     
     { // Always tries to look in the cache first
       lua_pushvalue(L,2);
@@ -188,7 +188,7 @@ namespace SLB {
       }
     }
 
-    if (result == 0)
+    if (result < 0)
     {
       if (lua_type(L, 2) == LUA_TSTRING)
       {
@@ -305,9 +305,11 @@ namespace SLB {
       SLB_DEBUG(9, "Nothing found....");
       /* TODO Change the result behaviour, resturn 0 when nothing is found
        * and quit using result = -1 */
-      result = 0;
+      lua_pushnil(L);
+      result = 1;
     }
     SLB_DEBUG(9, "<--- __index result = %d", result);
+    assert(result == 1 && "Result must be 1 when it gets here");
     return result;
   }
 

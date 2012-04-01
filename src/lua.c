@@ -61,43 +61,6 @@
 #include "lua/lauxlib.h"
 #include "lua/lctype.h"
 
-/* core -- used by all */
-#undef LUA_CORE
-#include "lua/lapi.c"
-#include "lua/lcode.c"
-#include "lua/ldebug.c"
-#include "lua/ldo.c"
-#include "lua/ldump.c"
-#include "lua/lfunc.c"
-#include "lua/lgc.c"
-#include "lua/llex.c"
-#include "lua/lmem.c"
-#include "lua/lobject.c"
-#include "lua/lopcodes.c"
-#include "lua/lparser.c"
-#include "lua/lstate.c"
-#include "lua/lstring.c"
-
-//---------------------------------------------------------------------------
-// Simulate limits.h for ltable:
-//   - See llimits.h (line 272)
-#include <float.h>
-#include <math.h>
-#define luai_hashnum(i,n) { int e;  \
-  n = frexp(n, &e) * (lua_Number)(INT_MAX - DBL_MAX_EXP);  \
-  lua_number2int(i, n); i += e; }
-
-#include "lua/ltable.c"
-#undef luai_hashnum
-//---------------------------------------------------------------------------
-
-
-#include "lua/ltm.c"
-#include "lua/lundump.c"
-#include "lua/lctype.c"
-#include "lua/lvm.c"
-#include "lua/lzio.c"
-
 /* auxiliary library -- used by all */
 
 #undef LUA_LIB
@@ -117,3 +80,42 @@
 #include "lua/ltablib.c"
 #include "lua/linit.c"
 #endif
+
+/* core -- used by all */
+#undef LUA_CORE
+#include "lua/lapi.c"
+#include "lua/lcode.c"
+#include "lua/ldebug.c"
+#include "lua/ldo.c"
+#include "lua/ldump.c"
+#include "lua/lfunc.c"
+#include "lua/lgc.c"
+#include "lua/llex.c"
+#include "lua/lmem.c"
+#include "lua/lobject.c"
+#include "lua/lopcodes.c"
+#include "lua/lparser.c"
+#include "lua/lstate.c"
+#include "lua/lstring.c"
+
+
+#include "lua/ltm.c"
+#include "lua/lundump.c"
+#include "lua/lctype.c"
+#include "lua/lvm.c"
+#include "lua/lzio.c"
+
+//---------------------------------------------------------------------------
+// Simulate limits.h for ltable:
+//   - See llimits.h (line 272)
+#ifndef luai_hashnum
+  #include <float.h>
+  #include <math.h>
+  #define luai_hashnum(i,n) { int e;  \
+    n = frexp(n, &e) * (lua_Number)(INT_MAX - DBL_MAX_EXP);  \
+    lua_number2int(i, n); i += e; }
+#endif
+
+#include "lua/ltable.c"
+//---------------------------------------------------------------------------
+
