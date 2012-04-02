@@ -277,6 +277,7 @@ namespace Private {
   template<>
   struct Type<short>
   {
+    typedef short GetType;
     static void push(lua_State *L, short v)
     {
       SLB_DEBUG_CALL; 
@@ -299,6 +300,8 @@ namespace Private {
   template<>
   struct Type<unsigned short>
   {
+    typedef unsigned short GetType;
+
     static void push(lua_State *L, unsigned short v)
     {
       SLB_DEBUG_CALL; 
