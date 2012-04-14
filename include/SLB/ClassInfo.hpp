@@ -64,7 +64,7 @@ namespace SLB {
     void setName(const String&);
 
     void push_ref(lua_State *L, void *ref);
-    void push_ptr(lua_State *L, void *ptr, bool fromConstructor = false);
+    void push_ptr(lua_State *L, void *ptr);
     void push_const_ptr(lua_State *L, const void *const_ptr);
     void push_copy(lua_State *L, const void *ptr);
     void* get_ptr(lua_State*, int pos) const;

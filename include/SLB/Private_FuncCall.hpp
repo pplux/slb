@@ -53,8 +53,8 @@ namespace Private {
   template<class C, class T>
   class FC_ConstMethod; //> FuncCall to call Class const methods
 
-  template<class> 
-  class FC_ClassConstructor;
+  template<class C>
+  struct FC_DefaultClassConstructor; //> FuncCall to create constructors
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -193,17 +193,17 @@ namespace Private {
 
   #define SLB_REPEAT(N) \
     template<class C SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-    struct FC_ClassConstructor<C(SPP_ENUM_D(N,T))> : public FuncCall\
+    struct FC_DefaultClassConstructor<C(SPP_ENUM_D(N,T))> : public FuncCall\
     {\
     public:\
-      FC_ClassConstructor() {} \
+      FC_DefaultClassConstructor() {} \
     protected: \
       int call(lua_State *L) \
       { \
         ClassInfo *c = Manager::getInstance(L)->getClass(_TIW(C)); \
         if (c == 0) luaL_error(L, "Class %s is not avaliable! ", _TIW(C).name()); \
         SLB_GET(N, 0); \
-        Private::Type<C*>::push(L, new (Malloc(sizeof(C))) C(SPP_ENUM_D(N,param_)) , true ); \
+        Private::Type<C*>::push(L, new (Malloc(sizeof(C))) C(SPP_ENUM_D(N,param_))); \
         return 1; \
       } \
     }; \
@@ -213,16 +213,16 @@ namespace Private {
 
   // For C() like constructors (empty constructors)
   template<class C>
-  struct FC_ClassConstructor<C()> : public FuncCall
+  struct FC_DefaultClassConstructor<C()> : public FuncCall
   {
   public:
-    FC_ClassConstructor() {}
+    FC_DefaultClassConstructor() {}
   protected:
     int call(lua_State *L)
     {
       ClassInfo *c = Manager::getInstance(L)->getClass(_TIW(C));
       if (c == 0) luaL_error(L, "Class %s is not avaliable! ", _TIW(C).name());
-      Private::Type<C*>::push(L, new (Malloc(sizeof(C))) C , true );
+      Private::Type<C*>::push(L, new (Malloc(sizeof(C))) C);
       return 1;
     }
   };

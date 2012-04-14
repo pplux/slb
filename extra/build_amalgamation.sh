@@ -88,7 +88,7 @@ strip_hpp output/SLB.hpp \
   ../include/SLB/StatefulHybrid.hpp\
 
 # prepare lua file
-echo -e '#define LUA_CORE\n#define luaall_c\n#include "lua/luaconf.h"\n' > output/lua.c
+#echo -e '#define LUA_CORE\n#define luaall_c\n#include "lua/luaconf.h"\n' > output/lua.c
 awk '/^#include *"..*"/ {
 	    name =substr($2,2,length($2)-2);
       system("cat ../src/" name);

@@ -70,7 +70,7 @@ namespace SLB
     \
       /* FunCall Class constructors  */ \
       template<class C SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-      static FuncCall* classConstructor(); \
+      static FuncCall* defaultClassConstructor(); \
 
     SPP_MAIN_REPEAT_Z(MAX,SLB_REPEAT)
     #undef SLB_REPEAT

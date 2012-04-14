@@ -7,7 +7,7 @@
 //           called Implementation that inhertis from SLB::InstanceBase
 //    - adjust the _flags properly:
 //			I_Invalid   = Invalid object, the default state. Also is equal to 0x00
-//			I_Copy      = The Current object comes from a "copy" of a given object. It can also indicate
+//			I_MustFreeMem      = The Current object comes from a "copy" of a given object. It can also indicate
 //		                  that the object is attached to the lua_state, so when the lua collects the object
 //                        the memory should be freed.
 //			I_Reference = The object passed was a reference.
@@ -21,12 +21,8 @@ struct CustomPolicy {
 	{
 	public:
 		// constructor from a pointer 
-		// @fromConstructor is true if this instance was created inside the scripting language calling a 
-		//    class constructor method. If this instance was returned by a function, thus was not 
-		//    created inside the script then @fromConstructor = false.
-		Implementation(SLB::ClassInfo *ci, T* ptr, bool fromConstructor = false ) : InstanceBase( I_Pointer, ci ), _ptr(ptr)
+		Implementation(SLB::ClassInfo *ci, T* ptr) : InstanceBase( I_Pointer, ci ), _ptr(ptr)
 		{
-			if (fromConstructor) _flags |= I_Copy;
 		}
 		// constructor from const pointer
 		Implementation(SLB::ClassInfo *ci, const T *ptr ) : InstanceBase( I_Const_Pointer, ci), _const_ptr(ptr)
@@ -39,12 +35,12 @@ struct CustomPolicy {
 		}
 
 		// copy constructor,  
-		Implementation(SLB::ClassInfo *ci, const T &ref) : InstanceBase( I_Copy, ci ), _ptr( 0L )
+		Implementation(SLB::ClassInfo *ci, const T &ref) : InstanceBase( I_MustFreeMem, ci ), _ptr( 0L )
 		{
 			_ptr = new T( ref );
 		}
 
-		virtual ~Implementation() { if (isCopy()) delete _ptr; }
+		virtual ~Implementation() { if (mustFreeMem()) delete _ptr; }
 
 		void* get_ptr() { return (isConst())? 0L : _ptr; }
 		const void* get_const_ptr() { return _const_ptr; }

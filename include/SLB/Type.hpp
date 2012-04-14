@@ -85,13 +85,12 @@ namespace Private {
       return c;
     }
 
-    static void push(lua_State *L, T *obj, bool fromConstructor = false)
+    static void push(lua_State *L, T *obj)
     {
       SLB_DEBUG_CALL; 
-      SLB_DEBUG(10,"push '%s' of %p (from constructor=%s)",
+      SLB_DEBUG(10,"push '%s' of %p",
           _TIW(T).name(),
-          obj,
-          fromConstructor? "true" : "false" );
+          obj);
 
       if (obj == 0)
       {
@@ -125,9 +124,7 @@ namespace Private {
         }
       }*/
       // use this class...  
-      getClass(L)->push_ptr(L, (void*) obj, fromConstructor);
-
-
+      getClass(L)->push_ptr(L, (void*) obj);
     }
 
     static T* get(lua_State *L, int pos)
