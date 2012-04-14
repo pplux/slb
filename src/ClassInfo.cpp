@@ -466,16 +466,21 @@ namespace SLB {
       lua_replace(L, 1); // remove ClassInfo table
       lua_call(L, lua_gettop(L)-1 , LUA_MULTRET);
 
-      // if is Hybrid and we just have build a new Instance
-      if (_isHybrid && !lua_isnil(L,-1))
-      {
-        int top = lua_gettop(L);
-        //suppose that this state will hold the Object..
-        HybridBase *hb = SLB::get<HybridBase*>(L,top);
-        if (!hb) assert("Invalid push of hybrid object" && false);
-        if (!hb->isAttached()) hb->attach(L);
-        // check... just in case
-        assert("Invalid lua stack..." && (top == lua_gettop(L)));
+      // Mark the last instance as MustFreeMem..
+      InstanceBase* instance_base = getInstance(L, -1);
+      if (instance_base) {
+        instance_base->setMustFreeMemFlag();
+        // if is Hybrid and we just have build a new Instance
+        if (_isHybrid)
+        {
+          int top = lua_gettop(L);
+          //suppose that this state will hold the Object..
+          HybridBase *hb = SLB::get<HybridBase*>(L,top);
+          if (!hb) assert("Invalid push of hybrid object" && false);
+          if (!hb->isAttached()) hb->attach(L);
+          // check... just in case
+          assert("Invalid lua stack..." && (top == lua_gettop(L)));
+        }
       }
 
       return lua_gettop(L);
