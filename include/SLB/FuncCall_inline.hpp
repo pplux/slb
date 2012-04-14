@@ -68,9 +68,9 @@ namespace SLB {
   } \
   \
   template<class C SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
-  inline FuncCall* FuncCall::classConstructor() \
+  inline FuncCall* FuncCall::defaultClassConstructor() \
   { \
-    typedef Private::FC_ClassConstructor<C(SPP_ENUM_D(N,T))> _type_;\
+    typedef Private::FC_DefaultClassConstructor<C(SPP_ENUM_D(N,T))> _type_;\
     return new (Malloc(sizeof(_type_))) _type_; \
   } \
   

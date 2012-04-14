@@ -45,11 +45,22 @@ namespace SLB {
   public:
     enum Type
     {
-      I_Invalid   = 0x00,
-      I_Copy      = 0x01,
-      I_Reference = 0x02,
-      I_Pointer   = 0x04,
-      I_Const_Pointer   = 0x08,
+      I_Invalid    = 0,
+      I_UserFlag_0 = 1<<0,
+      I_UserFlag_1 = 1<<1,
+      I_UserFlag_2 = 1<<2,
+      I_UserFlag_3 = 1<<3,
+      I_UserFlag_4 = 1<<4,
+      I_UserFlag_5 = 1<<5,
+      I_UserFlag_6 = 1<<6,
+      I_UserFlag_7 = 1<<7,
+      //-----------------------
+      I_UserMask   = 0xFF,
+      //-----------------------
+      I_MustFreeMem   = 1<<17,
+      I_Reference     = 1<<18,
+      I_Pointer       = 1<<19,
+      I_Const_Pointer = 1<<20,
     };
 
     // functions to override:
@@ -62,14 +73,23 @@ namespace SLB {
 
     ClassInfo *getClass() { return _class.get(); }
 
-    bool isCopy()  const     { return _flags & I_Copy; }
+    size_t getFlags() const { return _flags; }
+    size_t getUserFlags() const { return _flags & I_UserMask; }
+    void addUserFlags(size_t flags) { _flags = _flags | (flags & I_UserMask); }
+    void setUSerFlags(size_t flags) { _flags = (flags & I_UserMask); }
+
+    bool mustFreeMem() const { return (_flags & I_MustFreeMem) != 0; }
     bool isConst() const     { return (_flags & I_Const_Pointer) != 0; }
     bool isPointer() const   { return (_flags & I_Pointer) || (_flags & I_Const_Pointer); }
     bool isReference() const { return (_flags & I_Reference) != 0; }
     virtual ~InstanceBase();
 
+    // This is called if the memory comes from a constructor inside the script
+    // You probably would never need to call this manually
+    void setMustFreeMemFlag() { _flags = _flags | I_MustFreeMem; }
+
   protected:
-    int _flags;
+    size_t _flags;
     ref_ptr<ClassInfo> _class;
   };
 
@@ -81,12 +101,8 @@ namespace SLB {
       {
       public:
         // constructor from a pointer 
-        // @fromConstructor is true if this instance was created inside the scripting language calling a 
-        //    class constructor method. If this instance was returned by a function, thus was not 
-        //    created inside the script then @fromConstructor = false.
-        Implementation(ClassInfo *ci, T* ptr, bool fromConstructor = false ) : InstanceBase( I_Pointer,ci ), _ptr(ptr)
+        Implementation(ClassInfo *ci, T* ptr) : InstanceBase( I_Pointer,ci ), _ptr(ptr)
         {
-          if (fromConstructor) _flags |= I_Copy;
         }
         // constructor from const pointer
         Implementation(ClassInfo *ci, const T *ptr ) : InstanceBase( I_Const_Pointer, ci), _const_ptr(ptr)
@@ -99,12 +115,12 @@ namespace SLB {
         }
 
         // copy constructor,  
-        Implementation(ClassInfo *ci, const T &ref) : InstanceBase( I_Copy, ci ), _ptr( 0L )
+        Implementation(ClassInfo *ci, const T &ref) : InstanceBase( I_MustFreeMem, ci ), _ptr( 0L )
         {
           _ptr = new (Malloc(sizeof(T))) T(ref);
         }
 
-        virtual ~Implementation() { if (isCopy()) Free_T(&_ptr); }
+        virtual ~Implementation() { if (mustFreeMem()) Free_T(&_ptr); }
 
         void* get_ptr() { return (isConst())? 0L : _ptr; }
         const void* get_const_ptr() { return _const_ptr; }
@@ -124,9 +140,8 @@ namespace SLB {
       class Implementation : public virtual InstanceBase
       {
       public:
-        Implementation(ClassInfo *ci, T* ptr, bool fromConstructor = false ) : InstanceBase( I_Pointer, ci ), _ptr(ptr)
+        Implementation(ClassInfo *ci, T* ptr) : InstanceBase( I_Pointer, ci ), _ptr(ptr)
         {
-          if (fromConstructor) _flags |= I_Copy;
         }
         // constructor from const pointer
         Implementation(ClassInfo *ci, const T *ptr ) : InstanceBase( I_Const_Pointer, ci), _const_ptr(ptr)
@@ -143,7 +158,7 @@ namespace SLB {
         {
         }
 
-        virtual ~Implementation() { if (isCopy()) Free_T(&_ptr); }
+        virtual ~Implementation() { if (mustFreeMem()) Free_T(&_ptr); }
 
         void* get_ptr() { return (isConst())? 0L : _ptr; }
         const void* get_const_ptr() { return _const_ptr; }
@@ -163,13 +178,8 @@ namespace SLB {
       {
       public:
         // constructor form a pointer 
-        Implementation(ClassInfo *ci, T* ptr, bool fromConstructor) : InstanceBase( I_Pointer, ci ), _ptr(ptr)
+        Implementation(ClassInfo *ci, T* ptr) : InstanceBase( I_Pointer, ci ), _ptr(ptr)
         {
-          if (fromConstructor)
-          {
-            _flags = I_Invalid;
-            _ptr = 0;
-          }
         }
         // constructor from const pointer
         Implementation(ClassInfo *ci, const T *ptr ) : InstanceBase( I_Const_Pointer, ci), _const_ptr(ptr)
@@ -206,7 +216,7 @@ namespace SLB {
       class Implementation : public virtual InstanceBase
       {
       public:
-        Implementation(ClassInfo *ci, T* ptr, bool) : InstanceBase( I_Pointer, ci ), _sm_ptr(ptr)
+        Implementation(ClassInfo *ci, T* ptr) : InstanceBase( I_Pointer, ci ), _sm_ptr(ptr)
         {
           _const_ptr = &(*_sm_ptr);
         }
@@ -220,7 +230,7 @@ namespace SLB {
         }
 
         // copy constructor,  
-        Implementation(ClassInfo *ci, const T &ref) : InstanceBase( I_Copy, ci ), _sm_ptr( 0L ), _const_ptr(0)
+        Implementation(ClassInfo *ci, const T &ref) : InstanceBase( I_MustFreeMem, ci ), _sm_ptr( 0L ), _const_ptr(0)
         {
           _sm_ptr = new (Malloc(sizeof(T))) T( ref );
           _const_ptr = &(*_sm_ptr);
@@ -245,7 +255,7 @@ namespace SLB {
       class Implementation : public virtual InstanceBase
       {
       public:
-        Implementation(ClassInfo *ci, T* ptr, bool) : InstanceBase( I_Pointer, ci ), _sm_ptr(ptr)
+        Implementation(ClassInfo *ci, T* ptr) : InstanceBase( I_Pointer, ci ), _sm_ptr(ptr)
         {
           _const_ptr = &(*_sm_ptr);
         }
@@ -283,7 +293,7 @@ namespace SLB {
       class Implementation : public virtual InstanceBase
       {
       public:
-        Implementation(ClassInfo *ci, T* ptr, bool) : InstanceBase( I_Pointer, ci ), _sm_ptr(ptr)
+        Implementation(ClassInfo *ci, T* ptr) : InstanceBase( I_Pointer, ci ), _sm_ptr(ptr)
         {
           _const_ptr = &(*_sm_ptr);
         }
@@ -324,7 +334,7 @@ namespace SLB {
     // create an Instance from a reference
     virtual InstanceBase *create_ref(Manager *m, void *ref) = 0;
     // create an Instance from a pointer
-    virtual InstanceBase *create_ptr(Manager *m, void *ptr, bool fromConstructor = false) = 0;
+    virtual InstanceBase *create_ptr(Manager *m, void *ptr) = 0;
     // create an Instance from a const pointer
     virtual InstanceBase *create_const_ptr(Manager *m, const void *const_ptr) = 0;
     // create an Instance with copy
@@ -343,11 +353,11 @@ namespace SLB {
       return new (Malloc(sizeof(TInstance))) TInstance(ci, ref);
     }
 
-    virtual InstanceBase *create_ptr(Manager *m, void *v_ptr, bool fromConstructor )
+    virtual InstanceBase *create_ptr(Manager *m, void *v_ptr)
     {
       T *ptr = reinterpret_cast<T*>(v_ptr);
       ClassInfo *ci = m->getClass(_TIW(T));
-      return new (Malloc(sizeof(TInstance))) TInstance(ci, ptr, fromConstructor);
+      return new (Malloc(sizeof(TInstance))) TInstance(ci, ptr);
     }
 
     virtual InstanceBase *create_const_ptr(Manager *m, const void *v_ptr)

@@ -6,11 +6,13 @@ config = {
     location = "build/",
     target = "build/bin/",
     debug_level = 5,
+    valgrind = true,
 }
 
-if _ACTION == "test" then
+function run_tests(program_prefix)
     print("RUNNING TESTS...........")
     local count, failed = 0,0
+    local failed_tests = ""
     for k,v in pairs(os.matchfiles("tests/scripts/*.lua")) do
         count = count +1
         print("\n")
@@ -18,12 +20,13 @@ if _ACTION == "test" then
         print("***************************************************************")
         print("** Running Test: ("..k..")",v)
         print("***************************************************************")
-        if os.execute("build/bin/SLB-test "..v) ~= 0 then 
+        if os.execute(program_prefix.." build/bin/SLB-test "..v) ~= 0 then 
             print("***************************************************************")
             print("** FAIL:", v)
             print("***************************************************************")
             print("_______________________________________________________________")
             failed = failed +1
+            failed_tests = failed_tests..v.."\n"
         else
             print("***************************************************************")
             print("** OK:", v)
@@ -32,7 +35,19 @@ if _ACTION == "test" then
         end 
     end
     print("RESULTS: total tests:",count," failed: ", failed)
+    if failed > 0 then
+        print("Failed tests:")
+        print(failed_tests)
+    end
     os.exit(0)
+end
+
+if _ACTION == "test" then
+    if config.valgrind then
+        run_tests("valgrind --leak-check=full -v")
+    else
+        run_tests("")
+    end
 end
 
 solution "SLB"
@@ -72,6 +87,10 @@ project "SLB-static-verbose"
 project "SLB-test"
     kind "ConsoleApp"
     files { "tests/src/*.cpp", "tests/src/*.h" }
+    if config.valgrind then
+        defines {"USE_VALGRIND=1"}
+        includedirs {"/opt/local/include"}
+    end
     defines { "SLB_DEBUG_LEVEL="..config.debug_level }
     links "SLB-static-verbose"
 

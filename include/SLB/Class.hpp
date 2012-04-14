@@ -361,7 +361,7 @@ namespace SLB {
   template<typename T,  typename W>
   inline Class<T,W> &Class<T,W>::constructor()
   {
-    _class->setConstructor( FuncCall::classConstructor<T>() );
+    _class->setConstructor( FuncCall::defaultClassConstructor<T>() );
     return *this;
   }
 
@@ -469,7 +469,7 @@ namespace SLB {
     template<typename T, typename W> \
     template<class T0 SPP_COMMA_IF(N) SPP_ENUM_D(N, class T)> \
     inline Class<T,W> &Class<T,W>::constructor(){ \
-      FuncCall *fc = FuncCall::classConstructor<T,T0 SPP_COMMA_IF(N) SPP_ENUM_D(N,T)>();\
+      FuncCall *fc = FuncCall::defaultClassConstructor<T,T0 SPP_COMMA_IF(N) SPP_ENUM_D(N,T)>();\
       _class->setConstructor( fc );\
       return *this; \
     } \

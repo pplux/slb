@@ -29,12 +29,13 @@
 #define MAKE_LIB 1
 #define LUA_LIB   1
 #define LUA_CORE  1
+#define lobject_c
+#include "lua/luaconf.h"
 
 #if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
   #define _CRT_SECURE_NO_WARNINGS 1
 #endif
 
-#define lobject_c
 
 /* Headers sorted by dependency */
 #include "lua/lua.h"

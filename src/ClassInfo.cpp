@@ -279,26 +279,12 @@ namespace SLB {
     }
   }
 
-  void ClassInfo::push_ptr(lua_State *L, void *ptr, bool fromConstructor)
+  void ClassInfo::push_ptr(lua_State *L, void *ptr)
   {
     SLB_DEBUG_CALL;
     if (_instanceFactory)
     {
-      pushInstance(L, _instanceFactory->create_ptr(_manager, ptr, fromConstructor) );
-      SLB_DEBUG(7, "Class(%s) push_ptr (from_Constructor %d) -> %p", _name.c_str(), fromConstructor, ptr);
-
-      // if is Hybrid and fromConstructor
-      if (_isHybrid && fromConstructor)
-      {
-        int top = lua_gettop(L);
-        //suppose that this state will hold the Object..
-        HybridBase *hb = SLB::get<HybridBase*>(L,top);
-        if (!hb) assert("Invalid push of hybrid object" && false);
-        if (!hb->isAttached()) hb->attach(L);
-        // check... just in case
-        assert("Invalid lua stack..." && (top == lua_gettop(L)));
-      }
-
+      pushInstance(L, _instanceFactory->create_ptr(_manager, ptr) );
     }
     else
     {
@@ -479,6 +465,19 @@ namespace SLB {
       _constructor->push(L);
       lua_replace(L, 1); // remove ClassInfo table
       lua_call(L, lua_gettop(L)-1 , LUA_MULTRET);
+
+      // if is Hybrid and we just have build a new Instance
+      if (_isHybrid && !lua_isnil(L,-1))
+      {
+        int top = lua_gettop(L);
+        //suppose that this state will hold the Object..
+        HybridBase *hb = SLB::get<HybridBase*>(L,top);
+        if (!hb) assert("Invalid push of hybrid object" && false);
+        if (!hb->isAttached()) hb->attach(L);
+        // check... just in case
+        assert("Invalid lua stack..." && (top == lua_gettop(L)));
+      }
+
       return lua_gettop(L);
     }
     else
