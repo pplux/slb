@@ -104,7 +104,7 @@ namespace SLB {
     Namespace* getGlobals() { return _global.get(); }
 
     /** Returns the classMap with all defined classes */
-    const ClassMap* getClasses() const { return &_classes; }
+    const ClassMap& getClassMap() const { return _classes; }
 
   protected:
 

@@ -58,6 +58,8 @@ namespace SLB {
     // [ -1, +1, - ] will pop a key, and push the value or nil if not found.
     void getCache(lua_State *L);
 
+    const Elements& getElementsMap() const { return _elements; }
+
   protected:
     virtual ~Table();
 

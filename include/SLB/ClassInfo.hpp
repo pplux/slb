@@ -134,6 +134,10 @@ namespace SLB {
 
     BaseProperty* getProperty(const String &key);
 
+    // const getters
+    const BaseClassMap& getBaseClasses() const { return _baseClasses; }
+    const FuncCall* getConstructor() const { return _constructor.get(); }
+
   protected:
     // Class Info are crated using manager->getOrCreateClass()
     ClassInfo(Manager *m, const TypeInfoWrapper &);
