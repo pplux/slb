@@ -28,6 +28,10 @@
 #include <SLB/SLB.hpp>
 #include <iostream>
 
+#if defined(_WIN32) && defined(USE_VALGRIND)
+#undef USE_VALGRIND
+#endif
+
 #ifdef USE_VALGRIND
 #include <valgrind/memcheck.h>
 #endif
@@ -44,8 +48,8 @@ struct TestScript : public SLB::Script {
     if (strcmp(arg, "show_all_classes") == 0) {
       std::cout << "SHOW ALL CLASSES" << std::endl;
       const SLB::Manager *m = SLB::Manager::getInstance(L);
-      const SLB::Manager::ClassMap *map = m->getClasses();
-      for(SLB::Manager::ClassMap::const_iterator i = map->begin(); i != map->end(); ++i) 
+      const SLB::Manager::ClassMap &map = m->getClassMap();
+      for(SLB::Manager::ClassMap::const_iterator i = map.begin(); i != map.end(); ++i) 
       {
         std::cout << "Class TIW=|" << i->first.name() << "|" << std::endl;
         std::cout << "\t realname |" << i->second->getName() <<"|"<< std::endl;
