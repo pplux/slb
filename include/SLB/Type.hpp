@@ -520,40 +520,22 @@ namespace Private {
     {
       SLB_DEBUG_CALL; 
       SLB_DEBUG(6, "Push const std::string& = %s",v.c_str());
-      lua_pushstring(L, v.c_str());
+      lua_pushlstring(L, v.data(), v.size());
     }
 
     static std::string get(lua_State *L, int p)
     {
       SLB_DEBUG_CALL; 
-      const char* v = (const char*) lua_tostring(L,p);
+      size_t len;
+      const char* v = (const char*) lua_tolstring(L,p, &len);
       SLB_DEBUG(6,"Get std::string (pos %d) = %s",p,v);
-      return v;
+      return std::string(v, len);
     }
 
   };
 
-  template<>
-  struct Type<const std::string &>
-  {
-    typedef const std::string GetType;
-    static void push(lua_State *L, const std::string &v)
-    {
-      SLB_DEBUG_CALL; 
-      SLB_DEBUG(6, "Push const std::string& = %s",v.c_str());
-      lua_pushstring(L, v.c_str());
-    }
-
-    // let the compiler do the conversion...
-    static const std::string get(lua_State *L, int p)
-    {
-      SLB_DEBUG_CALL; 
-      const char* v = (const char*) lua_tostring(L,p);
-      SLB_DEBUG(6,"Get std::string (pos %d) = %s",p,v);
-      return std::string(v);
-    }
-
-  };
+  template<> struct Type<std::string&> : public Type<std::string> {};
+  template<> struct Type<const std::string&> : public Type<std::string> {};
 
 
   // Type specialization for <const char*>
