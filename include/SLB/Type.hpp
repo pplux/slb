@@ -270,6 +270,50 @@ namespace Private {
 
   };
 
+  // Type specialization for <char>
+  template<>
+  struct Type<char>
+  {
+    typedef char GetType;
+    static void push(lua_State *L, char v)
+    {
+      SLB_DEBUG_CALL; 
+      SLB_DEBUG(6, "Push char = %d",v);
+      lua_pushinteger(L,v);
+    }
+    static char get(lua_State *L, int p)
+    {
+      SLB_DEBUG_CALL; 
+      char v = (char) lua_tointeger(L,p);
+      SLB_DEBUG(6,"Get char (pos %d) = %d",p,v);
+      return v;
+    }
+  };
+  template<> struct Type<char&> : public Type<char> {};
+  template<> struct Type<const char&> : public Type<char> {};
+
+  // Type specialization for <char>
+  template<>
+  struct Type<unsigned char>
+  {
+    typedef unsigned char GetType;
+    static void push(lua_State *L, unsigned char v)
+    {
+      SLB_DEBUG_CALL; 
+      SLB_DEBUG(6, "Push unsigned char = %d",v);
+      lua_pushinteger(L,v);
+    }
+    static unsigned char get(lua_State *L, int p)
+    {
+      SLB_DEBUG_CALL; 
+      unsigned char v = (unsigned char) lua_tointeger(L,p);
+      SLB_DEBUG(6,"Get unsigned char (pos %d) = %d",p,v);
+      return v;
+    }
+  };
+  template<> struct Type<unsigned char&> : public Type<unsigned char> {};
+  template<> struct Type<const unsigned char&> : public Type<unsigned char> {};
+
   // Type specialization for <short>
   template<>
   struct Type<short>
