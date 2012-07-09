@@ -590,8 +590,16 @@ namespace Private {
     static void push(lua_State *L, const char* v)
     {
       SLB_DEBUG_CALL; 
-      SLB_DEBUG(6, "Push const char* = %s",v);
-      lua_pushstring(L,v);
+      if (v)
+      {
+        SLB_DEBUG(6, "Push const char* = %s",v);
+        lua_pushstring(L,v);
+      }
+      else
+      {
+        SLB_DEBUG(6, "Push const char* = NULL");
+        lua_pushnil(L);
+      }
     }
 
     static const char* get(lua_State *L, int p)
@@ -611,8 +619,16 @@ namespace Private {
     static void push(lua_State *L, const unsigned char* v)
     {
       SLB_DEBUG_CALL; 
-      SLB_DEBUG(6, "Push const unsigned char* = %s",v);
-      lua_pushstring(L,(const char*)v);
+      if (v)
+      {
+        SLB_DEBUG(6, "Push const unsigned char* = %s",v);
+        lua_pushstring(L,(const char*)v);
+      }
+      else
+      {
+        SLB_DEBUG(6, "Push const unsigned char* = NULL");
+        lua_pushnil(L);
+      }
     }
 
     static const unsigned char* get(lua_State *L, int p)
