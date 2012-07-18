@@ -75,7 +75,19 @@ namespace Private {
   //                n>0   start at top+n (i.e. with objects first parameter is the object)
   //
   //    For each paramter a param_n variable is generated with type Tn
-  #define SLB_GET_PARAMS(N, START) typename SLB::Private::Type<T##N>::GetType param_##N = SLB::Private::Type<T##N>::get(L,N + (START) );
+#ifdef SLB_CHECK_FUNC_ARGUMENTS
+  #define SLB_GET_PARAMS(N, START) \
+  if (!SLB::Private::Type<T##N>::check(L, N + (START))) { \
+    luaL_error(L, "Invalid arg %d (expected %s)",N+(START),_TIW(T##N).name());\
+  }\
+    typename SLB::Private::Type<T##N>::GetType \
+        param_##N = SLB::Private::Type<T##N>::get(L,N + (START) );
+#else
+  #define SLB_GET_PARAMS(N, START) \
+    typename SLB::Private::Type<T##N>::GetType \
+        param_##N = SLB::Private::Type<T##N>::get(L,N + (START) );
+#endif
+
   #define SLB_GET(N,START) \
     if (lua_gettop(L) != N + (START) ) \
     { \

@@ -49,6 +49,11 @@
   #define SLB_EXTERNAL_LUA 0
 #endif
 
+// If you want to speed up things a little define
+// this as 0 and no check will be done.
+#ifndef SLB_CHECK_FUNC_ARGUMENTS
+  #define SLB_CHECK_FUNC_ARGUMENTS 1
+#endif
 
 #if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
   #define SLB_WINDOWS
