@@ -67,6 +67,13 @@ inline T get(lua_State *L, int pos)
   return Private::Type<T>::get(L,pos);
 }
 
+template<class T>
+inline bool check(lua_State *L, int pos)
+{
+  SLB_DEBUG_CALL; 
+  return Private::Type<T>::check(L,pos);
+}
+
 template<class T> 
 inline void setGlobal(lua_State *L, T v, const char *name)
 {

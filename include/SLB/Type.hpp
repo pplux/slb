@@ -50,7 +50,6 @@ namespace Private {
       SLB_DEBUG_CALL; 
       SLB_DEBUG(10,"getClass '%s'", _TIW(T).name());
       ClassInfo *c = SLB::Manager::getInstance(L)->getClass(_TIW(T));
-      if (c == 0) luaL_error(L, "Unknown class %s", _TIW(T).name());
       return c;
     }
 
@@ -65,9 +64,16 @@ namespace Private {
     {
       SLB_DEBUG_CALL; 
       SLB_DEBUG(8,"Get<T=%s>(L=%p, pos = %i)", _TIW(T).name(), L, pos);
-      T* obj = reinterpret_cast<T*>( getClass(L)->get_ptr(L, pos) );  
+      const T* obj = reinterpret_cast<const T*>( getClass(L)->get_const_ptr(L, pos) );  
       SLB_DEBUG(9,"obj = %p", obj);
-      return *obj;
+      return *obj; //<-- copy ---
+    }
+
+    static bool check(lua_State *L, int pos) 
+    {
+      SLB_DEBUG_CALL;
+      ClassInfo *c = SLB::Manager::getInstance(L)->getClass(_TIW(T));
+      return ((c != NULL) && (c->get_const_ptr(L, pos) != NULL));
     }
 
   };
@@ -81,7 +87,6 @@ namespace Private {
       SLB_DEBUG_CALL; 
       SLB_DEBUG(10,"getClass '%s'", _TIW(T).name());
       ClassInfo *c = SLB::Manager::getInstance(L)->getClass(_TIW(T));
-      if (c == 0) luaL_error(L, "Unknown class %s", _TIW(T).name());
       return c;
     }
 
@@ -91,38 +96,11 @@ namespace Private {
       SLB_DEBUG(10,"push '%s' of %p",
           _TIW(T).name(),
           obj);
-
       if (obj == 0)
       {
         lua_pushnil(L);
         return;
       }
-
-      /*TODO Change this for TypeInfoWrapper?
-      const std::type_info &t_T = _TIW(T);
-      const std::type_info &t_obj = _TIW(*obj);
-      
-      assert("Invalid typeinfo!!! (type)" && (&t_T) );
-      assert("Invalid typeinfo!!! (object)" && (&t_obj) );
-
-      if (t_obj != t_T)
-      {
-        //Create TIW
-        TypeInfoWrapper wt_T = _TIW(T);
-        TypeInfoWrapper wt_obj = _TIW(*obj);
-        // check if the internal class exists...
-        ClassInfo *c = SLB::Manager::getInstance(L)->getClass(wt_obj);
-        if ( c ) 
-        {
-          SLB_DEBUG(8,"Push<T*=%s> with conversion from "
-            "T(%p)->T(%p) (L=%p, obj =%p)",
-            c->getName().c_str(), t_obj.name(), t_T.name(),L, obj);
-          // covert the object to the internal class...
-          void *real_obj = SLB::Manager::getInstance(L)->convert( wt_T, wt_obj, obj );
-          c->push_ptr(L, real_obj, fromConstructor);
-          return;
-        }
-      }*/
       // use this class...  
       getClass(L)->push_ptr(L, (void*) obj);
     }
@@ -134,6 +112,12 @@ namespace Private {
       return reinterpret_cast<T*>( getClass(L)->get_ptr(L, pos) );
     }
 
+    static bool check(lua_State *L, int pos) 
+    {
+      SLB_DEBUG_CALL;
+      ClassInfo *c = SLB::Manager::getInstance(L)->getClass(_TIW(T));
+      return ((c != NULL) && (c->get_ptr(L, pos) != NULL));
+    }
   };
   
   template<class T>
@@ -145,7 +129,6 @@ namespace Private {
       SLB_DEBUG_CALL; 
       SLB_DEBUG(10,"getClass '%s'", _TIW(T).name());
       ClassInfo *c = SLB::Manager::getInstance(L)->getClass(_TIW(T));
-      if (c == 0) luaL_error(L, "Unknown class %s", _TIW(T).name());
       return c;
     }
 
@@ -158,26 +141,7 @@ namespace Private {
         lua_pushnil(L);
         return;
       }
-      /*
-      if (_TIW(*obj) != _TIW(T))
-      {
-        //Create TIW
-        TypeInfoWrapper wt_T = _TIW(T);
-        TypeInfoWrapper wt_obj = _TIW(*obj);
-        // check if the internal class exists...
-        ClassInfo *c = SLB::Manager::getInstance(L)->getClass(wt_obj);
-        if ( c ) 
-        {
-          SLB_DEBUG(8,"Push<const T*=%s> with conversion from "
-            "T(%p)->T(%p) (L=%p, obj =%p)",
-            c->getName().c_str(), typeid(*obj).name(), _TIW(T).name(),L, obj);
-          // covert the object to the internal class...
-          const void *real_obj = SLB::Manager::getInstance(L)->convert( wt_T, wt_obj, obj );
-          c->push_const_ptr(L, real_obj);
-          return;
-        }
-      }
-      */
+      
       getClass(L)->push_const_ptr(L, (const void*) obj);
     }
 
@@ -186,6 +150,13 @@ namespace Private {
       SLB_DEBUG_CALL; 
       SLB_DEBUG(10,"get '%s' at pos %d", _TIW(T).name(), pos);
       return reinterpret_cast<const T*>( getClass(L)->get_const_ptr(L, pos) );
+    }
+
+    static bool check(lua_State *L, int pos) 
+    {
+      SLB_DEBUG_CALL;
+      ClassInfo *c = SLB::Manager::getInstance(L)->getClass(_TIW(T));
+      return ((c != NULL) && (c->get_const_ptr(L, pos) != NULL));
     }
 
   };
@@ -206,9 +177,11 @@ namespace Private {
       SLB_DEBUG_CALL; 
       SLB_DEBUG(10,"get '%s' at pos %d", _TIW(T).name(), pos);
       const T* obj = Type<const T*>::get(L,pos);
-      //TODO: remove the _TIW(T).getName() and use classInfo :)
-      if (obj == 0L) luaL_error(L, "Can not get a reference of class %s", _TIW(T).name());
       return *(obj);
+    }
+
+    static bool check(lua_State *L, int pos) {
+      return Type<const T*>::check(L,pos);
     }
 
   };
@@ -222,7 +195,6 @@ namespace Private {
       SLB_DEBUG_CALL; 
       SLB_DEBUG(10,"getClass '%s'", _TIW(T).name());
       ClassInfo *c = SLB::Manager::getInstance(L)->getClass(_TIW(T));
-      if (c == 0) luaL_error(L, "Unknown class %s", _TIW(T).name());
       return c;
     }
 
@@ -238,6 +210,10 @@ namespace Private {
       SLB_DEBUG_CALL; 
       SLB_DEBUG(10,"get '%s' at pos %d", _TIW(T).name(), pos);
       return *(Type<T*>::get(L,pos));
+    }
+
+    static bool check(lua_State *L, int pos) {
+      return Type<T*>::check(L,pos);
     }
 
   };
@@ -268,6 +244,10 @@ namespace Private {
       return 0;
     }
 
+    static bool check(lua_State *L, int pos) {
+      return (lua_islightuserdata(L,pos) != 0);
+    }
+
   };
 
   // Type specialization for <char>
@@ -287,6 +267,10 @@ namespace Private {
       char v = (char) lua_tointeger(L,p);
       SLB_DEBUG(6,"Get char (pos %d) = %d",p,v);
       return v;
+    }
+
+    static bool check(lua_State *L, int pos) {
+      return true; // ... well not tru, check this properly
     }
   };
   template<> struct Type<char&> : public Type<char> {};
@@ -310,6 +294,9 @@ namespace Private {
       SLB_DEBUG(6,"Get unsigned char (pos %d) = %d",p,v);
       return v;
     }
+    static bool check(lua_State *L, int pos) {
+      return true; // ... well not tru, check this properly
+    }
   };
   template<> struct Type<unsigned char&> : public Type<unsigned char> {};
   template<> struct Type<const unsigned char&> : public Type<unsigned char> {};
@@ -331,6 +318,9 @@ namespace Private {
       short v = (short) lua_tointeger(L,p);
       SLB_DEBUG(6,"Get short (pos %d) = %d",p,v);
       return v;
+    }
+    static bool check(lua_State *L, int pos) {
+      return true; // ... well not tru, check this properly
     }
   };
 
@@ -356,6 +346,9 @@ namespace Private {
       SLB_DEBUG(6,"Get unsigned short (pos %d) = %d",p,v);
       return v;
     }
+    static bool check(lua_State *L, int pos) {
+      return true; // ... well not tru, check this properly
+    }
   };
 
   template<> struct Type<unsigned short&> : public Type<unsigned short> {};
@@ -378,6 +371,9 @@ namespace Private {
       int v = (int) lua_tointeger(L,p);
       SLB_DEBUG(6,"Get integer (pos %d) = %d",p,v);
       return v;
+    }
+    static bool check(lua_State *L, int pos) {
+      return true; // ... well not tru, check this properly
     }
   };
 
@@ -402,7 +398,9 @@ namespace Private {
       SLB_DEBUG(6,"Get unsigned integer (pos %d) = %d",p,v);
       return v;
     }
-
+    static bool check(lua_State *L, int pos) {
+      return true; // ... well not tru, check this properly
+    }
   };
 
   template<> struct Type<unsigned int&> : public Type<unsigned int> {};
@@ -426,7 +424,9 @@ namespace Private {
       SLB_DEBUG(6,"Get long (pos %d) = %ld",p,v);
       return v;
     }
-
+    static bool check(lua_State *L, int pos) {
+      return true; // ... well not tru, check this properly
+    }
   };
 
   template<> struct Type<long&> : public Type<long> {};
@@ -452,7 +452,9 @@ namespace Private {
       SLB_DEBUG(6,"Get unsigned long (pos %d) = %lu",p,v);
       return v;
     }
-
+    static bool check(lua_State *L, int pos) {
+      return true; // ... well not tru, check this properly
+    }
   };
 
   template<> struct Type<unsigned long&> : public Type<unsigned long> {};
@@ -477,6 +479,9 @@ namespace Private {
       SLB_DEBUG(6,"Get unsigned long long (pos %d) = %llu",p,v);
       return v;
     }
+    static bool check(lua_State *L, int pos) {
+      return true; // ... well not tru, check this properly
+    }
   };
 
   template<> struct Type<unsigned long long&> : public Type<unsigned long long> {};
@@ -500,7 +505,9 @@ namespace Private {
       SLB_DEBUG(6,"Get double (pos %d) = %f",p,v);
       return v;
     }
-
+    static bool check(lua_State *L, int pos) {
+      return true; // ... well not tru, check this properly
+    }
   };
 
   template<> struct Type<double&> : public Type<double> {};
@@ -525,7 +532,9 @@ namespace Private {
       SLB_DEBUG(6,"Get float (pos %d) = %f",p,v);
       return v;
     }
-
+    static bool check(lua_State *L, int pos) {
+      return true; // ... well not tru, check this properly
+    }
   };
 
   template<> struct Type<float&> : public Type<float> {};
@@ -549,6 +558,9 @@ namespace Private {
       bool v = (lua_toboolean(L,p) != 0);
       SLB_DEBUG(6,"Get bool (pos %d) = %d",p,v);
       return v;
+    }
+    static bool check(lua_State *L, int pos) {
+      return true; // ... well not tru, check this properly
     }
   };
 
@@ -575,7 +587,9 @@ namespace Private {
       SLB_DEBUG(6,"Get std::string (pos %d) = %s",p,v);
       return std::string(v, len);
     }
-
+    static bool check(lua_State *L, int pos) {
+      return (lua_tostring(L,pos) != NULL);
+    }
   };
 
   template<> struct Type<std::string&> : public Type<std::string> {};
@@ -609,7 +623,9 @@ namespace Private {
       SLB_DEBUG(6,"Get const char* (pos %d) = %s",p,v);
       return v;
     }
-
+    static bool check(lua_State *L, int pos) {
+      return (lua_tostring(L,pos) != NULL);
+    }
   };
 
   template<>
@@ -638,7 +654,9 @@ namespace Private {
       SLB_DEBUG(6,"Get const unsigned char* (pos %d) = %s",p,v);
       return v;
     }
-
+    static bool check(lua_State *L, int pos) {
+      return (lua_tostring(L,pos) != NULL);
+    }
   };
 
 }} // end of SLB::Private
