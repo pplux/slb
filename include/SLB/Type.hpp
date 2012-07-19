@@ -116,7 +116,7 @@ namespace Private {
     {
       SLB_DEBUG_CALL;
       ClassInfo *c = SLB::Manager::getInstance(L)->getClass(_TIW(T));
-      return ((c != NULL) && (c->get_ptr(L, pos) != NULL));
+      return (lua_isnil(L,pos) || ((c != NULL) && (c->get_ptr(L, pos) != NULL)));
     }
   };
   
@@ -156,7 +156,7 @@ namespace Private {
     {
       SLB_DEBUG_CALL;
       ClassInfo *c = SLB::Manager::getInstance(L)->getClass(_TIW(T));
-      return ((c != NULL) && (c->get_const_ptr(L, pos) != NULL));
+      return (lua_isnil(L,pos) || ((c != NULL) && (c->get_const_ptr(L, pos) != NULL)));
     }
 
   };
@@ -245,7 +245,7 @@ namespace Private {
     }
 
     static bool check(lua_State *L, int pos) {
-      return (lua_islightuserdata(L,pos) != 0);
+      return (lua_isnil(L,pos) ||(lua_islightuserdata(L,pos) != 0));
     }
 
   };
