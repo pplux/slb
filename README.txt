@@ -86,3 +86,5 @@ SLB uses premake, but it is mainly used for the SLB's development. You are encou
 
 To include SLB as part of your own project, grab the src/ and include/ directories and compile all the .cpp/c files under src/. If SLB is going to be part of a dll on Windows , or a dll itself, then enable the macro declaration SLB_LIBRARY that will properly adjust the SLB_EXPORT macro. 
 
+
+Join the chat at https://gitter.im/pplux/slb
